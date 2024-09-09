@@ -1,3 +1,7 @@
 # davidpineiroxyz
-my website for now
-hee hee
+my website
+
+
+# tech
+- Nix
+- Facilio
