@@ -1,0 +1,19 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{common.html :: headerFragment}">
+    <title id="pageTitle">DavidPineiro | Projects</title>
+</head>
+
+<body>
+<div th:insert="~{common.html :: navBar}"></div>
+
+<h1>Projects</h1>
+
+<a href="/projects/vm">Toy VM With Assembler</a>
+
+</body>
+
+</html>
