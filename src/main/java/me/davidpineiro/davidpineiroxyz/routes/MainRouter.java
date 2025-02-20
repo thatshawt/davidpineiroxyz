@@ -13,9 +13,7 @@ import java.io.IOException;
 public class MainRouter {
 
     @GetMapping("/")
-    public String index(Model model){
-        return "index";
-    }
+    public String index(Model model){return "index";}
 
     @GetMapping("/projects") public String projects(Model model){
         return "projects";
@@ -29,6 +27,8 @@ public class MainRouter {
         return "crudTest";
     }
 
+    @GetMapping("/nf") public String nonFiction(Model model){ return "poetic_nonfiction";}
+
     @GetMapping(
             value = "/resume",
             produces = MediaType.APPLICATION_PDF_VALUE
@@ -36,7 +36,7 @@ public class MainRouter {
     public @ResponseBody byte[] getResume() throws IOException {
         final byte[] resumeFile = ResumeUpdater.getResumeFileData();
 
-        System.out.printf("resume file size: %d byttes\n", resumeFile.length);
+//        System.out.printf("resume file size: %d byttes\n", resumeFile.length);
 
         return resumeFile;
     }
