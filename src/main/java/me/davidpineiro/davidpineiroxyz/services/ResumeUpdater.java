@@ -1,15 +1,13 @@
 package me.davidpineiro.davidpineiroxyz.services;
 
-import me.davidpineiro.davidpineiroxyz.DavidpineiroxyzApplication;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ResumeService {
+public class ResumeUpdater {
 
     //how often the resume var is updated in milliseconds
     private static final long RESUME_RELOAD_DELAY = 1000*60*5;
@@ -64,7 +62,7 @@ public class ResumeService {
         new Thread(() -> {
             while(true){
                 try {
-                    ResumeService.updateResume();
+                    ResumeUpdater.updateResume();
                     Thread.sleep(RESUME_RELOAD_DELAY);
                 } catch (InterruptedException ignored) {
                 }catch (IOException e) {

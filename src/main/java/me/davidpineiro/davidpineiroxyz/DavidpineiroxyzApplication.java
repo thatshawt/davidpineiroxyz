@@ -2,7 +2,7 @@ package me.davidpineiro.davidpineiroxyz;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import me.davidpineiro.davidpineiroxyz.services.ResumeService;
+import me.davidpineiro.davidpineiroxyz.services.ResumeUpdater;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -24,7 +24,7 @@ public class DavidpineiroxyzApplication {
 		final String PLEDGES = null;
 
 		final String[][] UNVEIL_ARGUMENTS =
-				{
+			{
 				{"/root/realwebsite","rxw"},
 
 				{"/usr/lib/libc.so.97.1","rx"},
@@ -34,7 +34,7 @@ public class DavidpineiroxyzApplication {
 				{"/tmp", "rwc"},
 
 				{null, null}
-		};
+			};
 
 		if(System.getProperty("os.name").equalsIgnoreCase("openbsd")){
 			System.out.println("detected OpenBSD.");
@@ -63,7 +63,7 @@ public class DavidpineiroxyzApplication {
 		}
 
 		System.out.println("starting server...");
-		ResumeService.startUpdaterThread();
+		ResumeUpdater.startUpdaterThread();
 		SpringApplication.run(DavidpineiroxyzApplication.class, args);
 	}
 

@@ -1,11 +1,7 @@
 package me.davidpineiro.davidpineiroxyz.routes;
 
-import jakarta.servlet.http.HttpServletResponse;
-import me.davidpineiro.davidpineiroxyz.services.ResumeService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import me.davidpineiro.davidpineiroxyz.services.ResumeUpdater;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,14 +17,16 @@ public class MainRouter {
         return "index";
     }
 
-    @GetMapping("/projects")
-    public String projects(Model model){
+    @GetMapping("/projects") public String projects(Model model){
         return "projects";
     }
 
-    @GetMapping("/projects/vm")
-    public String vmProject(Model model){
+    @GetMapping("/projects/vm") public String vmProject(Model model){
         return "vmProject";
+    }
+
+    @GetMapping("/projects/crud") public String crudProject(Model model){
+        return "crudTest";
     }
 
     @GetMapping(
@@ -36,7 +34,7 @@ public class MainRouter {
             produces = MediaType.APPLICATION_PDF_VALUE
     )
     public @ResponseBody byte[] getResume() throws IOException {
-        final byte[] resumeFile = ResumeService.getResumeFileData();
+        final byte[] resumeFile = ResumeUpdater.getResumeFileData();
 
         System.out.printf("resume file size: %d byttes\n", resumeFile.length);
 

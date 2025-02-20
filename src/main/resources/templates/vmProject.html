@@ -8,103 +8,103 @@
 </head>
 
 <body onload="main()">
-<script type="text/javascript" charset="utf-8" src="/vmProject.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/vmProject.js"></script>
 
-<div th:insert="~{common.html :: navBar}"></div>
+    <div th:insert="~{common.html :: navBar}"></div>
 
-<h1>Interactive VM Example</h1>
-<a target="_blank" href="https://github.com/thatshawt/genes/blob/main/Core/src/xyz/davidpineiro/genes/core/evolution/asm/registerMachine/RegisterMachine.java">Click for VM source code</a><br>
-<button id="hello-button">click me i dare you!</button>
-<br>
+    <h1>Interactive VM Example</h1>
+    <a target="_blank" href="https://github.com/thatshawt/genes/blob/main/Core/src/xyz/davidpineiro/genes/core/evolution/asm/registerMachine/RegisterMachine.java">Click for VM source code</a><br>
+    <button id="hello-button">click me i dare you!</button>
+    <br>
 
-<button id="runUntilHalt">Run program until halt</button>
-<button id="step">Step</button>
-<!--<button id="stepWithBreakpoint">step with breakpoint</button>-->
-<button id="reset">Reset</button>
-<!--<button id="assembleAndLoad">Load program</button>-->
-<button id="clearOutput">Clear output</button>
+    <button id="runUntilHalt">Run program until halt</button>
+    <button id="step">Step</button>
+    <!--<button id="stepWithBreakpoint">step with breakpoint</button>-->
+    <button id="reset">Reset</button>
+    <!--<button id="assembleAndLoad">Load program</button>-->
+    <button id="clearOutput">Clear output</button>
 
-<style>
-table {
-  border-collapse: collapse;
-}
+    <style>
+    table {
+      border-collapse: collapse;
+    }
 
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-}
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+    }
 
-</style>
+    </style>
 
-<p id="ip">ip: 0</p>
-<table>
-    <tr>
-        <th>register</th>
-        <th>0</th>
-        <th>1</th>
-        <th>2</th>
-        <th>3</th>
-        <th>4</th>
-    </tr>
-    <tr>
-        <td>integer</td>
-        <td id="ireg0">0</td>
-        <td id="ireg1">0</td>
-        <td id="ireg2">0</td>
-        <td id="ireg3">0</td>
-        <td id="ireg4">0</td>
-    </tr>
-    <tr>
-        <td>float</td>
-        <td id="freg0">0.0</td>
-        <td id="freg1">0.0</td>
-        <td id="freg2">0.0</td>
-        <td id="freg3">0.0</td>
-        <td id="freg4">0.0</td>
-    </tr>
-    <tr>
-        <td>string</td>
-        <td id="sreg0">""</td>
-        <td id="sreg1">""</td>
-        <td id="sreg2">""</td>
-        <td id="sreg3">""</td>
-        <td id="sreg4">""</td>
-    </tr>
-    <tr>
-        <td>boolean</td>
-        <td id="breg0">false</td>
-        <td id="breg1">false</td>
-        <td id="breg2">false</td>
-        <td id="breg3">false</td>
-        <td id="breg4">false</td>
-    </tr>
-</table>
+    <p id="ip">ip: 0</p>
+    <table>
+        <tr>
+            <th>register</th>
+            <th>0</th>
+            <th>1</th>
+            <th>2</th>
+            <th>3</th>
+            <th>4</th>
+        </tr>
+        <tr>
+            <td>integer</td>
+            <td id="ireg0">0</td>
+            <td id="ireg1">0</td>
+            <td id="ireg2">0</td>
+            <td id="ireg3">0</td>
+            <td id="ireg4">0</td>
+        </tr>
+        <tr>
+            <td>float</td>
+            <td id="freg0">0.0</td>
+            <td id="freg1">0.0</td>
+            <td id="freg2">0.0</td>
+            <td id="freg3">0.0</td>
+            <td id="freg4">0.0</td>
+        </tr>
+        <tr>
+            <td>string</td>
+            <td id="sreg0">""</td>
+            <td id="sreg1">""</td>
+            <td id="sreg2">""</td>
+            <td id="sreg3">""</td>
+            <td id="sreg4">""</td>
+        </tr>
+        <tr>
+            <td>boolean</td>
+            <td id="breg0">false</td>
+            <td id="breg1">false</td>
+            <td id="breg2">false</td>
+            <td id="breg3">false</td>
+            <td id="breg4">false</td>
+        </tr>
+    </table>
 
-<br>
+    <br>
 
-<table>
-    <tr>
-        <th>Program Soure Code</th>
-        <th>Output Thing</th>
-    </tr>
-    <tr>
-        <td><textarea id="programText" rows="30" cols="50">
-; this program will print hello sigma ten times to the console
+    <table>
+        <tr>
+            <th>Program Soure Code</th>
+            <th>Output Thing</th>
+        </tr>
+        <tr>
+            <td><textarea id="programText" rows="30" cols="50">
+    ; this program will print hello sigma ten times to the console
 
-imov ireg0 0
-smov sreg0 "hello sigma"
+    imov ireg0 0
+    smov sreg0 "hello sigma"
 
-:start
-iadd ireg0 ireg0 1
-ieq breg0 ireg0 10
-not breg0 breg0
-syscall 1
-jmplt breg0 :start
-</textarea>
-            <br></td>
-        <td><textarea disabled="true" id="output" rows="30" cols="50"></textarea></td>
-    </tr>
-</table>
+    :start
+    iadd ireg0 ireg0 1
+    ieq breg0 ireg0 10
+    not breg0 breg0
+    syscall 1
+    jmplt breg0 :start
+    </textarea>
+                <br></td>
+            <td><textarea disabled="true" id="output" rows="30" cols="50"></textarea></td>
+        </tr>
+    </table>
 
 </body>
 
