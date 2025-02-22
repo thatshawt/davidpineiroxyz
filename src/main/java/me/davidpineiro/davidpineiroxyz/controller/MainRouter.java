@@ -1,4 +1,4 @@
-package me.davidpineiro.davidpineiroxyz.routes;
+package me.davidpineiro.davidpineiroxyz.controller;
 
 import me.davidpineiro.davidpineiroxyz.services.ResumeUpdater;
 import org.springframework.http.MediaType;

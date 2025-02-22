@@ -34,8 +34,12 @@ public class VmProjectMain {
     static RegisterMachine registerMachine = new RegisterMachine(){
         @Override
         public void resetStateAndLoadProgram(List<Assembler.CompleteInstruction> instructions) {
-            super.resetStateAndLoadProgram(instructions);
-            this.state.sysCallMap.put(1, (state) -> {
+            try {
+                super.resetStateAndLoadProgram(instructions);
+            } catch (InterruptException e) {
+                throw new RuntimeException(e);
+            }
+            this.state.nativeCallMap.put("sys.println", (state) -> {
                 output.setInnerHTML(output.getInnerHTML() + registerMachine.state.sreg[0] + "\n");
             });
         }
@@ -98,7 +102,7 @@ public class VmProjectMain {
 
                 registerMachine.resetStateAndLoadProgram(instructions);
 
-            } catch (RegisterMachine.Assembler.Parser.WrongTypeException ex) {
+            } catch (RegisterMachine.Assembler.Parser.WrongTypeException | RegisterMachine.InterruptException ex) {
                 Window.alert(ex.getMessage());
             }
 //            System.out.println("ran unntil it halted");

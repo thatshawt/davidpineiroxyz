@@ -26,7 +26,6 @@ public class DavidpineiroxyzApplication {
 		final String[][] UNVEIL_ARGUMENTS =
 			{
 				{"/root/realwebsite","rxwc"},
-//				{"/root/realwebsite/","rxw"},
 
 				{"/usr/lib/libc.so.97.1","rx"},
 				{"/usr/local/jdk-17/lib","rx"},
