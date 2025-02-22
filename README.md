@@ -2,7 +2,7 @@
 This is the source code for my website at [davidpineiro.xyz](https://davidpineiro.xyz).
 
 ## devops features
-* Continuous Deployment (to be implemented)
+* Continuous Deployment using NixOS and GitHub:)
 
 ## tech stack
 * Java 17
