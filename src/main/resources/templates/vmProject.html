@@ -89,17 +89,17 @@
         </tr>
         <tr>
             <td><textarea id="programText" rows="30" cols="50">
-    ; this program will print hello sigma ten times to the console
+; this program will print hello sigma ten times to the console
 
-    imov ireg0 0
-    smov sreg0 "hello sigma"
+imov ireg0 0
+smov sreg0 "hello sigma"
 
-    :start
-    iadd ireg0 ireg0 1
-    ieq breg0 ireg0 10
-    not breg0 breg0
-    syscall 1
-    jmplt breg0 :start
+:start
+iadd ireg0 ireg0 1
+ieq breg0 ireg0 10
+not breg0 breg0
+call "sys.println"
+jmplt breg0 :start
     </textarea>
                 <br></td>
             <td><textarea disabled="true" id="output" rows="30" cols="50"></textarea></td>

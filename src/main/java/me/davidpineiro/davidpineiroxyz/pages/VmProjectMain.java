@@ -35,6 +35,7 @@ public class VmProjectMain {
         @Override
         public void resetStateAndLoadProgram(List<Assembler.CompleteInstruction> instructions) {
             try {
+//                System.out.println("reset state and loaded program");
                 super.resetStateAndLoadProgram(instructions);
             } catch (InterruptException e) {
                 throw new RuntimeException(e);
@@ -87,25 +88,31 @@ public class VmProjectMain {
         });
 
         runUntilHaltButton.listenClick(e -> {
-//            System.out.println("idk anytmore");
+            System.out.println("run unti halt clicked");
             try {
+                System.out.println("grabbing program from html element");
                 final String programTextStuff = programText.getValue();
 //                Window.alert(programTextStuff);
 
+                System.out.println("about to lex the program...");
                 List<RegisterMachine.Assembler.Lexer.Token> tokens =
                         RegisterMachine.Assembler.Lexer.lex(programTextStuff);
+                System.out.printf("tokens: %s\n", tokens);
 
+                System.out.println("about to parse the tokens...");
                 List<RegisterMachine.Assembler.CompleteInstruction> instructions =
                         RegisterMachine.Assembler.Parser.parse(tokens);
 
-                System.out.println(instructions);
+                System.out.printf("instructions: %s\n", instructions);
 
+                System.out.printf("resetStateAndLoadProgram...\n");
                 registerMachine.resetStateAndLoadProgram(instructions);
 
             } catch (RegisterMachine.Assembler.Parser.WrongTypeException | RegisterMachine.InterruptException ex) {
+                System.out.printf("error...\n");
                 Window.alert(ex.getMessage());
             }
-//            System.out.println("ran unntil it halted");
+            System.out.println("ran unntil it halted");
             registerMachine.stepUntilHalt();
             updateValues();
         });
@@ -117,6 +124,6 @@ public class VmProjectMain {
     }
 
     private static void sayHello() {
-        Window.alert("hello my friend");
+        Window.alert("hello my sigma");
     }
 }

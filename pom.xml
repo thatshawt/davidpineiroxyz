@@ -91,11 +91,11 @@
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.github.seahen</groupId>
-			<artifactId>maven-s3-wagon</artifactId>
-			<version>1.3.3</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.github.seahen</groupId>-->
+<!--			<artifactId>maven-s3-wagon</artifactId>-->
+<!--			<version>1.3.3</version>-->
+<!--		</dependency>-->
 
 		<!-- https://mvnrepository.com/artifact/org.teavm/teavm-core -->
 		<dependency>
@@ -179,6 +179,7 @@
 <!--							<mainPageIncluded>true</mainPageIncluded>-->
 <!--							<debugInformationGenerated>true</debugInformationGenerated>-->
 <!--							<sourceMapsGenerated>true</sourceMapsGenerated>-->
+<!--								<minifying>false</minifying>-->
 							<targetFileName>vmProject.js</targetFileName>
 						</configuration>
 					</execution>
@@ -224,10 +225,15 @@
 		</plugins>
 
 		<extensions>
+<!--			<extension>-->
+<!--				<groupId>com.github.seahen</groupId>-->
+<!--				<artifactId>maven-s3-wagon</artifactId>-->
+<!--				<version>1.3.3</version>-->
+<!--			</extension>-->
 			<extension>
-				<groupId>com.github.seahen</groupId>
+				<groupId>com.allogy.maven.wagon</groupId>
 				<artifactId>maven-s3-wagon</artifactId>
-				<version>1.3.3</version>
+				<version>1.2.0</version>
 			</extension>
 		</extensions>
 	</build>
