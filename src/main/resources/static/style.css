@@ -19,13 +19,22 @@ html{
 body{
     background: #121212;
     color: rgba(255, 255, 255, 0.76);
-    position: absolute;
-    top: 10px;
+    /* position: absolute; */
+    /* top: 10px;
     bottom: 20px;
-    width: 99%;
+    width: 99%; */
     font-family: "LibreBaskerville", serif;
     font-size: 30px;
-    margin-left: 10px;
+    /* margin-left: 10px; */
+    max-width:1200px;
+		margin:0 auto;
+}
+
+pre {
+  white-space: pre-wrap;    /* Wraps text instead of overflowing */
+  word-break: break-word;   /* Breaks long words if needed */
+  max-width: 100%;          /* Prevents going off the page */
+  overflow-wrap: anywhere;  /* Ensures very long tokens break */
 }
 
 h1 {

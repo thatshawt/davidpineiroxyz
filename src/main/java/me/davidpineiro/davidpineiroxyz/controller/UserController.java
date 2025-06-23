@@ -15,28 +15,28 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/x/user")
+    @GetMapping("/api/user")
     public ResponseEntity<List<User>> getAllUsers(){
         return ResponseEntity.ok().body(userService.getAllUsers());
     }
 
-    @GetMapping("/x/user/{id}")
+    @GetMapping("/api/user/{id}")
     public ResponseEntity<User> getUserById(@PathVariable long id){
         return ResponseEntity.ok().body(userService.getUserById(id));
     }
 
-    @PostMapping("/x/user")
+    @PostMapping("/api/user")
     public ResponseEntity<User> createUser(@RequestBody User user){
         return ResponseEntity.ok().body(userService.createUser(user));
     }
 
-    @PutMapping("/x/user/{id}")
+    @PutMapping("/api/user/{id}")
     public ResponseEntity<User> updateUser(@PathVariable long id, @RequestBody User user){
         user.setId(id);
         return ResponseEntity.ok().body(userService.updateUser(user));
     }
 
-    @DeleteMapping("/x/user/{id}")
+    @DeleteMapping("/api/user/{id}")
     public HttpStatus deleteUser(@PathVariable long id){
         userService.deleteUser(id);
         return HttpStatus.OK;
