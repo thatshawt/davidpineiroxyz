@@ -1,5 +1,6 @@
 # davidpineiro.xyz
-This is the source code for my website at [davidpineiro.xyz](https://davidpineiro.xyz).
+This is the source code for my website.
+Its live at [https://davidpineiro.xyz](https://davidpineiro.xyz).
 
 ## devops features
 * Continuous Deployment using NixOS and GitHub:)
