@@ -10,7 +10,7 @@ davidpineiroxyz.com: redbean-3.0.0-original.com
 
 package: clean davidpineiroxyz.com
 	zip -r davidpineiroxyz.com ${BUILD_FILES}
-	chmod +x davidpineiroxyz.com
 
 run: package
+	chmod +x davidpineiroxyz.com
 	bash -c ./davidpineiroxyz.com
