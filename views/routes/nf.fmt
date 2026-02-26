@@ -1,0 +1,34 @@
+{% function block.content() %}
+	<h2>Poetic Fictions(?)</h2>
+    <p>this is a secret page</p>
+
+    <div id="nav-kendrick-shitter">
+        <h3>Kendrick Lamar, I am a shitter.</h3>
+        <p>
+            I am a shitter, who's probably gonna shit again.<br>
+            Lord forgive me, Lord forgive me.<br>
+            I can smell it coming from a mile away.
+        </p>
+        <p>
+            I am skibi, who's probably gonna skib again.<br>
+            Lord forskib me.
+        </p>
+    </div>
+
+    <div id="nav-what-the-blank">
+        <h3>what the ___?</h3>
+        <p>
+            skibidi/rizz/fortnite/?
+        </p>
+    </div>
+
+    <div id="nav-what-the-bars1">
+        <h3>what the bars!?!?</h3>
+        <p>
+            sigma bars skibidi!!!!
+        </p>
+    </div>
+{% end %}
+{% render("common", {title="Projects"}) %}
+
+
