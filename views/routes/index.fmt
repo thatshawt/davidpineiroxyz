@@ -4,8 +4,8 @@
 
 	<h2>My Links</h2>
 	<ul>
+		<li><a target=”_blank” href="/static/resume">Resume</a></li>
 		<li><a target=”_blank” href="https://github.com/thatshawt">github.com/thatshawt</a></li>
-		<li><a target=”_blank” href="/resume">Resume</a></li>
 		<li><a target=”_blank” href="https://www.linkedin.com/in/david-pineiro-2b6369175/">linkedin.com/david-pineiro</a></li>
 	</ul>
 {% end %}
