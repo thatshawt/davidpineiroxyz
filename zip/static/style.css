@@ -37,6 +37,21 @@ pre {
   overflow-wrap: anywhere;  /* Ensures very long tokens break */
 }
 
+/* For most modern browsers (Chrome, Edge, Safari, Firefox, Opera) */
+::selection {
+  /* Change the background color of the highlight */
+  background-color: rgb(255, 255, 115);
+
+  /* Change the color of the highlighted text */
+  color: rgb(255, 143, 143);
+}
+
+/* For compatibility with older Firefox versions */
+::-moz-selection {
+  background-color: rgb(255, 255, 115);
+  color: rgb(255, 143, 143);
+}
+
 h1 {
     font-family: "UbuntuMono", sans-serif;
     color: white;
@@ -52,18 +67,22 @@ h2 {
 hr{
     margin-left:0;
     left: 0px;
-    width: 500px;
+    /* width: 500px; */
 }
 
 a:link {
-  text-decoration: none;
+  text-decoration: dotted;
+  color: rgb(255, 143, 143);
 }
 a:visited {
-  text-decoration: none;
+  text-decoration: dashed;
+  color: rgb(255, 143, 143);
 }
 a:hover {
-  text-decoration: none;
+  text-decoration: underline;
+  color: rgb(255, 143, 143);
 }
 a:active {
-  text-decoration: none;
+  text-decoration: wavy;
+  color: rgb(255, 143, 143);
 }

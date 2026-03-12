@@ -1,0 +1,10 @@
+{% function block.content() %}
+
+    <h1>Dog</h1>
+
+    <img src="/static/android-chrome-512x512.png"></img>
+
+{% end %}
+{% render("common", {title="Projects"}) %}
+
+
