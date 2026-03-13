@@ -1,12 +1,14 @@
 {% function block.content() %}
 	<h1>Backend Spring Boot School Project</h1>
 
+	<p><i>tags:</i> Java, Spring Boot, Linux, NixOS, Systemd, Nginx, REST, MariaDB, UML Diagrams</p>
+
 	<h2>Live Demo Link</h2>
 	<a target="_blank" href="https://backendproject1.davidpineiro.xyz">https://backendproject1.davidpineiro.xyz</a>
 
 	<h2>Summary</h2>
 	<p>
-		The full application (frontend+backend) is a <i>vacation excursion checkout website</i>. A user can choose which place to go and then add excursions. When they are done they can checkout and add everything to theiri cart.
+		The full application (frontend+backend+database) is a <i>vacation excursion checkout website</i>. A user can choose which place to go and then add excursions. When they are done they can checkout and add everything to their cart.
 		<br><br>
 
 		Developed a Spring Boot REST API to support an existing Angular frontend, designing endpoints and DTOs by analyzing the frontend codebase.
@@ -15,52 +17,41 @@
     	Deployed the application using Nginx as a reverse proxy with SSL, and managed the database, frontend, and backend as systemd services on NixOS.
 	</p>
 
-	<h2>Technical Details</h2>
+	<h2>Backend Details</h2>
 	<p>
 		The frontend was not changed at all and only the backend was developed to support the frontend.
-		The backend is a single Java program programmed the Spring Boot framework. There are a few entity classes along with repository classes whose details were gathered from UML diagrams, ER diagrams, and the frontend codebase. The entity classes had approximately a dozen of parameters each. There were a few entity relationships such as one-to-many, many-to-one, one-to-one. Some entites, for example, were User, Cart, and Order.
+		The backend is a single Java program using the Spring Boot framework.
 		<br><br>
 
-		There are a few DTO classes to pass data in JSON for the frontend.
+		There are a few entity classes along with repository classes whose details were gathered from UML diagrams, ER diagrams, and the frontend codebase. The entity classes had approximately a dozen of parameters each. There were a few entity relationships such as one-to-many, many-to-one, one-to-one. Some entites, for example, were User, Cart, and Order.
 		<br><br>
 
-		There is a single service class whose job is to 
+		There are a few DTO classes to pass data in JSON for the frontend that have various parameters. There is a purchase DTO with a customer cart and a set of cart items. There is a purchase response DTO that contains an order tracking number.
 		<br><br>
+
+		The checkout logic is built into a single service class and is exposed via a REST controller. Design of the checkout service and REST controller was done by reading the UML diagrams and the frontend code. The REST controller exposes an API for the frontend to place orders, select excursions, and delete excursions.
+		<br><br>
+
+		There are a couple validation functions to validate the data objects that travel between the frontend and backend.
 	</p>
 
-	<h2>The Full Instructions</h2>
-	<pre>
-		A.   Create a new Java project using Spring Initializr, with each of the following dependencies:
+	<h2>Deployment Details</h2>
+	<p>
+		The deployment was handled solely by me and was an extracurricular activity. The frontend and backend are deployed on the cloud on the same virtual private server (VPS). The frontend, backend, and database are configured as systemd services running on the server.
+		<br><br>
 
-		•    Spring Data JPA (spring-boot starter-data-jpa)
+		The backend is configured as a single systemd service that runs an executable jar file using java. I tried to reduce the memory usage by changing the parameters of the application such as web server threads and java garbage collection arguments which did save a couple hundred megabytes of RAM. Below are the arguments I used:
+<pre>-Dserver.tomcat.max-threads=1
+-XX:MaxRAM=1000m
+-Xss512k
+-XX:+UseSerialGC</pre>
 
-		•    Rest Repositories (spring-boot-starter-data-rest)
+		The frontend is static html, javscript, css, and images compiled using the frontend framework Angular JS. None of the logic of the frontend was modified and only a few links had to be changed to point to the correct domain name. The files are served using Nginx at the "backendproject1" subdomain.
+		<br><br>
 
-		•    MySQL Driver (mysql-connector-java)
-
-		•    Lombok
-
-		C.   Construct four new packages, one for each of the following: controllers, entities, dao, and services. The packages will need to be used for a checkout form and vacations packages list.
-
-
-		D.   Write code for the entities package that includes entity classes and the enum designed to match the UML diagram.
-
-		E.   Write code for the dao package that includes repository interfaces for the entities that extend JpaRepository, and add cross-origin support.
-
-		F.   Write code for the services package that includes each of the following:
-
-		•    a purchase data class with a customer cart and a set of cart items
-
-		•    a purchase response data class that contains an order tracking number
-
-		•    a checkout service interface
-
-		•    a checkout service implementation class
-
-		G.   Write code to include validation to enforce the inputs needed by the Angular front-end.
-
-		H.   Write code for the controllers package that includes a REST controller checkout controller class with a post mapping to place orders.
-	</pre>
+		The database is MariaDB and is managed by me on the same VPS cloud server. The database is managed with various systemd services for resetting the database once a day, populating the database with dummy data, and starting the database. I did try to reduce memory usage for the database as well but I am not sure yet if it is worth it. Anyhow I used the following command line arguments when I call <pre class="inline">mysqld</pre>:
+		<pre>--performance_schema=0</pre>
+	</p>
 {% end %}
 {% render("common", {title="Backend Project 1"}) %}
 

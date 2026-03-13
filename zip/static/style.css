@@ -31,25 +31,30 @@ body{
 }
 
 pre {
-  white-space: pre-wrap;    /* Wraps text instead of overflowing */
-  word-break: break-word;   /* Breaks long words if needed */
-  max-width: 100%;          /* Prevents going off the page */
-  overflow-wrap: anywhere;  /* Ensures very long tokens break */
+  background-color: #424242;
+  /* white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 100%;
+  overflow-wrap: anywhere; */
+}
+
+.inline{
+  display:inline;
 }
 
 /* For most modern browsers (Chrome, Edge, Safari, Firefox, Opera) */
 ::selection {
   /* Change the background color of the highlight */
-  background-color: rgb(255, 255, 115);
+  background-color: rgb(14, 183, 9);
 
   /* Change the color of the highlighted text */
-  color: rgb(255, 143, 143);
+  color: rgb(61, 68, 124);
 }
 
 /* For compatibility with older Firefox versions */
 ::-moz-selection {
-  background-color: rgb(255, 255, 115);
-  color: rgb(255, 143, 143);
+  background-color: rgb(14, 183, 9);
+  color: rgb(61, 68, 124);
 }
 
 h1 {
@@ -71,18 +76,19 @@ hr{
 }
 
 a:link {
-  text-decoration: dotted;
+  text-decoration: underline dotted;
   color: rgb(255, 143, 143);
 }
 a:visited {
-  text-decoration: dashed;
+  /* text-decoration: dashed; */
   color: rgb(255, 143, 143);
+  border-color: hotpink;
 }
 a:hover {
   text-decoration: underline;
   color: rgb(255, 143, 143);
 }
 a:active {
-  text-decoration: wavy;
+  text-decoration: underline;
   color: rgb(255, 143, 143);
 }

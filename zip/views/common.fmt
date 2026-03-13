@@ -1,3 +1,12 @@
+{% function block.navbar() %}
+<div class="navbar">
+	<a href="/">home</a> |
+	<a href="/projects">projects</a> |
+	<a href="/dog"><img style="margin: -8.5px" src="/static/favicon-32x32.png"></img></a>
+		.
+</div>
+{% end %}
+
 <html>
 	<head>
 		<title> DavidP {%& "| "..title or "" %} </title>
@@ -12,18 +21,15 @@
 	</head>
 
 	<body>
-		<div class="navbar">
-			<a href="/">home</a> |
-			<a href="/projects">projects</a> |
-			<a href="/dog"><img style="margin: -8.5px" src="/static/favicon-32x32.png"></img></a>
-			 .
-		</div>
-
+		{% block.navbar() %}
 		<hr>
 
 		<div>
 			{% block.content() %}
 		</div>
+
+		<hr>
+		{% block.navbar() %}
 
 	</body>
 

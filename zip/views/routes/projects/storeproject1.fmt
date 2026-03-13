@@ -1,0 +1,23 @@
+{% function block.content() %}
+	<h1>School Shop Website Project</h1>
+
+	<p><i>tags:</i> Java, Spring Boot, ThymeLeaf, H2, Linux, NixOS, Systemd, Nginx</p>
+
+	<h2>Live Demo Links</h2>
+	<a target="_blank" href="https://shopprojectbefore.davidpineiro.xyz">Application Before Modifications</a>
+	<br>
+	<a target="_blank" href="https://shopprojectafter.davidpineiro.xyz">Application After Modifications</a>
+
+	<h2>Summary</h2>
+	<p>
+		This project was for one of my courses at WGU. I was given a spring boot java project and instructions on what to modify. The modifications included changing the interface text, add an about page, add a "buy now" button, add minimum/maximum inventory fields, add validation for the minimum/maximum, and add at least 2 unit tests for the added fields.
+		<br><br>
+
+		The use of the website is to keep track of inventory of parts and products. A product consumes associated parts. You can register new parts when your business uses new parts or you can update parts and their inventories. A product represents something that you sell and it consumes parts that you have registered. For example, you could register computer parts such as RAM, HDD, SSD, or computer fan. A product would then be a pre-built computer that consumes these parts. When you increase the inventory of a product it reduces each of its associated parts by one to represent the parts being consumed to create the product.
+		<br><br>
+
+		I deployed the before and after applications as jar files onto my cloud VPS which runs the NixOS operating system. The two applications were configured as systemd services. The applications were exposed via Nginx as a reverse proxy. The two applications also save their database to an H2 database although there is a systemd service that resets the two applications and databases every 10 minutes. I also had to register the subdomains with my DNS registrar.
+	</p>
+{% end %}
+{% render("common", {title="School Shop Website Project"}) %}
+
