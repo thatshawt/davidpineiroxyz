@@ -1,6 +1,6 @@
 {% function block.navbar() %}
 <div class="navbar">
-	<a href="/dog"><img style="margin: -8.5px" src="/static/favicon-32x32.png"></img></a> |
+	<a href="/dog"><img style="transform: translateY(8.5px) translateX(8.5px);" src="/static/favicon-32x32.png"></img></a> |
 	<a href="/">home</a> |
 	<a href="/projects">projects</a>
 </div>
