@@ -1,7 +1,7 @@
 {% function block.content() %}
 	<h1>Backend Spring Boot School Project</h1>
 
-	<p><i>tags:</i> Java, Spring Boot, Linux, NixOS, Systemd, Nginx, REST, MariaDB, UML Diagrams</p>
+	<p>tags: <i>Java, Spring Boot, Linux, NixOS, Systemd, Nginx, REST, MariaDB, UML Diagrams</i></p>
 
 	<h2>Live Demo Link</h2>
 	<a target="_blank" href="https://backendproject1.davidpineiro.xyz">https://backendproject1.davidpineiro.xyz</a>

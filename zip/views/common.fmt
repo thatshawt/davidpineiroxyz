@@ -23,7 +23,7 @@
 		{% block.navbar() %}
 		<hr>
 
-		<div>
+		<div class="main-content">
 			{% block.content() %}
 		</div>
 

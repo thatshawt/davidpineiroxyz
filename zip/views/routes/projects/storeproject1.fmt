@@ -1,7 +1,7 @@
 {% function block.content() %}
 	<h1>School Shop Website Project</h1>
 
-	<p><i>tags:</i> Java, Spring Boot, ThymeLeaf, H2, Linux, NixOS, Systemd, Nginx</p>
+	<p>tags: <i>Java, Spring Boot, ThymeLeaf, H2, Linux, NixOS, Systemd, Nginx</i></p>
 
 	<h2>Live Demo Links</h2>
 	<a target="_blank" href="https://shopprojectbefore.davidpineiro.xyz">Application Before Modifications</a>

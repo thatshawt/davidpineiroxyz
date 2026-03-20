@@ -29,6 +29,6 @@
         </p>
     </div>
 {% end %}
-{% render("common", {title="Projects"}) %}
+{% render("common", {title="Poetic Fictions!?"}) %}
 
 

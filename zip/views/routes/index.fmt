@@ -1,12 +1,12 @@
 {% function block.content() %}
-	Hi, my name is <h1 style="display:inline;">David Pineiro</h1>.
+	Hi, my name is <br><h1 style="display:inline;">David Pineiro</h1>.
 	<br>
 
 	<h2>My Links</h2>
 	<ul>
-		<li><a target=”_blank” href="/static/resume.pdf">resume</a></li>
-		<li><a target=”_blank” href="https://github.com/thatshawt">github</a></li>
-		<li><a target=”_blank” href="https://www.linkedin.com/in/david-pineiro-2b6369175/">linkedin</a></li>
+		<li><a target=”_blank” href="/static/resume.pdf">Resume.pdf</a></li>
+		<li><a target=”_blank” href="https://github.com/thatshawt">Github</a></li>
+		<li><a target=”_blank” href="https://www.linkedin.com/in/david-pineiro-2b6369175/">Linkedin</a></li>
 	</ul>
 {% end %}
 {% render("common", {title="Home"}) %}
