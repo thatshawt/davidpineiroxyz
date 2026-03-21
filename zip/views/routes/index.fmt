@@ -1,6 +1,6 @@
 {% function block.content() %}
-	Hi, my name is <br><h1 style="display:inline;">David Pineiro</h1>.
-	<br>
+	<h1>David Pineiro</h1>
+	<!-- <br><br> -->
 
 	<h2>My Links</h2>
 	<ul>

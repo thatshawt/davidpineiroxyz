@@ -1,4 +1,4 @@
-@font-face {
+/* @font-face {
   font-family: 'LibreBaskerville';
   font-style: normal;
   font-weight: 100 400;
@@ -10,24 +10,64 @@
   font-style: normal;
   font-weight: 100 400;
   src: url("/static/UbuntuMono-Regular.ttf") format('ttf');
+} */
+
+@font-face {
+  font-family: 'FunnelSans', sans-serif;
+  font-style: normal;
+  font-weight: 0 400;
+  src: url("/static/FunnelSans-Regular.ttf") format('ttf');
 }
 
-html{
-    font-family: "LibreBaskerville", serif;
+@font-face {
+  font-family: 'FunnelSans', sans-serif;
+  font-style: italic;
+  font-weight: 1 400;
+  src: url("/static/FunnelSans-Italic.ttf") format('ttf');
 }
 
 body{
-    background: #121212;
-    color: rgba(255, 255, 255, 0.76);
-    /* position: absolute; */
-    /* top: 10px;
-    bottom: 20px;
-    width: 99%; */
-    font-family: "LibreBaskerville", serif;
-    font-size: 30px;
-    /* margin-left: 10px; */
-    max-width:1200px;
-		margin:0 auto;
+  /* background-color: #210606; */
+  /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 4 4'%3E%3Cpath fill='%235e5e5e' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E"); */
+  /* background-image: url("/static/dark_exa.png"); */
+  /* background-image: url("/static/simple_dashevd.png"); */
+  background-image: url("/static/darkness.png");
+  /* background-image: url("/static/favicon-32x32.png"); */
+  /* background-color: rgba(0, 0, 0, 0.688);
+  background-blend-mode: darken; */
+  /* opacity: 0.9; */
+
+  background-size: 800px;
+  background-repeat: repeat;
+  color: rgba(255, 255, 255, 0.76);
+  font-family: 'FunnelSans', sans-serif;
+  font-size: 30px;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+div.footer{
+  color: #c3b0b0;
+}
+
+div.navbar {
+  background-color: #301515;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+div.section{
+  background-color: #342424;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+ul{
+  margin: 0px;
 }
 
 pre {
@@ -45,7 +85,7 @@ pre {
 /* For most modern browsers (Chrome, Edge, Safari, Firefox, Opera) */
 ::selection {
   /* Change the background color of the highlight */
-  background-color: rgb(14, 183, 9);
+  background-color: rgb(0, 0, 0);
 
   /* Change the color of the highlighted text */
   color: rgb(61, 68, 124);
@@ -53,21 +93,35 @@ pre {
 
 /* For compatibility with older Firefox versions */
 ::-moz-selection {
-  background-color: rgb(14, 183, 9);
+  background-color: rgb(0, 0, 0);
   color: rgb(61, 68, 124);
 }
 
 h1 {
-    font-family: "UbuntuMono", sans-serif;
-    color: white;
+    font-family: 'FunnelSans', sans-serif;
     font-size: 50px;
+    color: white;
+    margin: 10px;
 }
 
 h2 {
-    font-family: "UbuntuMono", sans-serif;
+    font-family: 'FunnelSans', sans-serif;
     color: white;
     font-size: 40px;
+    margin: 5px;
 }
+
+/* .h1{
+      font-family: 'FunnelSans', sans-serif;
+    font-size: 50px;
+    color: white;
+}
+
+.h2 {
+    font-family: 'FunnelSans', sans-serif;
+    color: white;
+    font-size: 40px;
+} */
 
 hr{
     margin-left:0;
@@ -84,11 +138,14 @@ a:visited {
   color: rgb(255, 143, 143);
   border-color: hotpink;
 }
-a:hover {
+a:hover{
   text-decoration: underline;
+  background-color: rgb(61, 68, 124);
   color: rgb(255, 143, 143);
 }
-a:active {
+
+a:active{
   text-decoration: underline;
+  background-color: rgb(61, 68, 124);
   color: rgb(255, 143, 143);
 }
