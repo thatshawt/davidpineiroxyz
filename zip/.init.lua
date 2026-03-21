@@ -27,4 +27,4 @@ fm.setRoute("/index.html", fm.serveContent("routes/index"))
 -- static files like css and fonts
 fm.setRoute("/static/*", fm.serveAsset)
 
-fm.run({port=8080, addr="127.0.0.1"})
+fm.run()

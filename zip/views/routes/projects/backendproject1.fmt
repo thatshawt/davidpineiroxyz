@@ -1,10 +1,12 @@
 {% function block.content() %}
-	<h1>Backend Spring Boot School Project</h1>
+	<h1>Excursion Checkout Website Backend</h1>
 
 	<p>tags: <i>Java, Spring Boot, Linux, NixOS, Systemd, Nginx, REST, MariaDB, UML Diagrams</i></p>
 
-	<h2>Live Demo Link</h2>
-	<a target="_blank" href="https://backendproject1.davidpineiro.xyz">https://backendproject1.davidpineiro.xyz</a>
+	<h2>Project Links</h2>
+	<ul>
+		<li><a target="_blank" href="https://backendproject1.davidpineiro.xyz">Live Demo</a></li>
+	</ul>
 
 	<h2>Summary</h2>
 	<p>
@@ -53,5 +55,5 @@
 		<pre>--performance_schema=0</pre>
 	</p>
 {% end %}
-{% render("common", {title="Backend Project 1"}) %}
+{% render("common", {title="Excursion Checkout Website Backend"}) %}
 

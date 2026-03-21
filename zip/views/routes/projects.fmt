@@ -3,9 +3,10 @@
 
 	<ul>
 		<li><a href="https://github.com/thatshawt/davidpineiroxyz">Davidpineiro.xyz Website</a></li>
-		<li><a href="/projects/backendproject1">Backend Spring Boot School Project</a></li>
-		<li><a href="/projects/storeproject1">School Shop Website Project</a></li>
-		<li><a href="/projects/schoolai1">Weather Health Risk Numerical Regression</a></li>
+		<li><a href="/projects/backendproject1">Excursion Checkout Website Backend</a></li>
+		<li><a href="/projects/storeproject1">Shop Website Modification</a></li>
+		<li><a href="/projects/weatherai1">Weather Health Risk Numerical Regression</a></li>
+		<li><a href="/projects/studentpassfail">Student Pass/Fail Classifier</a></li>
 	</ul>
 {% end %}
 {% render("common", {title="Projects"}) %}
