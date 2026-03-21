@@ -1,0 +1,29 @@
+{% function block.content() %}
+	<h1>DavidPineiro.xyz Website</h1>
+
+	<p>tags: <i>Linux, NixOS, SystemD, Subdomain, Cloudflare, DNS, SSL, Nginx, Continuous Deployment</i></p>
+
+	<h2>Project Links</h2>
+	<ul>
+		<li><a target="_blank" href="https://davidpineiro.xyz">Live Deployment</a></li>
+		<li><a target="_blank" href="https://github.com/thatshawt/davidpineiroxyz">Source Code</a></li>
+	</ul>
+
+	<h2>Summary</h2>
+	<p>
+		This project showcases the design and deployment of my personal website, hosted on a cloud-based server with a fully automated continuous deployment pipeline. Any changes pushed to GitHub are automatically built and deployed within approximately one minute, ensuring the site remains up to date with minimal manual intervention.
+		<br><br>
+
+		The infrastructure is built on NixOS, where each project is deployed as its own systemd service. When adding a new project, a corresponding subdomain is configured through Cloudflare, and a new service is defined on the server to host it.
+		<br><br>
+
+		Nginx is used as a reverse proxy to route incoming traffic to the appropriate service based on subdomain, enabling clean separation between projects while maintaining a unified domain structure. SSL is handled using Cloudflare-issued certificates, with Nginx configured to terminate HTTPS connections and securely proxy traffic to internal services.
+		<br><br>
+
+		The website itself is built using <a target="_blank" href="https://redbean.dev/">RedBean</a>, a single-file web server and framework. This approach was chosen for its simplicity, portability, and ease of deployment, allowing the entire application to be managed and served with minimal overhead.
+	</p>
+
+
+{% end %}
+{% render("common", {title="DavidPineiro.xyz Website"}) %}
+
