@@ -2,7 +2,8 @@
 <div class="navbar">
 	<a class="badge" style="padding-right: 10px;" href="/dog"><img style="transform: translateY(5.0px) translateX(6.5px);" src="/static/favicon-32x32.png"></img></a> |
 	<a href="/">home</a> |
-	<a href="/projects">projects</a>
+	<a href="/projects">projects</a> |
+	<a href="/fun">fun stuff</a>
 </div>
 {% end %}
 

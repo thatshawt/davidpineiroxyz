@@ -1,0 +1,8 @@
+{% function block.content() %}
+	<h1>Fun Stuff</h1>
+	<ul>
+		<li><a href="/fun/natethesnake">Nate The Snake</a></li>
+		<li><a href="/fun/backyardcarnival">Backyard Carnival of Death</a></li>
+	</ul>
+{% end %}
+{% render("common", {title="Fun Stuff"}) %}
