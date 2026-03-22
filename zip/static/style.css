@@ -27,7 +27,7 @@ testing out the cache again
 }
 
 body{
-  /* background-color: #210606; */
+  background-color: #000000;
   /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 4 4'%3E%3Cpath fill='%235e5e5e' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E"); */
   /* background-image: url("/static/dark_exa.png"); */
   /* background-image: url("/static/simple_dashevd.png"); */
