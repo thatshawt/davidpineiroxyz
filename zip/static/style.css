@@ -1,17 +1,3 @@
-/* @font-face {
-  font-family: 'LibreBaskerville';
-  font-style: normal;
-  font-weight: 100 400;
-  src: url("/static/LibreBaskerville-Regular.ttf") format('ttf');
-}
-testing out the cache again
-@font-face {
-  font-family: 'UbuntuMono';
-  font-style: normal;
-  font-weight: 100 400;
-  src: url("/static/UbuntuMono-Regular.ttf") format('ttf');
-} */
-
 @font-face {
   font-family: 'FunnelSans', sans-serif;
   font-style: normal;
@@ -28,14 +14,7 @@ testing out the cache again
 
 body{
   background-color: #000000;
-  /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 4 4'%3E%3Cpath fill='%235e5e5e' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E"); */
-  /* background-image: url("/static/dark_exa.png"); */
-  /* background-image: url("/static/simple_dashevd.png"); */
   background-image: url("/static/darkness.png");
-  /* background-image: url("/static/favicon-32x32.png"); */
-  /* background-color: rgba(0, 0, 0, 0.688);
-  background-blend-mode: darken; */
-  /* opacity: 0.9; */
 
   background-size: 800px;
   background-repeat: repeat;
