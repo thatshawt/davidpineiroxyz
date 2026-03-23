@@ -21,7 +21,9 @@
 	<h2>Badges</h2>
 	<div>
 		{% block.makeBadge("https://davidpineiro.xyz/", "/static/dog-88-31.gif") %}
+		{% block.makeBadge("https://smokepowered.com/", "https://smokepowered.com/smoke.gif") %}
 		{% block.makeBadge("https://yummypillow.art/", "https://yummypillow.art/buttons/pillow.png") %}
+		{% block.makeBadge("https://bigrat.monster/", "/static/bigrat-88x31.png") %}
 		{% block.makeBadge("https://notnite.com/", "https://notnite.com/buttons/notnite.png") %}
 		{% block.makeBadge("https://fleepy.tv/", "https://fleepy.tv/img/fleepy.png") %}
 		{% block.makeBadge("https://zvava.org/", "https://zvava.org/images/buttons/zvava.org.png") %}
