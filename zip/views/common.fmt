@@ -7,6 +7,17 @@
 </div>
 {% end %}
 
+{% function block.makeBadge(url, image) %}
+	<a target="_blank" href="{%& url %}"><img class="web-badge" src="{%& image %}" alt=""></a>
+{% end %}
+
+{% function block.InnerBoxLinkDesc(url, urltext, bottomText) %}
+<div class="inner-box">
+	<a href={%& url %}>{%& urltext %}</a>
+	{%& bottomText %}
+</div>
+{% end %}
+
 <html>
 	<head>
 		<title> DavidP {%& "| "..title or "" %} </title>

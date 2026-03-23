@@ -1,5 +1,5 @@
 {% function block.content() %}
-	<h1>Nate The Snake</h1>
+	<h1><i>"Nate The Snake"</i></h1>
 
     <h2>My good friend showed me this. This is a copy of the original which is hosted at <a href="https://natethesnake.com">https://natethesnake.com</a>. Full credit goes to the creator of "natethesnake.com"</h2>
 

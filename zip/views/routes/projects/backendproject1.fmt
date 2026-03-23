@@ -43,16 +43,16 @@
 		<br><br>
 
 		The backend is configured as a single systemd service that runs an executable jar file using java. I tried to reduce the memory usage by changing the parameters of the application such as web server threads and java garbage collection arguments which did save a couple hundred megabytes of RAM. Below are the arguments I used:
-<pre>-Dserver.tomcat.max-threads=1
+<code>-Dserver.tomcat.max-threads=1
 -XX:MaxRAM=1000m
 -Xss512k
--XX:+UseSerialGC</pre>
+-XX:+UseSerialGC</code>
 
 		The frontend is static html, javscript, css, and images compiled using the frontend framework Angular JS. None of the logic of the frontend was modified and only a few links had to be changed to point to the correct domain name. The files are served using Nginx at the "backendproject1" subdomain.
 		<br><br>
 
-		The database is MariaDB and is managed by me on the same VPS cloud server. The database is managed with various systemd services for resetting the database once a day, populating the database with dummy data, and starting the database. I did try to reduce memory usage for the database as well but I am not sure yet if it is worth it. Anyhow I used the following command line arguments when I call <pre class="inline">mysqld</pre>:
-		<pre>--performance_schema=0</pre>
+		The database is MariaDB and is managed by me on the same VPS cloud server. The database is managed with various systemd services for resetting the database once a day, populating the database with dummy data, and starting the database. I did try to reduce memory usage for the database as well but I am not sure yet if it is worth it. Anyhow I used the following command line arguments when I call <code class="inline">mysqld</code>:
+		<code>--performance_schema=0</code>
 	</p>
 {% end %}
 {% render("common", {title="Excursion Checkout Website Backend"}) %}

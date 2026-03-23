@@ -1,12 +1,44 @@
 {% function block.content() %}
 	<h1>Projects</h1>
 
+	<p>These are things that I have made. All of them have been deployed onto my cloud VPS with SystemD services, Nginx reverse proxy, and NixOS configurations.</p>
+
 	<ul>
-		<li><a href="/projects/davidpineiroxyz">DavidPineiro.xyz Website</a></li>
-		<li><a href="/projects/backendproject1">Excursion Checkout Website Backend</a></li>
-		<li><a href="/projects/storeproject1">Shop Website Modification</a></li>
-		<li><a href="/projects/weatherai1">Weather Health Risk Numerical Regression</a></li>
-		<li><a href="/projects/studentpassfail">Student Pass/Fail Classifier</a></li>
+		<li>
+			{% block.InnerBoxLinkDesc(
+				"/projects/davidpineiroxyz",
+				"DavidPineiro.xyz Website",
+				"This is my website, which is mostly frontend stuff. It polls for updates from my Github every minute and deploys automatically if it changed."
+				) %}
+		</li>
+		<li>
+			{% block.InnerBoxLinkDesc(
+				"/projects/backendproject1",
+				"Excursion Checkout Website Backend",
+				"I developed a Spring Boot backend for an AngularJS frontend. I host the frontend, backend, and MariaDB database."
+				) %}
+		</li>
+		<li>
+			{% block.InnerBoxLinkDesc(
+				"/projects/storeproject1",
+				"Excursion Checkout Website Backend",
+				[[Modified a website to add various functionality such as a "buy now" button, new fields to a form, server-side validation for the fields, unit tests, and an about page.]]
+				) %}
+		</li>
+		<li>
+			{% block.InnerBoxLinkDesc(
+				"/projects/weatherai1",
+				"Weather Health Risk Numerical Regression",
+				"Developed and trained a machine learning model to predict the health risk of certain weather conditions. A very simple frontend and backend was developed to prove it works."
+				) %}
+		</li>
+		<li>
+			{% block.InnerBoxLinkDesc(
+				"/projects/studentpassfail",
+				"Student Pass/Fail Classifier",
+				"Developed and trained a machine learning model to predict if a student will pass or fail a class. A very simple frontend and backend was developed to prove it works."
+				) %}
+		</li>
 	</ul>
 {% end %}
 {% render("common", {title="Projects"}) %}

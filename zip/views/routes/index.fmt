@@ -1,7 +1,3 @@
-{% function block.makeBadge(url, image) %}
-	<a target=”_blank” href="{%& url %}"><img class="web-badge" src="{%& image %}" alt=""></a>
-{% end %}
-
 {% function block.content() %}
 	<h1>David Pineiro</h1>
 	<p>
@@ -15,9 +11,9 @@
 
 	<h2>My Links</h2>
 	<ul>
-		<li><a target=”_blank” href="/static/resume.pdf">Resume.pdf</a></li>
-		<li><a target=”_blank” href="https://github.com/thatshawt">Github</a></li>
-		<li><a target=”_blank” href="https://www.linkedin.com/in/david-pineiro-2b6369175/">Linkedin</a></li>
+		<li><a target="_blank" href="/static/resume.pdf">Resume.pdf</a></li>
+		<li><a target="_blank" href="https://github.com/thatshawt">Github</a></li>
+		<li><a target="_blank" href="https://www.linkedin.com/in/david-pineiro-2b6369175/">Linkedin</a></li>
 	</ul>
 
 	<hr>
@@ -28,6 +24,7 @@
 		{% block.makeBadge("https://yummypillow.art/", "https://yummypillow.art/buttons/pillow.png") %}
 		{% block.makeBadge("https://notnite.com/", "https://notnite.com/buttons/notnite.png") %}
 		{% block.makeBadge("https://fleepy.tv/", "https://fleepy.tv/img/fleepy.png") %}
+		{% block.makeBadge("https://zvava.org/", "https://zvava.org/images/buttons/zvava.org.png") %}
 		{% block.makeBadge("https://goth.zip/", "https://goth.zip/_astro/button.bccee393_ZrDNs4.webp") %}
 		{% block.makeBadge("https://zptr.cc/", "https://zptr.cc/88x31/webring/zeroptr.png") %}
 		{% block.makeBadge("https://hl2.sh/", "https://hl2.sh/badges/cecilia.png") %}

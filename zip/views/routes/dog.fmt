@@ -1,12 +1,26 @@
 {% function block.content() %}
-
     <div class="inner-box box-red-bg ">
         <h1>Say Hello to <tag style="color:red;">Sukuna</tag></h1>
-        <img class="sukuna" src="/static/android-chrome-512x512.png"></img>
-
+        <img class="sukuna" src="/static/android-chrome-512x512.png" onmouseover="PlaySound('mySound')" onmouseout="StopSound('mySound')">
     </div>
 
+    <audio loop id='mySound' src='https://upload.wikimedia.org/wikipedia/commons/6/6f/Cello_Live_Performance_John_Michel_Tchaikovsky_Violin_Concerto_3rd_MVT_applaused_cut.ogg' >   
+
+    <script>
+        //https://stackoverflow.com/questions/14926306/javascript-play-sound-on-hover-stop-and-reset-on-hoveroff
+        function PlaySound(soundobj) {
+            var thissound = document.getElementById(soundobj);
+            thissound.play();
+        }
+
+        function StopSound(soundobj) {
+            var thissound = document.getElementById(soundobj);
+            thissound.pause();
+            //thissound.currentTime = 0;
+        }
+    </script>
+
 {% end %}
-{% render("common", {title="..."}) %}
+{% render("common", {title="Hello Sukuna"}) %}
 
 

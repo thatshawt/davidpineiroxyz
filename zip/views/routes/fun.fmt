@@ -1,8 +1,17 @@
 {% function block.content() %}
 	<h1>Fun Stuff</h1>
+	<p>These are classic things to read.</p>
 	<ul>
-		<li><a href="/fun/natethesnake">Nate The Snake</a></li>
-		<li><a href="/fun/backyardcarnival">Backyard Carnival of Death</a></li>
+		<li>{% block.InnerBoxLinkDesc(
+				"/fun/natethesnake",
+				"Nate The Snake",
+				"This is a long read, like 1-2 hours. Great story and hilarious ending I highly recommend."
+				) %}
+		<li>{% block.InnerBoxLinkDesc(
+				"/fun/backyardcarnival",
+				"Backyard Carnival of Death",
+				"A classic. Like 5-10 minutes read."
+				) %}
 	</ul>
 {% end %}
 {% render("common", {title="Fun Stuff"}) %}
