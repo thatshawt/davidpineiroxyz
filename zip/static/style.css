@@ -50,7 +50,19 @@ body{
   80% { transform: translate(-1px, -1px) rotate(1deg); }
   90% { transform: translate(1px, 2px) rotate(0deg); }
   100% { transform: translate(1px, -2px) rotate(-1deg); }
-} 
+}
+
+.web-badge{
+  /* scale: 500%; */
+  width: 176px;
+  height: 62px;
+  image-rendering: pixelated;
+
+  &:hover {
+    animation: shake 0.5s;
+    animation-iteration-count: infinite;
+  }
+}
 
 div.footer{
   color: #c3b0b0;
@@ -136,10 +148,9 @@ pre {
   color: rgb(0, 0, 0);
 }
 
-hr{
-    margin-left:0;
-    left: 0px;
-    /* width: 500px; */
+hr {
+    width: 100%;
+    color:aliceblue;
 }
 
 a:link {
