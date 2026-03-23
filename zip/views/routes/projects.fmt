@@ -21,7 +21,7 @@
 		<li>
 			{% block.InnerBoxLinkDesc(
 				"/projects/storeproject1",
-				"Excursion Checkout Website Backend",
+				"Shop Website Modification",
 				[[Modified a website to add various functionality such as a "buy now" button, new fields to a form, server-side validation for the fields, unit tests, and an about page.]]
 				) %}
 		</li>
