@@ -1,6 +1,6 @@
 {% function block.navbar() %}
 <div class="navbar">
-	<a class="badge" style="padding-right: 10px;" href="/dog"><img style="transform: translateY(5.0px) translateX(6.5px);" src="/static/favicon-32x32.png"></img></a> |
+	<a style="padding-right: 15px; padding-top: 8px; padding-bottom: 3px;" href="/dog"><img style="transform: translateY(5.0px) translateX(6.5px);" src="/static/favicon-32x32.png"></img></a> |
 	<a href="/">home</a> |
 	<a href="/projects">projects</a> |
 	<a href="/fun">fun stuff</a>
@@ -28,7 +28,8 @@
 			{% block.content() %}
 		</div>
 
-		{% block.navbar() %}
+		<!-- {% block.navbar() %} -->
+		<br>
 		<div class="footer"><i>David Pineiro 2026</i></div>	
 
 	</body>

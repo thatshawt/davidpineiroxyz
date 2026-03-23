@@ -1,6 +1,13 @@
 {% function block.content() %}
 	<h1>David Pineiro</h1>
-	<!-- <br><br> -->
+	<p>
+		I like programming random things and learning about science and programming.
+	</p>
+
+	<div class="inner-section">
+		ᓚᘏᗢ
+		<video src="/static/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
+	</div>
 
 	<h2>My Links</h2>
 	<ul>

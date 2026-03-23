@@ -13,14 +13,15 @@
 }
 
 body{
-  background-color: #000000;
-  background-image: url("/static/darkness.png");
+  background-color: #111;
+  background-image: url("/static/dark_exa.png");
+  image-rendering: pixelated;
 
-  background-size: 800px;
+  background-size: 66px;
   background-repeat: repeat;
-  color: rgba(255, 255, 255, 0.76);
+  color: rgb(255, 255, 255);
   font-family: 'FunnelSans', sans-serif;
-  font-size: 30px;
+  font-size: 22px;
   max-width:1200px;
   margin:0 auto;
 }
@@ -42,19 +43,43 @@ div.footer{
 }
 
 div.navbar {
-  background-color: #301515;
+  background-color: #165a135e;
+  border-top: 2px solid #2cff00db;
+  border-left: 2px solid #2cff00db;
+  border-right: 2px solid #2cff00db;
   margin-top: 10px;
-  margin-bottom: 10px;
-  margin-left: 0px;
-  margin-right: 0px;
+  /* margin-bottom: 10px; */
+  /* margin-left: 10px;
+  margin-right: 10px; */
+  padding: 10px;
 }
 
 div.section{
-  background-color: #342424;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  margin-left: 10px;
-  margin-right: 10px;
+  background-color: #321436b0;
+  border-bottom: 2px solid #00e7ffd6;
+  border-left: 2px solid #00e7ffd6;
+  border-right: 2px solid #00e7ffd6;
+  /* margin-top: 10px;
+  margin-bottom: 10px; */
+  /* margin-left: 10px;
+  margin-right: 10px; */
+  padding: 10px;
+  display: grid;
+  justify-content: left;
+}
+
+div.inner-section{
+  background-color: #321436b0;
+  border: 2px solid #00e7ffd6;
+  /* margin-top: 10px;
+  margin-bottom: 10px; */
+  /* margin-left: 10px;
+  margin-right: 10px; */
+  padding: 10px;
+  display: grid;
+  justify-content: left;
+  width: fit-content;
+  height: fit-content;
 }
 
 ul{
@@ -75,44 +100,15 @@ pre {
 
 /* For most modern browsers (Chrome, Edge, Safari, Firefox, Opera) */
 ::selection {
-  /* Change the background color of the highlight */
-  background-color: rgb(0, 0, 0);
-
-  /* Change the color of the highlighted text */
-  color: rgb(61, 68, 124);
+  background-color: rgb(255, 252, 72);
+  color: rgb(0, 0, 0);
 }
 
 /* For compatibility with older Firefox versions */
 ::-moz-selection {
-  background-color: rgb(0, 0, 0);
-  color: rgb(61, 68, 124);
+  background-color: rgb(255, 252, 72);
+  color: rgb(0, 0, 0);
 }
-
-h1 {
-    font-family: 'FunnelSans', sans-serif;
-    font-size: 50px;
-    color: white;
-    margin: 10px;
-}
-
-h2 {
-    font-family: 'FunnelSans', sans-serif;
-    color: white;
-    font-size: 40px;
-    margin: 5px;
-}
-
-/* .h1{
-      font-family: 'FunnelSans', sans-serif;
-    font-size: 50px;
-    color: white;
-}
-
-.h2 {
-    font-family: 'FunnelSans', sans-serif;
-    color: white;
-    font-size: 40px;
-} */
 
 hr{
     margin-left:0;
@@ -122,21 +118,21 @@ hr{
 
 a:link {
   text-decoration: underline dotted;
-  color: rgb(255, 143, 143);
+  color: rgb(255, 255, 255);
 }
 a:visited {
   /* text-decoration: dashed; */
-  color: rgb(255, 143, 143);
+  color: rgb(255, 255, 255);
   border-color: hotpink;
 }
 a:hover{
   text-decoration: underline;
-  background-color: rgb(61, 68, 124);
-  color: rgb(255, 143, 143);
+  background-color: white;
+  color: black;
 }
 
 a:active{
   text-decoration: underline;
-  background-color: rgb(61, 68, 124);
-  color: rgb(255, 143, 143);
+  background-color: white;
+  color: black;
 }
