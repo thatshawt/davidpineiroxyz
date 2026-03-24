@@ -18,12 +18,24 @@
 
 	<hr>
 
-	<h2>Badges</h2>
+	<h2>My 88x31 Badges</h2>
 	<div>
+		<p class="inline">Animated (44.1KiB): </p>
 		{% block.makeBadge("https://davidpineiro.xyz/", "/static/dog-88-31.gif") %}
+		<code>&lt;a href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/dog-88-31.gif&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
+
+		<p class="inline">Static (4.7KiB):  </p>
+		{% block.makeBadge("https://davidpineiro.xyz/", "/static/davidp-88x31.png") %}
+		<code>&lt;a href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/davidp-88x31.png&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
+	</div>
+	<h2>Cool Stuff</h2>
+	<div>
+		{% block.makeBadge("https://justine.lol/cosmopolitan/", "/static/cosmopolitan-88x31.png") %}
+		{% block.makeBadge("https://scp-wiki.wikidot.com/", "/static/scp-88x31.gif") %}
 		{% block.makeBadge("https://smokepowered.com/", "https://smokepowered.com/smoke.gif") %}
 		{% block.makeBadge("https://yummypillow.art/", "https://yummypillow.art/buttons/pillow.png") %}
 		{% block.makeBadge("https://bigrat.monster/", "/static/bigrat-88x31.png") %}
+		{% block.makeBadge("https://lunabee.space/", "https://lunabee.space/8831.gif") %}
 		{% block.makeBadge("https://notnite.com/", "https://notnite.com/buttons/notnite.png") %}
 		{% block.makeBadge("https://fleepy.tv/", "https://fleepy.tv/img/fleepy.png") %}
 		{% block.makeBadge("https://zvava.org/", "https://zvava.org/images/buttons/zvava.org.png") %}
