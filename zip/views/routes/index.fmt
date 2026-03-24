@@ -13,24 +13,28 @@
 		<li><a target="_blank" href="https://www.linkedin.com/in/david-pineiro-2b6369175/">Linkedin</a></li>
 	</ul>
 
-	<h2>Cat</h2>
+	<!-- <h2>Cat</h2> -->
 	<div class="inner-box">
-		ᓚᘏᗢ
+		ᓚᘏᗢ &lt;&lt; its a cat
 		<video src="/static/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
 	</div>
 
 	<!-- <hr> -->
 
 	<h2>My 88x31 Badges</h2>
-	<div>
-		<p class="inline">Animated (44.1KiB): </p>
-		{% block.makeBadge("https://davidpineiro.xyz/", "/static/dog-88-31.gif") %}
-		<code>&lt;a href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/dog-88-31.gif&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
+	<ul>
+		<li><div class="inner-box">
+			<h3>Animated (44.1KiB):</h3>
+			{% block.makeBadge("https://davidpineiro.xyz/", "/static/dog-88-31.gif") %}
+			<code>&lt;a href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/dog-88-31.gif&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
+		</div></li>
 
-		<p class="inline">Static (4.7KiB):  </p>
-		{% block.makeBadge("https://davidpineiro.xyz/", "/static/davidp-88x31.png") %}
-		<code>&lt;a href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/davidp-88x31.png&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
-	</div>
+		<li><div class="inner-box">
+			<h3>Static (4.7KiB):</h3>
+			{% block.makeBadge("https://davidpineiro.xyz/", "/static/davidp-88x31.png") %}
+			<code>&lt;a href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/davidp-88x31.png&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
+		</div></li>
+	</ul>
 	<h2>Cool Stuff</h2>
 	<div>
 		{% block.makeBadge("https://justine.lol/cosmopolitan/", "/static/cosmopolitan-88x31.png") %}
