@@ -64,7 +64,7 @@ h2 {
 	cursor: help;
   &:hover {
     animation: shake 0.5s infinite;
-    border: 2px solid #fb0000f2;
+    border: 10px solid black;
   }
 }
 
@@ -109,6 +109,15 @@ div.navbar {
   /* margin-left: 10px;
   margin-right: 10px; */
   padding: 10px;
+}
+
+div.navbar a {
+  color: #5cff00;
+
+  &:hover {
+    background-color: rgb(0, 0, 0);
+    color: #5cff00;
+  }
 }
 
 div.section{
@@ -185,11 +194,15 @@ hr {
     width: 100%;
     color:aliceblue;
 }
-
+/* 
 a[href^="http://"]:after{ 
     content:"\2197";
 }
-a[href^="https://"]:after{ 
+a[href^="https://"]:after{
+    content:"\2197";
+} 
+*/
+a[target^="_blank"]:after{
     content:"\2197";
 }
 
