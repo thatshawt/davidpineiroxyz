@@ -1,13 +1,10 @@
 {% function block.content() %}
 	<h1>David Pineiro</h1>
+	
+	<h2>About Me</h2>
 	<p>
 		I like programming random things and learning about science and programming.
 	</p>
-
-	<div class="inner-box">
-		ᓚᘏᗢ
-		<video src="/static/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
-	</div>
 
 	<h2>My Links</h2>
 	<ul>
@@ -16,7 +13,13 @@
 		<li><a target="_blank" href="https://www.linkedin.com/in/david-pineiro-2b6369175/">Linkedin</a></li>
 	</ul>
 
-	<hr>
+	<h2>Cat</h2>
+	<div class="inner-box">
+		ᓚᘏᗢ
+		<video src="/static/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
+	</div>
+
+	<!-- <hr> -->
 
 	<h2>My 88x31 Badges</h2>
 	<div>
