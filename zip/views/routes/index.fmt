@@ -38,20 +38,23 @@
 	<h2>Cool Stuff</h2>
 	<div>
 		{% block.makeBadge("https://justine.lol/cosmopolitan/", "/static/cosmopolitan-88x31.png") %}
+		{% block.makeBadge("https://molecule31.neocities.org/", "/static/molecule31.gif") %}
 		{% block.makeBadge("https://scp-wiki.wikidot.com/", "/static/scp-88x31.gif") %}
 		{% block.makeBadge("https://smokepowered.com/", "https://smokepowered.com/smoke.gif") %}
 		{% block.makeBadge("https://yummypillow.art/", "https://yummypillow.art/buttons/pillow.png") %}
 		{% block.makeBadge("https://bigrat.monster/", "/static/bigrat-88x31.png") %}
+		{% block.makeBadge("https://corru.observer/", "/static/corru.gif") %}
+		{% block.makeBadge("https://melankorin.net/", "/static/melankorin.gif") %}
 		{% block.makeBadge("https://lunabee.space/", "https://lunabee.space/8831.gif") %}
 		{% block.makeBadge("https://notnite.com/", "https://notnite.com/buttons/notnite.png") %}
 		{% block.makeBadge("https://dimden.dev/", "/static/dimden.gif") %}
 		{% block.makeBadge("https://fleepy.tv/", "https://fleepy.tv/img/fleepy.png") %}
+		{% block.makeBadge("https://msx.horse/", "/static/msx_horse.gif") %}
 		{% block.makeBadge("https://zvava.org/", "https://zvava.org/images/buttons/zvava.org.png") %}
+		{% block.makeBadge("https://libdb.so/", "/static/libdbso.gif") %}
 		{% block.makeBadge("https://goth.zip/", "https://goth.zip/_astro/button.bccee393_ZrDNs4.webp") %}
 		{% block.makeBadge("https://zptr.cc/", "https://zptr.cc/88x31/webring/zeroptr.png") %}
 		{% block.makeBadge("https://hl2.sh/", "https://hl2.sh/badges/cecilia.png") %}
-
-		
 	</div>
 {% end %}
 {% render("common", {title="Home"}) %}
