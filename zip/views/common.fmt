@@ -3,7 +3,7 @@
 	<a style="padding-right: 15px; padding-top: 8px; padding-bottom: 3px;" href="/dog"><img style="transform: translateY(5.0px) translateX(6.5px);" src="/static/favicon-32x32.png" onmouseover="PlayUISound('uisound3-0')"></a> |
 	<a href="/" onmouseover="PlayUISound('uisound3-1')">home</a> |
 	<a href="/projects" onmouseover="PlayUISound('uisound3-2')">projects</a> |
-	<a href="/fun" onmouseover="PlayUISound('uisound3-3')">fun stuff</a>
+	<a href="/readings" onmouseover="PlayUISound('uisound3-3')">readings</a>
 </div>
 {% end %}
 
@@ -77,7 +77,7 @@
 		<div class="footer">
 			<i>
 				David Pineiro 2026, 
-				Server started "{% render("printStartDate") %}".
+				Server Start Time: "{% render("printStartDate") %}".
 			</i>
 		</div>	
 

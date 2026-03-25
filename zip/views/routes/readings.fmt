@@ -1,6 +1,6 @@
 {% function block.content() %}
-	<h1>Fun Stuff</h1>
-	<p>These are classic things to read.</p>
+	<h1>Readings</h1>
+	<p>I pass these glorious readings on to you now.</p>
 	<ul>
 		<li>{% block.InnerBoxLinkDesc(
 				"/fun/natethesnake",
@@ -14,4 +14,4 @@
 				) %}
 	</ul>
 {% end %}
-{% render("common", {title="Fun Stuff"}) %}
+{% render("common", {title="Readings"}) %}
