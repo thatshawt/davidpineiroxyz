@@ -11,11 +11,44 @@
 		<li><a target="_blank" href="/static/resume.pdf">Resume.pdf</a></li>
 		<li><a target="_blank" href="https://github.com/thatshawt">Github</a></li>
 		<li><a target="_blank" href="https://www.linkedin.com/in/david-pineiro-2b6369175/">Linkedin</a></li>
+
+		<li>
+			<div>
+				My Email: <code class="inline" id="code-email"></code>
+				<form id="emailForm" action="" method="">
+					<!-- Turnstile widget with basic configuration -->
+					<button type="submit"><h3>Click For Email</h3></button>
+					<div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}"></div>
+				</form>
+			</div>
+		</li>
+
+		<script>
+			document.getElementById('emailForm').addEventListener('submit', function(event) {
+				event.preventDefault();
+				const formData = new FormData(this);
+
+				fetch('/getEmail', {
+					method: 'POST',
+					body: formData
+				})
+				.then(response => response.json())
+				.then(data => {
+					console.log('Success:', data)
+					if(data.success == "true"){
+						document.getElementById("code-email").textContent = data.email;
+					}
+				})
+				.catch(error => console.error('Error:', error));
+			});
+		</script>
+		
+		
 	</ul>
 
 	<!-- <h2>Cat</h2> -->
 	<div class="inner-box">
-		ᓚᘏᗢ &lt;&lt; its a cat
+		ᓚᘏᗢ &lt;&lt;&lt; it's a cat
 		<video src="/static/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
 	</div>
 
@@ -26,13 +59,13 @@
 		<li><div class="inner-box">
 			<h3>Animated (15.0 KiB):</h3>
 			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.gif") %}
-			<code>&lt;a href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.gif&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
+			<code>&lt;a target="_blank" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.gif&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
 		</div></li>
 
 		<li><div class="inner-box">
 			<h3>Static (3.2 KiB):</h3>
 			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.png") %}
-			<code>&lt;a href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.png&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
+			<code>&lt;a target="_blank" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.png&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
 		</div></li>
 	</ul>
 	<h2>Cool Stuff</h2>

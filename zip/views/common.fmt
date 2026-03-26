@@ -11,10 +11,26 @@
 	<a target="_blank" href="{%& url %}"><img class="web-badge" src="{%& image %}" alt=""></a>
 {% end %}
 
-{% function block.InnerBoxLinkDesc(url, urltext, bottomText) %}
-<div class="inner-box">
-	<a href={%& url %}>{%& urltext %}</a>
-	{%& bottomText %}
+{% function block.InnerBoxLinkDesc(url, urltext, bottomText, unsafe, flex) %}
+<div class="inner-box {%& flex and 'box-flex' or '' %} ">
+	{% if url:sub(1,1) == "/" then %}
+		{% if unsafe == "unsafe" then %}
+			<a href={%& url %}>{%= urltext %}</a>
+		{% else %}
+			<a href={%& url %}>{%& urltext %}</a>
+		{% end %}
+	{% else %}
+		{% if unsafe == "unsafe" then %}
+			<a target="_blank" href={%& url %}>{%= urltext %}</a>
+		{% else %}
+			<a target="_blank" href={%& url %}>{%& urltext %}</a>
+		{% end %}
+	{% end %}
+	{% if unsafe == "unsafe" then %}
+		{%= bottomText %}
+	{% else %}
+		{%& bottomText %}
+	{% end %}
 </div>
 {% end %}
 
@@ -33,6 +49,13 @@
 		<link rel="icon" sizes="32x32" href="/static/favicon-animated-32x32.gif" type="image/gif" >
 
 		<link rel="manifest" href="/static/site.webmanifest">
+
+		<link rel="preconnect" href="https://challenges.cloudflare.com">
+		<script
+			src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+			async
+			defer
+		></script>
 	</head>
 
 	<body>
@@ -77,7 +100,7 @@
 		<div class="footer">
 			<i>
 				David Pineiro 2026, 
-				Server Start Time: "{% render("printStartDate") %}".
+				Server Start Time: "{%& vars.serverStartDate %}".
 			</i>
 		</div>	
 

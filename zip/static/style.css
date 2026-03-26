@@ -145,6 +145,10 @@ div.inner-box{
   height: fit-content;
 }
 
+div.box-flex {
+  display: flex;
+}
+
 div.box-red-bg {
   background-color: #b016166b;
   border: 2px solid #de1919;

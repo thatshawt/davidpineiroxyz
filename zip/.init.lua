@@ -1,65 +1,42 @@
-local function starts_with(str, start)
-   return str:sub(1, #start) == start
-end
-
-local function ends_with(str, ending)
-   return ending == "" or str:sub(-#ending) == ending
-end
-
-local function exec(prog, args, env)
-	reader, writer = assert(unix.pipe())
-	if assert(unix.fork()) == 0 then
-		unix.close(1)
-		unix.dup(writer)
-		unix.close(writer)
-		unix.close(reader)
-		unix.execve(prog, args, env)
-		unix.exit(127)
-	else
-		unix.close(writer)
-
-		returnStr = ""
-
-		while true do
-			data, err = unix.read(reader)
-			if data then
-				if data ~= '' then
-					returnStr = returnStr..data
-				else
-					break
-				end
-			elseif err:errno() ~= EINTR then
-				Log(kLogWarn, tostring(err))
-				break
-			end
-		end
-		assert(unix.close(reader))
-		assert(unix.wait())
-
-		return returnStr
-	end
-end
+local common = require "common"
 
 local fm = require "fullmoon"
 local unix = require 'unix'
 
+
+
 date = assert(unix.commandv('date'))
-local dateString = exec(date)
+local dateString = common.exec(date)
 dateString = dateString:sub(1, #dateString - 1) -- remove last char
 
+devMode = false
+for k,v in pairs(arg) do
+	fm.logInfo(k.." = "..tostring(v))
+	if v == "devmode" then
+		devMode = true
+	end
+end
+
+Log(kLogInfo, "devmode '%s'" % {tostring(devMode)})
 Log(kLogInfo, "got date string '%s'" % {dateString})
 
-fm.setTemplate("printStartDate", dateString)
+if devMode then
+	fm.setTemplateVar("turnstile_key", "1x00000000000000000000AA")
+else
+	fm.setTemplateVar("turnstile_key", "0x4AAAAAACwAfT1Q_QwaUX-3")
+end
+
+fm.setTemplateVar("serverStartDate", dateString)
 
 -- .fmt files loaded from /views/ folder
 local thing = fm.setTemplate({"/views/", fmt = "fmt"})
 
 -- add all the routes .fmt templates from the /views/routes folder
 for k,v in pairs(thing) do
-	fm.logInfo(k.." = "..tostring(v))
-	if starts_with(k, "routes/") then
+	-- fm.logInfo(k.." = "..tostring(v))
+	if common.starts_with(k, "routes/") then
 		local routePath = "/"..k:sub(- (#k - #"routes/"))
-		fm.logInfo("adding route: "..routePath.." -> "..k)
+		-- fm.logInfo("adding route: "..routePath.." -> "..k)
 		fm.setRoute(routePath, fm.serveContent(k))
     end
 end
@@ -69,5 +46,16 @@ fm.setRoute("/index.html", fm.serveContent("routes/index"))
 
 -- static files like css and fonts
 fm.setRoute("/static/*", fm.serveAsset)
+
+-- validate the email cloudlflare turnstile
+fm.setRoute({"/getEmail", method = {"POST"}},
+  function(r)
+	cf_response = tostring(r.params["cf-turnstile-response"]) or ""
+	
+	postResponse = common.validateTurnstileKey(cf_response)
+	
+	fm.logInfo("returned '%s'" % {postResponse})
+	return postResponse
+end)
 
 fm.run()
