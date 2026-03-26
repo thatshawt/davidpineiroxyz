@@ -5,8 +5,8 @@
 
 	<h2>Project Links</h2>
 	<ul>
-		<li><a target="_blank" href="https://davidpineiro.xyz">Live Deployment</a></li>
-		<li><a target="_blank" href="https://github.com/thatshawt/davidpineiroxyz">Source Code</a></li>
+		<li>{% block.link("https://davidpineiro.xyz","Live Deployment") %}</li>
+		<li>{% block.link("https://github.com/thatshawt/davidpineiroxyz", "Source Code") %}</li>
 	</ul>
 
 	<h2>Summary</h2>
@@ -20,7 +20,7 @@
 		Nginx is used as a reverse proxy to route incoming traffic to the appropriate service based on subdomain, enabling clean separation between projects while maintaining a unified domain structure. SSL is handled using Cloudflare-issued certificates, with Nginx configured to terminate HTTPS connections and securely proxy traffic to internal services.
 		<br><br>
 
-		The website itself is built using <a target="blank" href="https://redbean.dev/">RedBean</a>, a single-file web server and framework. This approach was chosen for its simplicity, portability, and ease of deployment, allowing the entire application to be managed and served with minimal overhead.
+		The website itself is built using {% block.link("https://redbean.dev/", "RedBean") %}, a single-file web server and framework. This approach was chosen for its simplicity, portability, and ease of deployment, allowing the entire application to be managed and served with minimal overhead.
 	</p>
 
 

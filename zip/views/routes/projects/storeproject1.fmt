@@ -5,8 +5,8 @@
 
 	<h2>Project Links</h2>
 	<ul>
-		<li><a target="_blank" href="https://shopprojectbefore.davidpineiro.xyz">Live Demo <i>Before</i> Modifications</a></li>
-		<li><a target="_blank" href="https://shopprojectafter.davidpineiro.xyz">Live Demo <i>After</i> Modifications</a></li>
+		<li>{% block.link("https://shopprojectbefore.davidpineiro.xyz", "Live Demo <i>Before</i> Modifications", "unsafe") %}</li>
+		<li>{% block.link("https://shopprojectafter.davidpineiro.xyz", "Live Demo <i>After</i> Modifications", "unsafe") %}</li>
 	</ul>
 
 	<h2>Summary</h2>

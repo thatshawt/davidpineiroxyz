@@ -5,7 +5,7 @@
 
 	<h2>Project Links</h2>
 	<ul>
-		<li><a target="_blank" href="https://backendproject1.davidpineiro.xyz">Live Demo</a></li>
+		<li>{% block.link("https://backendproject1.davidpineiro.xyz", "Live Demo") %}</li>
 	</ul>
 
 	<h2>Summary</h2>
