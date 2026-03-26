@@ -67,7 +67,7 @@ local function validateTurnstileKey(cf_response)
         fetchurl = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
         fetchbody = "secret=%s&response=%s" % {turnstileSecret,cf_response}
 
-        Log(kLogInfo, "fetchurl '%s'" % {fetchurl})
+        Log(kLogInfo, "fetchurl '%s', fetchbody '%s'" % {fetchurl,fetchbody})
 
         status,errOrHeaders,body = Fetch(fetchurl,
             {
