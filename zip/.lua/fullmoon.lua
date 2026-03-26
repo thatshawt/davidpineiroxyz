@@ -349,6 +349,8 @@ end
 
 --[[-- template engine --]]--
 
+local raw = require "raw" or {}
+
 local templates, vars = {}, {}
 local stack, blocks = {}, {}
 -- `blocks` is a table behind proxy tables indexed by actual `block` tables in each template
@@ -386,7 +388,7 @@ local function render(name, opt)
   argerror(templates[name], 1, "(unknown template name '"..tostring(name).."')")
   argerror(not opt or type(opt) == "table", 2, "(table expected)")
   -- assign default parameters, but allow to overwrite
-  local params = {vars = vars, block = setmetatable({[blocks] = name}, metablock)}
+  local params = {vars = vars, raw=raw, block = setmetatable({[blocks] = name}, metablock)}
   local env = getfenv(templates[name].handler)
   -- add "original" template parameters
   for k, v in pairs(rawget(env, org) or {}) do params[k] = v end
@@ -444,6 +446,7 @@ local function setTemplate(name, code, opt)
     local func = tmpl.parser(code, path)
     -- if the parser returns function, use it as is
     -- if it returns some code, then load and use it
+    -- Log(kLogInfo, "loading func '%s'" % {func})
     code = type(func) == "function" and func or assert(load(func, path))
   end
   params.handler = setfenv(code, env)

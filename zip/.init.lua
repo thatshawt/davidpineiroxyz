@@ -3,8 +3,6 @@ local common = require "common"
 local fm = require "fullmoon"
 local unix = require 'unix'
 
-
-
 date = assert(unix.commandv('date'))
 local dateString = common.exec(date)
 dateString = dateString:sub(1, #dateString - 1) -- remove last char
@@ -52,7 +50,7 @@ fm.setRoute({"/getEmail", method = {"POST"}},
   function(r)
 	cf_response = tostring(r.params["cf-turnstile-response"]) or ""
 	
-	postResponse = common.validateTurnstileKey(cf_response)
+	postResponse = common.validateEmailTurnstile(cf_response)
 	
 	-- fm.logInfo("returned '%s'" % {postResponse})
 	return postResponse

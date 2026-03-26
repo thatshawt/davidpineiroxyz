@@ -10,20 +10,18 @@
 			{% block.InnerBoxLinkDesc(
 				"https://github.com/thatshawt/sarra"
 				,"Sarra"
-				,[[<div>
-					I coded a <i>Python</i> script to add modifications to the browser game <a target="_blank" class="inline" href="https://arras.io">arras.io</a>. The modifications are written in <i>C</i>, compile to <i>Web Assembly(WASM)</i>, then get "injected" into the original game code. The original code is replaced with the modified version by <a target="_blank" class="inline" href="https://www.mitmproxy.org/">mitmproxy</a>.
-					</div>]]
+				,[[I coded a <i>Python</i> script to add modifications to the browser game %s. The modifications are written in <i>C</i>, compile to <i>Web Assembly(WASM)</i>, then get "injected" into the original game code. The original code is replaced with the modified version by %s.]]
+				% { raw.link("https://arras.io","arras.io"), raw.link("https://www.mitmproxy.org", "mitmproxy") }
 				,"unsafe")
 			%}
 		</li>
 		<li>
 			{% block.InnerBoxLinkDesc(
-				"https://github.com/thatshawt/ait-david/tree/main/turing2"
-				,"ait-david/turing2"
-				,[[<div>
-					This project mainly served as practice programming in <i>C</i>, <i>Makefile</i>s, <i>SQLite3</i>, <i>GNU's GMP</i>, <i>GNU's MPFR</i>, and <i>Nix</i>. The project is organized into multiple C source and header files to implement <a target="_blank" href="https://arxiv.org/abs/1101.4795">Hector Zenil's CTM Method</a> and to save the results in an SQLite database.
-					</div>]]
-				,"unsafe")
+				"https://github.com/thatshawt/ait-david/tree/main/turing2",
+				"ait-david/turing2",
+				"This project mainly served as practice programming in <i>C</i>, <i>Makefile</i>, <i>SQLite3</i>, <i>GNU's GMP</i>, <i>GNU's MPFR</i>, and <i>Nix</i>. The project is organized into multiple C source and header files to implement %s and to save the results in an SQLite database."
+				% { raw.link("https://arxiv.org/abs/1101.4795", "Hector Zenil\'s CTM Method") },
+				"unsafe")
 			%}
 		</li>
 	</ul>
@@ -37,21 +35,22 @@
 			{% block.InnerBoxLinkDesc(
 				"/projects/davidpineiroxyz",
 				"DavidPineiro.xyz Website",
-				[[<div>This is my website, it is coded with a <i>Lua</i>-based framework named <a target="_blank" href="https://github.com/pkulchenko/fullmoon">Fullmoon</a>, <i>HTML</i>, and <i>CSS</i>. It polls for updates from my Github every minute and deploys automatically if it changed.</div>]]
+				"This is my website, it is coded with a <i>Lua</i>-based framework named %s, <i>HTML</i>, and <i>CSS</i>. It polls for updates from my Github every minute and deploys automatically if it changed."
+				% {raw.link('https://github.com/pkulchenko/fullmoon', 'Fullmoon')}
 				,"unsafe") %}
 		</li>
 		<li>
 			{% block.InnerBoxLinkDesc(
 				"/projects/backendproject1",
 				"Excursion Checkout Website Backend",
-				"<div>I developed a <i>Spring Boot</i> backend for an <i>AngularJS</i> frontend. I host the frontend, backend, and <i>MariaDB</i> database.</div>"
+				"I developed a <i>Spring Boot</i> backend for an <i>AngularJS</i> frontend. I host the frontend, backend, and <i>MariaDB</i> database."
 				,"unsafe") %}
 		</li>
 		<li>
 			{% block.InnerBoxLinkDesc(
 				"/projects/storeproject1",
 				"Shop Website Modification",
-				[[<div>Modified a <i>Spring Boot</i> website to add various functionality such as a "buy now" button, new fields to a form, server-side validation for the fields, unit tests, and an about page.</div>]]
+				[[Modified a <i>Spring Boot</i> website to add various functionality such as a "buy now" button, new fields to a form, server-side validation for the fields, unit tests, and an about page.]]
 				,"unsafe") %}
 		</li>
 	</ul>
@@ -65,14 +64,16 @@
 			{% block.InnerBoxLinkDesc(
 				"/projects/weatherai1",
 				"Weather Health Risk Numerical Regression",
-				[[<div>Developed and trained an <a target="_blank" href="https://xgboosting.com/about/">XGBoost</a> model to predict the health risk of weather conditions. A very simple frontend and backend was developed to prove it works. Evaluated performance using <i>RMSE</i> and <i>MAPE</i>.</div>]]
+				[[Developed and trained an %s model to predict the health risk of weather conditions. A very simple frontend and backend was developed to prove it works. Evaluated performance using <i>RMSE</i> and <i>MAPE</i>.]]
+				% { raw.link("https://xgboosting.com/about/","XGBoost") }
 				,"unsafe") %}
 		</li>
 		<li>
 			{% block.InnerBoxLinkDesc(
 				"/projects/studentpassfail",
 				"Student Pass/Fail Classifier",
-				[[<div>Developed and trained an <a target="_blank" href="https://xgboosting.com/about/">XGBoost</a> model to predict if a student will pass or fail a class. A very simple frontend and backend was developed to prove it works. Evaluated performance using <i>AUC-ROC</i> and <i>F1 score</i>.</div>]]
+				[[Developed and trained an %s model to predict if a student will pass or fail a class. A very simple frontend and backend was developed to prove it works. Evaluated performance using <i>AUC-ROC</i> and <i>F1 score</i>.]]
+				% { raw.link("https://xgboosting.com/about/","XGBoost") }
 				,"unsafe") %}
 		</li>
 	</ul>

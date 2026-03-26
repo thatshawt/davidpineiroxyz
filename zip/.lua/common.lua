@@ -6,6 +6,8 @@ local function ends_with(str, ending)
    return ending == "" or str:sub(-#ending) == ending
 end
 
+local stringtobool={ ["true"]=true, ["false"]=false }
+
 local function exec(prog, args, env)
 	reader, writer = assert(unix.pipe())
 	if assert(unix.fork()) == 0 then
@@ -50,7 +52,7 @@ local emailSecret = Slurp("/zip/emailSecret.txt")
 if emailSecret == Nil then emailSecret = "test@test.test" end
 
 local function validateTurnstileKey(cf_response)
-    successResult = "false"
+    successResult = false
 
     if type(cf_response) == "string" and #cf_response < 2048 then
         -- Log(kLogInfo, "cf validate. doing curl exec. response is %s chars long" % {#cf_response})
@@ -74,22 +76,31 @@ local function validateTurnstileKey(cf_response)
             response = DecodeJson(body)
 
             successResult = response.success and tostring(response.success) or "false"
-            -- Log(kLogInfo, "cf validate. performed curl exec.")
+            -- Log(kLogInfo, "cf validate. performed curl exec. success '%s'" % {response.success})
         else
             Log(kLogInfo, "status %s, errOrHeaders '%s', body '%s'" % {tostring(status), errOrHeaders, tostring(body)})
         end
         
     end
 
-    emailResult = ""
-    if successResult == "true" then
-        emailResult = emailSecret
-    end
-
     response = {
-        success=successResult,
-        email=emailResult
+        success=successResult
     }
+
+    return response
+end
+
+local function validateEmailTurnstile(cf_response)
+    response = validateTurnstileKey(cf_response)
+
+    -- Log(kLogInfo, "success '%s'" % {response.success})
+
+    if response.success == "true" then
+        response.email = emailSecret
+        -- Log(kLogInfo, "emailSecret '%s'" % {emailSecret})
+    else
+        response.email = ""
+    end
 
     return EncodeJson(response)
 end
@@ -98,5 +109,7 @@ return {
     exec=exec,
     starts_with=starts_with,
     ends_with=ends_with,
-    validateTurnstileKey=validateTurnstileKey
+    validateTurnstileKey=validateTurnstileKey,
+    validateEmailTurnstile=validateEmailTurnstile,
+    stringtobool=stringtobool
 }

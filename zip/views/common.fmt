@@ -7,29 +7,21 @@
 </div>
 {% end %}
 
+{% function block.link(url, inner, unsafe) %}
+	{% raw.link(url, inner, unsafe) %}
+{% end %}
+
 {% function block.makeBadge(url, image) %}
-	<a target="_blank" href="{%& url %}"><img class="web-badge" src="{%& image %}" alt=""></a>
+	{% raw.link(url, "<img class='web-badge' src='%s' alt=''>" % {image}, "unsafe") %}
 {% end %}
 
 {% function block.InnerBoxLinkDesc(url, urltext, bottomText, unsafe, flex) %}
-<div class="inner-box {%& flex and 'box-flex' or '' %} ">
-	{% if url:sub(1,1) == "/" then %}
-		{% if unsafe == "unsafe" then %}
-			<a href={%& url %}>{%= urltext %}</a>
-		{% else %}
-			<a href={%& url %}>{%& urltext %}</a>
-		{% end %}
-	{% else %}
-		{% if unsafe == "unsafe" then %}
-			<a target="_blank" href={%& url %}>{%= urltext %}</a>
-		{% else %}
-			<a target="_blank" href={%& url %}>{%& urltext %}</a>
-		{% end %}
-	{% end %}
+<div class="inner-box {%& flex == 'flex' and 'box-flex' or '' %} ">
+	{% Write(raw.link(url, urltext, unsafe)) %}
 	{% if unsafe == "unsafe" then %}
-		{%= bottomText %}
+		<div>{%= bottomText %}</div>
 	{% else %}
-		{%& bottomText %}
+		<div>{%= bottomText %}</div>
 	{% end %}
 </div>
 {% end %}
