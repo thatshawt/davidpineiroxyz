@@ -43,17 +43,11 @@ end
 curl = assert(unix.commandv('curl'))
 Log(kLogInfo, "found curl %s" % {curl})
 
-local turnstileSecret = "1x0000000000000000000000000000000AA"
-if path.exists("/zip/turnstileSecret.txt") then
-    turnstileSecret = slurp("/zip/turnstileSecret.txt")
-    Log(kLogInfo, "found turnstileSecret.txt")
-end
+local turnstileSecret = Slurp("/zip/turnstileSecret.txt")
+if turnstileSecret == Nil then turnstileSecret = "1x0000000000000000000000000000000AA" end
 
-local emailSecret = "test@test.test"
-if path.exists("/zip/emailSecret.txt") then
-    emailSecret = slurp("/zip/emailSecret.txt")
-    Log(kLogInfo, "found emailSecret.txt")
-end
+local emailSecret = Slurp("/zip/emailSecret.txt")
+if emailSecret == Nil then emailSecret = "test@test.test" end
 
 local function validateTurnstileKey(cf_response)
     successResult = "false"
