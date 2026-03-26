@@ -41,6 +41,7 @@ local function exec(prog, args, env)
 end
 
 curl = assert(unix.commandv('curl'))
+Log(kLogInfo, "found curl %s" % {curl})
 
 local turnstileSecret = "1x0000000000000000000000000000000AA"
 if path.exists("/zip/turnstileSecret.txt") then
@@ -58,6 +59,7 @@ local function validateTurnstileKey(cf_response)
     successResult = "false"
 
     if type(cf_response) == "string" and #cf_response < 2048 then
+        Log(kLogInfo, "cf validate. doing curl exec. response is %s chars long" % {#cf_response})
         response = exec(curl , {curl,
         "-d", "secret="..turnstileSecret,
         "-d", "response="..cf_response,
@@ -66,6 +68,7 @@ local function validateTurnstileKey(cf_response)
         response = DecodeJson(response)
 
         successResult = response.success and tostring(response.success) or "false"
+        Log(kLogInfo, "cf validate. performed curl exec.")
     end
 
     emailResult = ""
