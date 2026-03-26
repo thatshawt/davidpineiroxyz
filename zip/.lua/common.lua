@@ -53,15 +53,11 @@ local function validateTurnstileKey(cf_response)
     successResult = "false"
 
     if type(cf_response) == "string" and #cf_response < 2048 then
-        Log(kLogInfo, "cf validate. doing curl exec. response is %s chars long" % {#cf_response})
-        -- response = exec(curl , {curl,
-        -- "-d", "secret="..turnstileSecret,
-        -- "-d", "response="..cf_response,
-        -- "https://challenges.cloudflare.com/turnstile/v0/siteverify"})
+        -- Log(kLogInfo, "cf validate. doing curl exec. response is %s chars long" % {#cf_response})
         fetchurl = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
         fetchbody = "secret=%s&response=%s" % {turnstileSecret,cf_response}
 
-        Log(kLogInfo, "fetchurl '%s', fetchbody '%s'" % {fetchurl,fetchbody})
+        -- Log(kLogInfo, "fetchurl '%s', fetchbody '%s'" % {fetchurl,fetchbody})
 
         status,errOrHeaders,body = Fetch(fetchurl,
             {
@@ -73,12 +69,12 @@ local function validateTurnstileKey(cf_response)
             }
         )
         if status == 200 then
-            Log(kLogInfo, "got status %s body '%s'" % {tostring(status), body})
+            -- Log(kLogInfo, "got status %s body '%s'" % {tostring(status), body})
 
             response = DecodeJson(body)
 
             successResult = response.success and tostring(response.success) or "false"
-            Log(kLogInfo, "cf validate. performed curl exec.")
+            -- Log(kLogInfo, "cf validate. performed curl exec.")
         else
             Log(kLogInfo, "status %s, errOrHeaders '%s', body '%s'" % {tostring(status), errOrHeaders, tostring(body)})
         end

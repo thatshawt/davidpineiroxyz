@@ -54,7 +54,7 @@ fm.setRoute({"/getEmail", method = {"POST"}},
 	
 	postResponse = common.validateTurnstileKey(cf_response)
 	
-	fm.logInfo("returned '%s'" % {postResponse})
+	-- fm.logInfo("returned '%s'" % {postResponse})
 	return postResponse
 end)
 
