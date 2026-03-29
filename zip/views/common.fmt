@@ -1,6 +1,6 @@
 {% function block.navbar() %}
-<div class="navbar">
-	<div id="open-navbar">
+<!-- <div class="navbar"> -->
+	<div class="navbar" id="open-navbar">
 		<div style="display: flex;justify-content: space-between;">
 			<div>
 				<a href="/dog"><img class="navdog" src="/static/favicon-32x32.png" onmouseover="PlayUISound('uisound3-0')"></a>,
@@ -12,10 +12,10 @@
 		</div>
 	</div>
 	
-	<div id="closed-navbar" style="display: none;">
+	<div id="closed-navbar" class="navbar" style="display: none;">
 		<a style="color:rgb(0, 221, 0); justify-content: right; display: grid;" onclick="navbar_open()">Open</a></div>
 	</div>
-</div>
+<!-- </div> -->
 {% end %}
 
 {% function block.link(url, inner, unsafe) %}
@@ -42,7 +42,8 @@
 	<head>
 		<title> DavidP {%& "| "..title or "" %} </title>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0, target-densitydpi=device-dpi">
 
 		<link rel="stylesheet" type="text/css" href="/static/style.css">
 
@@ -116,6 +117,8 @@
 				<code class="inline">Server Start Time: "{%& vars.serverStartDate %}"</code>.
 			</i>
 		</div>	
+
+		<br>
 
 	</body>
 

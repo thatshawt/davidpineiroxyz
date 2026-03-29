@@ -97,10 +97,8 @@ div.footer{
   color: #c3b0b0;
 }
 
-div.navbar {
-  border-top: 2px solid #2cff00db;
-  border-left: 2px solid #2cff00db;
-  border-right: 2px solid #2cff00db;
+.navbar{
+  border: 2px solid #2cff00db;
 
   background-color: #165a135e;
   background-blend-mode: color-dodge;
@@ -112,14 +110,18 @@ div.navbar {
   animation: scrollbg 100s infinite linear;
 
   margin-top: 2px;
-  /* margin-bottom: 10px; */
-  /* margin-left: 10px;
-  margin-right: 10px; */
+  margin-left: auto;
   padding: 10px;
 
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+#closed-navbar {
+  width: fit-content;
+  height: fit-content;
+  justify-content: right;
 }
 
 .navdog{
@@ -144,20 +146,29 @@ button[disabled]{
 
 
 button {
-  background-color: #8c84b5;
-  border: 2px solid #ffffff;
+  border: 2px solid #ffffff7a;
+  background-color: #215a11b5;
+
+  background-blend-mode: color-dodge;
+  background-image: url("/static/dark_exa.png");
+  background-attachment: fixed;
+  background-size: 66px;
+  background-repeat: repeat;
+  
+  animation: scrollbg 100s infinite linear;
+
   /* border-radius: 5px; */
 
-  color: black;
+  color: white;
   font-weight: bold;
   
   /* padding: 8px; */
   margin: 5px;
 
   &:hover{
-    background-color: #8c84b5;
-    border: 2px solid #3800ff;
-    color: black;
+    border: 2px solid #ffffff7a;
+    background-color: #0f2908b5;
+    color: rgb(255, 255, 255);
   }
 }
 
@@ -172,9 +183,13 @@ div.navbar a {
 
 div.section{
   background-color: #321436b0;
+  border: 2px solid #00e7ffd6;
+/*   
   border-bottom: 2px solid #00e7ffd6;
   border-left: 2px solid #00e7ffd6;
-  border-right: 2px solid #00e7ffd6;
+  border-right: 2px solid #00e7ffd6; 
+  */
+
   /* margin-top: 10px;
   margin-bottom: 10px; */
   /* margin-left: 10px;
