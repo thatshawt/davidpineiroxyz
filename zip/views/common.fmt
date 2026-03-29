@@ -1,9 +1,20 @@
 {% function block.navbar() %}
 <div class="navbar">
-	<a style="padding-right: 15px; padding-top: 8px; padding-bottom: 3px;" href="/dog"><img style="transform: translateY(5.0px) translateX(6.5px);" src="/static/favicon-32x32.png" onmouseover="PlayUISound('uisound3-0')"></a> |
-	<a href="/" onmouseover="PlayUISound('uisound3-1')">home</a> |
-	<a href="/projects" onmouseover="PlayUISound('uisound3-2')">projects</a> |
-	<a href="/readings" onmouseover="PlayUISound('uisound3-3')">readings</a>
+	<div id="open-navbar">
+		<div style="display: flex;justify-content: space-between;">
+			<div>
+				<a href="/dog"><img class="navdog" src="/static/favicon-32x32.png" onmouseover="PlayUISound('uisound3-0')"></a>,
+				<a href="/" onmouseover="PlayUISound('uisound3-1')">Home</a>,
+				<a href="/projects" onmouseover="PlayUISound('uisound3-2')">Projects</a>,
+				<a href="/readings" onmouseover="PlayUISound('uisound3-3')">Readings</a>.
+			</div>
+			<div style="word-wrap: break-word;"><a style="color:red; justify-content: right; display: grid;" onclick="navbar_close()">Close</a></div>
+		</div>
+	</div>
+	
+	<div id="closed-navbar" style="display: none;">
+		<a style="color:rgb(0, 221, 0); justify-content: right; display: grid;" onclick="navbar_open()">Open</a></div>
+	</div>
 </div>
 {% end %}
 
@@ -21,7 +32,7 @@
 	{% if unsafe == "unsafe" then %}
 		<div>{%= bottomText %}</div>
 	{% else %}
-		<div>{%= bottomText %}</div>
+		<div>{%& bottomText %}</div>
 	{% end %}
 </div>
 {% end %}
@@ -59,6 +70,17 @@
 		 -->
 
 		<script>
+
+			function navbar_close(){
+				document.getElementById("open-navbar").style = "display:none;";
+				document.getElementById("closed-navbar").style = "";
+			}
+
+			function navbar_open(){
+				document.getElementById("open-navbar").style = "";
+				document.getElementById("closed-navbar").style = "display:none;";
+			}
+
 			//https://stackoverflow.com/questions/14926306/javascript-play-sound-on-hover-stop-and-reset-on-hoveroff
 			function PlayUISound(soundobj) {
 				var thissound = document.getElementById(soundobj);
@@ -87,12 +109,11 @@
 			{% block.content() %}
 		</div>
 
-		<!-- {% block.navbar() %} -->
 		<br>
 		<div class="footer">
 			<i>
-				David Pineiro 2026, 
-				Server Start Time: "{%& vars.serverStartDate %}".
+				<code class="inline">David Pineiro 2026</code>, 
+				<code class="inline">Server Start Time: "{%& vars.serverStartDate %}"</code>.
 			</i>
 		</div>	
 

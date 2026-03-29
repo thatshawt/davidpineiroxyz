@@ -17,13 +17,23 @@
 				My Email: <code class="inline" id="code-email"></code>
 				<form id="emailForm" action="" method="">
 					<!-- Turnstile widget with basic configuration -->
-					<button type="submit"><h3>Click For Email</h3></button>
-					<div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}"></div>
+					<button type="submit" id="emailButton" disabled="true"><h3>Click For Email</h3></button>
+					<div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}" data-callback="turnstileEnable" data-error-callback="turnstileDisable" data-expired-callback="turnstileDisable" data-timeout-callback="turnstileDisable"></div>
 				</form>
 			</div>
 		</li>
 
 		<script>
+			function turnstileEnable(){
+				document.getElementById('emailButton').disabled = false;
+			}
+
+			function turnstileDisable(){
+				document.getElementById('emailButton').disabled = true;
+			}
+
+			turnstileDisable();
+
 			document.getElementById('emailForm').addEventListener('submit', function(event) {
 				event.preventDefault();
 				const formData = new FormData(this);
@@ -37,6 +47,7 @@
 					console.log('Success:', data)
 					if(data.success == "true"){
 						document.getElementById("code-email").textContent = data.email;
+						turnstileDisable();
 					}
 				})
 				.catch(error => console.error('Error:', error));
