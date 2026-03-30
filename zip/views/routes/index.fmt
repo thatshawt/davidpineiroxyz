@@ -70,13 +70,13 @@
 		<li><div class="inner-box">
 			<h3>Animated (15.0 KiB):</h3>
 			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.gif") %}
-			<code>&lt;a target="_blank" rel="noopener noreferrer" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.gif&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
+			<code class="badge-code">&lt;a target="_blank" rel="noopener noreferrer" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.gif&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
 		</div></li>
 
 		<li><div class="inner-box">
 			<h3>Static (3.2 KiB):</h3>
 			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.png") %}
-			<code>&lt;a target="_blank" rel="noopener noreferrer" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.png&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
+			<code class="badge-code">&lt;a target="_blank" rel="noopener noreferrer" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.png&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
 		</div></li>
 	</ul>
 	<h2>Cool Stuff</h2>

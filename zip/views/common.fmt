@@ -1,5 +1,5 @@
 {% function block.navbar() %}
-<!-- <div class="navbar"> -->
+<!-- <div id="desktop-navbar"> -->
 	<div class="navbar" id="open-navbar">
 		<div style="display: flex;justify-content: space-between;">
 			<div>
@@ -8,14 +8,18 @@
 				<a href="/projects" onmouseover="PlayUISound('uisound3-2')">Projects</a>,
 				<a href="/readings" onmouseover="PlayUISound('uisound3-3')">Readings</a>.
 			</div>
-			<div style="word-wrap: break-word;"><a style="color:red; justify-content: right; display: grid;" onclick="navbar_close()">Close</a></div>
+			<div style="word-wrap: break-word;"><a style="font-size: 25px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
 		</div>
 	</div>
 	
 	<div id="closed-navbar" class="navbar" style="display: none;">
-		<a style="color:rgb(0, 221, 0); justify-content: right; display: grid;" onclick="navbar_open()">Open</a></div>
+		<a style="font-size: 25px; color:rgb(255, 255, 255); justify-content: right; display: grid;" onclick="navbar_open()">◀</a></div>
 	</div>
 <!-- </div> -->
+
+<!-- <div id="mobile-navbar">
+	mobile navbar
+</div> -->
 {% end %}
 
 {% function block.link(url, inner, unsafe) %}

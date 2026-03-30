@@ -39,7 +39,7 @@ body{
 
   word-wrap: anywhere;
 
-  max-width:1200px;
+  max-width:1224px;
 
   margin:0 auto;
 }
@@ -87,15 +87,35 @@ h2 {
   height: 62px;
   image-rendering: pixelated;
 
+  padding: 0px;
+
   &:hover {
     animation: shake 0.5s;
     animation-iteration-count: infinite;
   }
 }
 
+@media screen and (max-width: 450px) {
+  .web-badge{
+    width: 145px;
+    height: 51.0795px;
+  }
+}
+
+
+
 div.footer{
   color: #c3b0b0;
 }
+
+/* #mobile-navbar {
+  display: none;
+}
+
+@media screen and (max-width: 450px) {
+  #desktop-navbar {display: none;}
+  #mobile-navbar {display: grid;}
+} */
 
 .navbar{
   border: 2px solid #2cff00db;
@@ -123,6 +143,8 @@ div.footer{
   height: fit-content;
   justify-content: right;
 }
+
+
 
 .navdog{
   transform: translateY(5.0px);
@@ -241,6 +263,12 @@ code {
   max-width: 100%;
 */
   overflow-wrap: anywhere;
+}
+
+.badge-code {
+  max-width: 400px;
+  max-height: 100px;
+  overflow-y: scroll;
 }
 
 .inline{
