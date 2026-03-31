@@ -45,11 +45,16 @@ end
 curl = assert(unix.commandv('curl'))
 Log(kLogInfo, "found curl %s" % {curl})
 
-local turnstileSecret = Slurp("/zip/turnstileSecret.txt")
-if turnstileSecret == Nil then turnstileSecret = "1x0000000000000000000000000000000AA" end
-
-local emailSecret = Slurp("/zip/emailSecret.txt")
-if emailSecret == Nil then emailSecret = "test@test.test" end
+local secrets = Slurp("/zip/secrets.json")
+if secrets == Nil then secrets = {
+        email="test@test.test",
+        linkedin="https://linkedin.com/david",
+        resume="/caca/resume.caca",
+        turnstile_key="1x0000000000000000000000000000000AA"
+    }
+else
+    secrets = DecodeJson(secrets)
+end
 
 local function validateTurnstileKey(cf_response)
     successResult = false
@@ -57,7 +62,7 @@ local function validateTurnstileKey(cf_response)
     if type(cf_response) == "string" and #cf_response < 2048 then
         -- Log(kLogInfo, "cf validate. doing curl exec. response is %s chars long" % {#cf_response})
         fetchurl = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
-        fetchbody = "secret=%s&response=%s" % {turnstileSecret,cf_response}
+        fetchbody = "secret=%s&response=%s" % {secrets.turnstile_key, cf_response}
 
         -- Log(kLogInfo, "fetchurl '%s', fetchbody '%s'" % {fetchurl,fetchbody})
 
@@ -90,16 +95,16 @@ local function validateTurnstileKey(cf_response)
     return response
 end
 
-local function validateEmailTurnstile(cf_response)
+local function validatePrivateInfoTurnstile(cf_response)
     response = validateTurnstileKey(cf_response)
 
     -- Log(kLogInfo, "success '%s'" % {response.success})
 
     if response.success == "true" then
-        response.email = emailSecret
+        response.email = secrets.email
+        response.linkedin = secrets.linkedin
+        response.resume = secrets.resume
         -- Log(kLogInfo, "emailSecret '%s'" % {emailSecret})
-    else
-        response.email = ""
     end
 
     return EncodeJson(response)
@@ -110,6 +115,6 @@ return {
     starts_with=starts_with,
     ends_with=ends_with,
     validateTurnstileKey=validateTurnstileKey,
-    validateEmailTurnstile=validateEmailTurnstile,
+    validatePrivateInfoTurnstile=validatePrivateInfoTurnstile,
     stringtobool=stringtobool
 }

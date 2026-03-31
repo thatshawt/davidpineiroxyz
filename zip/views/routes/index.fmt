@@ -7,20 +7,16 @@
 	</p>
 
 	<h2>My Links</h2>
+	<form id="turnstileForm" action="" method="">
+		<div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}" data-callback="turnstileEnable" data-error-callback="turnstileDisable" data-expired-callback="turnstileDisable" data-timeout-callback="turnstileDisable"></div>
+		<button type="submit" id="emailButton" disabled="true"><h3>Click To Populate</h3></button>
+	</form>
 	<ul>
-		<li><a target="_blank" href="/static/resume.pdf">Resume.pdf</a></li>
-		<li><a target="_blank" href="https://github.com/thatshawt">Github</a></li>
-		<li><a target="_blank" href="https://www.linkedin.com/in/david-pineiro-2b6369175/">Linkedin</a></li>
-
+		<li>GitHub: {%= raw.link("https://github.com/thatshawt", "https://github.com/thatshawt", "unsafe") %}</li>
+		<li>Resume: {%= raw.link("https://foobar", "", "safe", "id='resume' style='display:none;'") %}</li>
+		<li>LinkedIn: {%= raw.link("https://foobar", "", "safe", "id='linkedin' style='display:none;'") %}</li>
 		<li>
-			<div>
-				My Email: <code class="inline" id="code-email"></code>
-				<form id="emailForm" action="" method="">
-					<!-- Turnstile widget with basic configuration -->
-					<button type="submit" id="emailButton" disabled="true"><h3>Click For Email</h3></button>
-					<div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}" data-callback="turnstileEnable" data-error-callback="turnstileDisable" data-expired-callback="turnstileDisable" data-timeout-callback="turnstileDisable"></div>
-				</form>
-			</div>
+			My Email: <pre class="inline" id="email"></pre>
 		</li>
 
 		<script>
@@ -34,11 +30,11 @@
 
 			turnstileDisable();
 
-			document.getElementById('emailForm').addEventListener('submit', function(event) {
+			document.getElementById('turnstileForm').addEventListener('submit', function(event) {
 				event.preventDefault();
 				const formData = new FormData(this);
 
-				fetch('/getEmail', {
+				fetch('/getInfo', {
 					method: 'POST',
 					body: formData
 				})
@@ -46,7 +42,16 @@
 				.then(data => {
 					console.log('Success:', data)
 					if(data.success == "true"){
-						document.getElementById("code-email").textContent = data.email;
+						document.getElementById("email").textContent = data.email;
+
+						document.getElementById("resume").href = data.resume;
+						document.getElementById("resume").textContent = "resume.pdf";
+						document.getElementById("resume").style = "";
+
+						document.getElementById("linkedin").href = data.linkedin;
+						document.getElementById("linkedin").textContent = data.linkedin;
+						document.getElementById("linkedin").style = "";
+
 						turnstileDisable();
 					}
 				})

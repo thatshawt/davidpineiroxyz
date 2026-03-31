@@ -46,11 +46,11 @@ fm.setRoute("/index.html", fm.serveContent("routes/index"))
 fm.setRoute("/static/*", fm.serveAsset)
 
 -- validate the email cloudlflare turnstile
-fm.setRoute({"/getEmail", method = {"POST"}},
+fm.setRoute({"/getInfo", method = {"POST"}},
   function(r)
 	cf_response = tostring(r.params["cf-turnstile-response"]) or ""
 	
-	postResponse = common.validateEmailTurnstile(cf_response)
+	postResponse = common.validatePrivateInfoTurnstile(cf_response)
 	
 	-- fm.logInfo("returned '%s'" % {postResponse})
 	return postResponse
