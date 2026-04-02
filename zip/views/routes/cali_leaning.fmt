@@ -1,0 +1,16 @@
+{% function block.content() %}
+	<h2>california leaning</h2>
+
+    {%=  raw.link("https://soundcloud.com/yungorion05/california-leaning", "soundcloud") %}
+    {%= raw.link("https://www.instagram.com/yungorion/","instagram.com/yungorion") %}
+
+    <p>all the lean is pink!!!</p>
+
+    <br>
+
+    <video src="/static/qr/cali_leaning.mp4" controls></video>
+
+{% end %}
+{% render("common", {title="california leaning", extraClasses="lean"}) %}
+
+

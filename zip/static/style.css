@@ -12,6 +12,16 @@
   src: url("/static/FunnelSans-Italic.ttf") format('ttf');
 }
 
+* { box-sizing: border-box; }
+
+td {
+  border: 3px solid #32787b91;
+}
+
+tr{
+  /* border: 10px solid black; */
+}
+
 html {
   scrollbar-color: white black;
 }
@@ -37,7 +47,7 @@ body{
   font-family: 'FunnelSans', sans-serif;
   font-size: 22px;
 
-  word-wrap: anywhere;
+  /* word-wrap: break-word; */
 
   max-width:1224px;
 
@@ -117,6 +127,18 @@ div.footer{
   #mobile-navbar {display: grid;}
 } */
 
+.navbar-container{
+  position: relative;
+}
+
+#static-navbar{
+  position: absolute;
+  top: 0;
+  z-index: 101;
+  width: 100%;
+  max-width:1224px;
+}
+
 .navbar{
   border: 2px solid #2cff00db;
 
@@ -169,8 +191,8 @@ button[disabled]{
 
 button {
   border: 2px solid #ffffff7a;
-  background-color: #215a11b5;
 
+  background-color: #215a11b5;
   background-blend-mode: color-dodge;
   background-image: url("/static/dark_exa.png");
   background-attachment: fixed;
@@ -217,7 +239,7 @@ div.section{
   /* margin-left: 10px;
   margin-right: 10px; */
   padding: 10px;
-  display: grid;
+  /* display: grid; */
   justify-content: left;
 }
 
@@ -230,6 +252,22 @@ div.inner-box{
   justify-content: left;
   width: fit-content;
   height: fit-content;
+}
+
+div.lean {
+  background-color: #c800ff7a;
+  background-blend-mode: color-dodge;
+  background-image: url("/static/qr/orion-hotel_lean_artwork.jpg");
+  background-attachment: fixed;
+  background-size: 80px;
+  background-repeat: repeat;
+  
+  animation: scrollbg 100s infinite linear;
+}
+
+video {
+  max-width: 100%;
+  margin: auto;
 }
 
 div.box-flex {

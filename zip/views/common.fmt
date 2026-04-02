@@ -1,25 +1,9 @@
 {% function block.navbar() %}
-<!-- <div id="desktop-navbar"> -->
-	<div class="navbar" id="open-navbar">
-		<div style="display: flex;justify-content: space-between;">
-			<div>
-				<a href="/dog"><img class="navdog" src="/static/favicon-32x32.png" onmouseover="PlayUISound('uisound3-0')"></a>,
-				<a href="/" onmouseover="PlayUISound('uisound3-1')">Home</a>,
-				<a href="/projects" onmouseover="PlayUISound('uisound3-2')">Projects</a>,
-				<a href="/readings" onmouseover="PlayUISound('uisound3-3')">Readings</a>.
-			</div>
-			<div style="word-wrap: break-word;"><a style="font-size: 25px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
-		</div>
-	</div>
-	
-	<div id="closed-navbar" class="navbar" style="display: none;">
-		<a style="font-size: 25px; color:rgb(255, 255, 255); justify-content: right; display: grid;" onclick="navbar_open()">◀</a></div>
-	</div>
-<!-- </div> -->
-
-<!-- <div id="mobile-navbar">
-	mobile navbar
-</div> -->
+<a href="/dog"><img class="navdog" src="/static/favicon-32x32.png" onmouseover="PlayUISound('uisound3-0')"></a>,
+<a href="/" onmouseover="PlayUISound('uisound3-1')">Home</a>,
+<a href="/projects" onmouseover="PlayUISound('uisound3-2')">Projects</a>,
+<a href="/readings" onmouseover="PlayUISound('uisound3-3')">Readings</a>,
+<a href="/qr" onmouseover="PlayUISound('uisound3-3')">QR Tool</a>.
 {% end %}
 
 {% function block.link(url, inner, unsafe) %}
@@ -66,7 +50,7 @@
 		></script>
 	</head>
 
-	<body>
+	<body onload="onload()">
 <!-- 
 		<audio preload="auto" id="uisound3-0" src="/static/sounds/ui/Minimalist3.ogg"></audio>
 		<audio preload="auto" id="uisound3-1" src="/static/sounds/ui/Minimalist3.ogg"></audio>
@@ -78,7 +62,14 @@
 
 			function navbar_close(){
 				document.getElementById("open-navbar").style = "display:none;";
+				var staticHeight = document.getElementById("static-navbar").offsetHeight.toFixed(0);
+
 				document.getElementById("closed-navbar").style = "";
+				window.requestAnimationFrame(() => {
+					var closedHeight = document.getElementById("closed-navbar").offsetHeight.toFixed(0);
+
+					document.getElementById("closed-navbar").style = `margin-bottom:${staticHeight-closedHeight}px;`;
+				});	
 			}
 
 			function navbar_open(){
@@ -105,12 +96,48 @@
 				thissound.pause();
 				//thissound.currentTime = 0;
 			}
+
+			function onload(){
+				navbar_close();
+			}
+
+			
     	</script>
 
-		{% block.navbar() %}
-		<!-- <br> -->
+			<div class="navbar" id="static-navbar">
+				<div style="display: flex;justify-content: space-between;">
+					<div>
+						{% block.navbar() %}
+					</div>
+					<div style="visibility: hidden; word-wrap: break-word;"><a style="font-size: 25px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
+				</div>
+			</div>
 
-		<div class="section">
+			<div class="navbar" id="open-navbar" style="">
+				<div style="display: flex;justify-content: space-between;">
+					<div>
+						{% block.navbar() %}
+					</div>
+					<div style="word-wrap: break-word;"><a style="font-size: 25px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
+				</div>
+			</div>
+
+			<!-- <div style="position: sticky;">
+				<div class="navbar" id="open-navbar-copy" style="visibility: hidden;">
+					<div style="display: flex;justify-content: space-between;">
+						<div>
+							{% block.navbar() %}
+						</div>
+						<div style="word-wrap: break-word;"><a style="font-size: 25px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
+					</div>
+				</div> -->
+				
+				<div class="navbar" id="closed-navbar" style="display: none;">
+					<a style="font-size: 25px; color:rgb(255, 255, 255); justify-content: right; display: grid;" onclick="navbar_open()">◀</a>
+				</div>
+			<!-- </div> -->
+
+		<div class="section {%& extraClasses or ''%}">
 			{% block.content() %}
 		</div>
 
