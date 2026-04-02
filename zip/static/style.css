@@ -23,7 +23,7 @@ tr{
 }
 
 html {
-  scrollbar-color: white black;
+  scrollbar-color: yellow black;
 }
 
 @keyframes scrollbg {
