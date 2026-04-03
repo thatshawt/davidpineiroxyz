@@ -35,6 +35,10 @@
 
 		<meta name="description" content="davidpineiro.xyz... the website." />
 
+		<meta itemprop="name" content="DavidPineiro.xyz" />
+		<meta itemprop="description" content="davidpineiro.xyz... the website." />
+		<meta itemprop="image" content="/static/android-chrome-512x512.png" />
+
 		<meta property="og:title" content="DavidPineiro.xyz" />
 		<meta property="og:description" content="davidpineiro.xyz... the website." />
 		<meta property="og:url" content="https://davidpineiro.xyz/" />
