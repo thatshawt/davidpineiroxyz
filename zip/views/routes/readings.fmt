@@ -7,11 +7,19 @@
 				"Nate The Snake",
 				"This is a long read, like 1-2 hours. Great story and hilarious ending I highly recommend."
 				) %}
+		</li>
 		<li>{% block.InnerBoxLinkDesc(
 				"/fun/backyardcarnival",
 				"Backyard Carnival of Death",
 				"A classic. Like 5-10 minutes read."
 				) %}
+		</li>
+		<li>{% block.InnerBoxLinkDesc(
+				"/fun/regex_parse_html",
+				"RegEx match open tags except XHTML self-contained tags",
+				"Quick read. You dare not parse HTML with regex..."
+				) %}
+		</li>
 	</ul>
 {% end %}
 {% render("common", {title="Readings"}) %}

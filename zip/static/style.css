@@ -337,6 +337,11 @@ a[href^="https://"]:after{
     content:"\2197";
 } 
 */
+
+a {
+  word-wrap: break-word;
+}
+
 a[target^="_blank"]:after{
     content:"\2197";
 }
