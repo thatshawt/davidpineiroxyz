@@ -33,6 +33,23 @@
 
 		<meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0, target-densitydpi=device-dpi">
 
+		<meta name="description" content="davidpineiro.xyz... the website." />
+
+		<meta property="og:title" content="DavidPineiro.xyz" />
+		<meta property="og:description" content="davidpineiro.xyz... the website." />
+		<meta property="og:url" content="https://davidpineiro.xyz/" />
+		<meta property="og:image" content="/static/android-chrome-512x512.png" />
+		<meta property="og:image:alt" content="a white fluffy dog with a dog's haircut" />
+
+		<meta name="twitter:title" content="Machine Learning Workshop" />
+		<meta name="twitter:description" content="School for machines who can't learn good and want to do other stuff good too" />
+		<meta name="twitter:url" content="https://davidpineiro.xyz/" />
+		<meta name="twitter:image:src" content="/static/android-chrome-512x512.png" />
+		<meta name="twitter:image:alt" content="a white fluffy dog with a dog's haircut" />
+
+		<link rel="apple-touch-startup-image" href="/static/android-chrome-512x512.png" media="orientation: portrait" />
+		<link rel="apple-touch-startup-image" href="/static/android-chrome-512x512.png" media="orientation: landscape" />
+
 		<link rel="stylesheet" type="text/css" href="/static/style.css">
 
 		<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
@@ -40,7 +57,7 @@
 		<link rel="icon" sizes="16x16" href="/static/favicon-animated-16x16.gif" type="image/gif" >
 		<link rel="icon" sizes="32x32" href="/static/favicon-animated-32x32.gif" type="image/gif" >
 
-		<link rel="manifest" href="/static/site.webmanifest">
+		<!-- <link rel="manifest" href="/static/site.webmanifest"> -->
 
 		<link rel="preconnect" href="https://challenges.cloudflare.com">
 		<script
