@@ -162,12 +162,11 @@
 			{% block.content() %}
 		</div>
 
-		<br>
+		<!-- <br> -->
 		<div class="footer">
-			<i>
-				<code class="inline">David Pineiro 2026</code>, 
-				<code class="inline">Server Start Time: "{%& vars.serverStartDate %}"</code>.
-			</i>
+			<!-- <code>David Pineiro 2026</code> -->
+				<p>Last updated: <i>{%& vars.serverStartDate %}</i>.</p>
+			
 		</div>	
 
 		<br>
