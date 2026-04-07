@@ -388,7 +388,7 @@ local function render(name, opt)
   argerror(templates[name], 1, "(unknown template name '"..tostring(name).."')")
   argerror(not opt or type(opt) == "table", 2, "(table expected)")
   -- assign default parameters, but allow to overwrite
-  local params = {vars = vars, raw=raw, block = setmetatable({[blocks] = name}, metablock)}
+  local params = {vars = vars, raw=raw, session=getRequest().session, block = setmetatable({[blocks] = name}, metablock)}
   local env = getfenv(templates[name].handler)
   -- add "original" template parameters
   for k, v in pairs(rawget(env, org) or {}) do params[k] = v end
@@ -1289,6 +1289,9 @@ local function getSessionOptions()
   if sopts.secret and type(sopts.secret) ~= "string" then
     error("sessionOptions.secret is expected to be a string")
   end
+  if sopts.expireSeconds and type(sopts.expireSeconds) ~= "number" then
+    error("sessionOptions.expireSeconds is expected to be a number")
+  end
   return sopts
 end
 local function setSession(session)
@@ -1297,6 +1300,10 @@ local function setSession(session)
   local sopts = getSessionOptions()
   local cookie
   if session and next(session) then
+
+    -- session expiration. one hour = 60 minutes = 60 * 60 seconds
+    session.exp = tostring(GetDate() + (sopts.expireSeconds or 60*60))
+
     local msg = EncodeBase64(EncodeLua(session))
     local sig = EncodeBase64(
       GetCryptoHash(sopts.hash, msg, sopts.secret or ""))
@@ -1330,6 +1337,13 @@ local function getSession()
   end
   local ok, val = loadsafe("return "..DecodeBase64(msg))
   if not ok then LogWarn("invalid session content: "..val) end
+
+  -- check if session expired
+ if val and val.exp and tonumber(val.exp) > 0 and GetDate() > tonumber(val.exp) then
+  LogWarn("session expired"..tostring(val))
+  return {}
+ end
+
   return ok and val or {}
 end
 local function setHeaders(headers)
