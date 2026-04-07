@@ -119,7 +119,7 @@ function common.checkUserPass(user, password)
     if type(user) ~= "string" then return false, "Username is not a string?" end
     if type(password) ~= "string" then return false, "Password is not a string?" end
 
-    if secrets.users[user] ~= Nil and secrets.users[user] == password then
+    if secrets.users ~= Nil and secrets.users[user] ~= Nil and secrets.users[user] == password then
         return true, ""
     end
     return false, "That username and password does not exist!"
