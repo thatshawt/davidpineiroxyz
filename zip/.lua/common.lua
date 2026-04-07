@@ -1,14 +1,16 @@
-local function starts_with(str, start)
+local common = {}
+
+function common.starts_with(str, start)
    return str:sub(1, #start) == start
 end
 
-local function ends_with(str, ending)
+function common.ends_with(str, ending)
    return ending == "" or str:sub(-#ending) == ending
 end
 
-local stringtobool={ ["true"]=true, ["false"]=false }
+common.stringtobool={ ["true"]=true, ["false"]=false }
 
-local function exec(prog, args, env)
+function common.exec(prog, args, env)
 	reader, writer = assert(unix.pipe())
 	if assert(unix.fork()) == 0 then
 		unix.close(1)
@@ -42,21 +44,24 @@ local function exec(prog, args, env)
 	end
 end
 
-curl = assert(unix.commandv('curl'))
-Log(kLogInfo, "found curl %s" % {curl})
+-- curl = assert(unix.commandv('curl'))
+-- Log(kLogInfo, "found curl %s" % {curl})
 
 local secrets = Slurp("/zip/secrets.json")
 if secrets == Nil then secrets = {
         email="test@test.test",
         linkedin="https://linkedin.com/david",
         resume="/caca/resume.caca",
-        turnstile_key="1x0000000000000000000000000000000AA"
+        turnstile_key="1x0000000000000000000000000000000AA",
+        users = {
+            david = "123123123"
+        }
     }
 else
     secrets = DecodeJson(secrets)
 end
 
-local function validateTurnstileKey(cf_response)
+function common.validateTurnstileKey(cf_response)
     successResult = false
 
     if type(cf_response) == "string" and #cf_response < 2048 then
@@ -95,8 +100,8 @@ local function validateTurnstileKey(cf_response)
     return response
 end
 
-local function validatePrivateInfoTurnstile(cf_response)
-    response = validateTurnstileKey(cf_response)
+function common.validatePrivateInfoTurnstile(cf_response)
+    response = common.validateTurnstileKey(cf_response)
 
     -- Log(kLogInfo, "success '%s'" % {response.success})
 
@@ -110,11 +115,14 @@ local function validatePrivateInfoTurnstile(cf_response)
     return EncodeJson(response)
 end
 
-return {
-    exec=exec,
-    starts_with=starts_with,
-    ends_with=ends_with,
-    validateTurnstileKey=validateTurnstileKey,
-    validatePrivateInfoTurnstile=validatePrivateInfoTurnstile,
-    stringtobool=stringtobool
-}
+function common.checkUserPass(user, password)
+    if type(user) ~= "string" then return false, "Username is not a string?" end
+    if type(password) ~= "string" then return false, "Password is not a string?" end
+
+    if secrets.users[user] ~= Nil and secrets.users[user] == password then
+        return true, ""
+    end
+    return false, "That username and password does not exist!"
+end
+
+return common

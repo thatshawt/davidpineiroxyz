@@ -1,5 +1,5 @@
 {% function block.navbar() %}
-<a href="/dog"><img class="navdog" src="/static/favicon-32x32.png" onmouseover="PlayUISound('uisound3-0')"></a>,
+<a onclick="sukuna_navbar_open()"><img class="navdog" src="/static/favicon-32x32.png" onmouseover="PlayUISound('uisound3-0')"></a>,
 <a href="/" onmouseover="PlayUISound('uisound3-1')">Home</a>,
 <a href="/projects" onmouseover="PlayUISound('uisound3-2')">Projects</a>,
 <a href="/readings" onmouseover="PlayUISound('uisound3-3')">Readings</a>,
@@ -26,7 +26,7 @@
 {% end %}
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<title> DavidP {%& "| "..title or "" %} </title>
 		<meta charset="utf-8">
@@ -45,8 +45,8 @@
 		<meta property="og:image" content="/static/android-chrome-512x512.png" />
 		<meta property="og:image:alt" content="a white fluffy dog with a dog's haircut" />
 
-		<meta name="twitter:title" content="Machine Learning Workshop" />
-		<meta name="twitter:description" content="School for machines who can't learn good and want to do other stuff good too" />
+		<meta name="twitter:title" content="DavidPineiro.xyz" />
+		<meta name="twitter:description" content="davidpineiro.xyz... the website." />
 		<meta name="twitter:url" content="https://davidpineiro.xyz/" />
 		<meta name="twitter:image:src" content="/static/android-chrome-512x512.png" />
 		<meta name="twitter:image:alt" content="a white fluffy dog with a dog's haircut" />
@@ -54,12 +54,12 @@
 		<link rel="apple-touch-startup-image" href="/static/android-chrome-512x512.png" media="orientation: portrait" />
 		<link rel="apple-touch-startup-image" href="/static/android-chrome-512x512.png" media="orientation: landscape" />
 
-		<link rel="stylesheet" type="text/css" href="/static/style.css">
-
 		<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
 		
 		<link rel="icon" sizes="16x16" href="/static/favicon-animated-16x16.gif" type="image/gif" >
 		<link rel="icon" sizes="32x32" href="/static/favicon-animated-32x32.gif" type="image/gif" >
+		
+		<link rel="stylesheet" type="text/css" href="/static/style.css">
 
 		<!-- <link rel="manifest" href="/static/site.webmanifest"> -->
 
@@ -91,6 +91,14 @@
 
 					document.getElementById("closed-navbar").style = `margin-bottom:${staticHeight-closedHeight}px;`;
 				});	
+			}
+
+			function sukuna_navbar_close(){
+				document.getElementById("sukuna-navbar").style = "display:none;";
+			}
+
+			function sukuna_navbar_open(){
+				document.getElementById("sukuna-navbar").style = "";
 			}
 
 			function navbar_open(){
@@ -125,48 +133,52 @@
 			
     	</script>
 
-			<div class="navbar" id="static-navbar">
-				<div style="display: flex;justify-content: space-between;">
-					<div>
-						{% block.navbar() %}
-					</div>
-					<div style="visibility: hidden; word-wrap: break-word;"><a style="font-size: 25px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
-				</div>
-			</div>
+		<!-- three navbars for the top -->
 
-			<div class="navbar" id="open-navbar" style="">
-				<div style="display: flex;justify-content: space-between;">
-					<div>
-						{% block.navbar() %}
-					</div>
-					<div style="word-wrap: break-word;"><a style="font-size: 25px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
+		<div class="navbar" id="static-navbar">
+			<div style="display: flex;justify-content: space-between;">
+				<div>
+					{% block.navbar() %}
 				</div>
+				<div style="visibility: hidden; word-wrap: break-word;"><a style="font-size: 30px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
 			</div>
+		</div>
 
-			<!-- <div style="position: sticky;">
-				<div class="navbar" id="open-navbar-copy" style="visibility: hidden;">
-					<div style="display: flex;justify-content: space-between;">
-						<div>
-							{% block.navbar() %}
-						</div>
-						<div style="word-wrap: break-word;"><a style="font-size: 25px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
-					</div>
-				</div> -->
-				
-				<div class="navbar" id="closed-navbar" style="display: none;">
-					<a style="font-size: 25px; color:rgb(255, 255, 255); justify-content: right; display: grid;" onclick="navbar_open()">◀</a>
+		<div class="navbar" id="open-navbar" style="">
+			<div style="display: flex;justify-content: space-between;">
+				<div>
+					{% block.navbar() %}
 				</div>
-			<!-- </div> -->
+				<div style="word-wrap: break-word;"><a style="font-size: 30px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
+			</div>
+		</div>
+			
+		<div class="navbar" id="closed-navbar" style="display: none;">
+			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: right; display: grid;" onclick="navbar_open()">◀</a>
+		</div>
+
+		<!-- sukuna navbar -->
+
+		<div class="sukuna-navbar" id="sukuna-navbar" style="display:none;">
+			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: center; display: grid;" onclick="sukuna_navbar_close()">△</a>
+			{% if session.user then %}
+				<p>Hello {%& session.user %}</p>
+				<a href="/logout">Logout</a>
+			{% else %}
+				<a href="/login">Login</a>
+			{% end %}
+		</div>
+
+		<!-- main content -->
 
 		<div class="section {%& extraClasses or ''%}">
 			{% block.content() %}
 		</div>
 
-		<!-- <br> -->
+		<!-- footer -->
+
 		<div class="footer">
-			<!-- <code>David Pineiro 2026</code> -->
-				<p>Last updated: <i>{%& vars.serverStartDate %}</i>.</p>
-			
+			<p>Last updated: <i>{%& vars.serverStartDate %}</i>.</p>
 		</div>	
 
 		<br>
