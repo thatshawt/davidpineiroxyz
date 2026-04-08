@@ -109,7 +109,8 @@ if secrets == Nil then secrets = {
         turnstile_key="1x0000000000000000000000000000000AA",
         users = {
             test = "123123123"
-        }
+        },
+        ntfyUrl = Nil
     }
 else
     secrets = DecodeJson(secrets)
@@ -118,6 +119,22 @@ end
 function common.loadSecretsUsers(db)
     for k,v in pairs(secrets.users) do
         common.userReplaceSave(db, k, v)
+    end
+end
+
+function common.sendNtfy(body, title)
+    if secrets.ntfyUrl then
+        Fetch(secrets.ntfyUrl,
+            {
+                method="POST",
+                headers={
+                    ["Title"] = title or "davidpineiro.xyz"
+                },
+                body=body
+            }
+        )
+    else
+        print("%s %s" % {body,title or "davidpineiro.xyz"})
     end
 end
 

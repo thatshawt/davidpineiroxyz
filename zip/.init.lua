@@ -92,9 +92,11 @@ fm.setRoute({"/login", method = {"POST"}},
 fm.setRoute({"/logout", method = {"POST"}},
 	function (r)
 		r.session = {}
-		
+
 		return fm.serveRedirect(302, "/") 
 	end
 )
+
+common.sendNtfy("Ready!")
 
 fm.run()
