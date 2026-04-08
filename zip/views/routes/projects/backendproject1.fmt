@@ -5,7 +5,7 @@
 
 	<h2>Project Links</h2>
 	<ul>
-		<li>{% block.link("https://backendproject1.davidpineiro.xyz", "Live Demo") %}</li>
+		<li>{%= raw.link("https://backendproject1.davidpineiro.xyz", "Live Demo") %}</li>
 	</ul>
 
 	<h2>Summary</h2>

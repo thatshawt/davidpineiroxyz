@@ -5,8 +5,8 @@
 
 	<h2>Project Links</h2>
 	<ul>
-		<li>{% block.link("https://studentpassfail.davidpineiro.xyz","Live Demo") %}</li>
-		<li>{% block.link("/static/student_performance_interactions.csv","dataset.csv") %}</li>
+		<li>{%= raw.link("https://studentpassfail.davidpineiro.xyz","Live Demo") %}</li>
+		<li>{%= raw.link("/static/student_performance_interactions.csv","dataset.csv") %}</li>
 	</ul>
 
 	<h2>Summary</h2>

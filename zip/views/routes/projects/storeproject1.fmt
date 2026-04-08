@@ -5,8 +5,8 @@
 
 	<h2>Project Links</h2>
 	<ul>
-		<li>{% block.link("https://shopprojectbefore.davidpineiro.xyz", "Live Demo <i>Before</i> Modifications", "unsafe") %}</li>
-		<li>{% block.link("https://shopprojectafter.davidpineiro.xyz", "Live Demo <i>After</i> Modifications", "unsafe") %}</li>
+		<li>{%= raw.link("https://shopprojectbefore.davidpineiro.xyz", "Live Demo <i>Before</i> Modifications", "unsafe") %}</li>
+		<li>{%= raw.link("https://shopprojectafter.davidpineiro.xyz", "Live Demo <i>After</i> Modifications", "unsafe") %}</li>
 	</ul>
 
 	<h2>Summary</h2>
