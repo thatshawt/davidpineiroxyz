@@ -32,14 +32,15 @@ SOFTWARE. -->
 <!-- Tab content -->
 <div id="webcam_tab" class="tabcontent">
     <h1>Scan from WebCam:</h1>
-    <div id="video-container">
-        <video id="qr-video"></video>
+    <div class="inner-box">
+        <div id="video-container">
+            <video id="qr-video"></video>
+        </div>
+        <button id="start-button">Start</button>
+        <button id="stop-button">Stop</button>
+        <b>Detected QR code: </b>
+        <code id="cam-qr-result"></code>
     </div>
-    <button id="start-button">Start</button>
-    <button id="stop-button">Stop</button>
-    <br>
-    <b>Detected QR code: </b>
-    <code id="cam-qr-result"></code>
     <b>Last detected at: </b>
     <span id="cam-qr-result-timestamp"></span>
     <div>
@@ -51,6 +52,7 @@ SOFTWARE. -->
                 <option value="example-style-2">Example custom style 2</option>
             </select>
         </label>
+        <br>
         <label>
             <input id="show-scan-region" type="checkbox">
             Show scan region canvas
@@ -82,10 +84,12 @@ SOFTWARE. -->
 
 <div id="file_tab" class="tabcontent">
     <h1>Scan from File:</h1>
-    <input type="file" id="file-selector">
-    <br>
-    <b>Detected QR code: </b>
-    <code id="file-qr-result">None</code>
+    <div class="inner-box">
+        <input type="file" id="file-selector">
+        <br>
+        <b>Detected QR code: </b>
+        <code id="file-qr-result">None</code>
+    </div>
 </div>
 
 
@@ -281,7 +285,6 @@ openTab(event, 'webcam_tab');
 <br>
 <hr>
 <br>
-<div class="inner-box">
 <code>MIT License
 
 Copyright (c) 2017 Nimiq, danimoh
@@ -302,6 +305,6 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.</code></div>
+SOFTWARE.</code>
 {% end %}
 {% render("common", {title="QR Scanner"}) %}

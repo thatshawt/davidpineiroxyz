@@ -5,9 +5,25 @@
 <form onsubmit="event.preventDefault();">
 	<div id="loading" hidden=""></div>
 	<div id="loaded"></div>
+	<table class="inner-box layout" style="width:fit-content;">
+		<tr>
+			<td><label for="text-input"><strong>Text string:</strong></label></td>
+			<td style=""><textarea placeholder="Enter your text to be put into the QR Code" id="text-input" style="width:100%; max-width:100%; height:5em;"></textarea></td>
+		</tr>
+		<tr>
+			<td><strong>QR Code:</strong><br><a id="download" download="qr-code.png" href="">(download)</a></td>
+			<td>
+				<canvas id="qrcode-canvas" width="168" height="168" style="max-width: 100%;"></canvas>
+				<svg xmlns="http://www.w3.org/2000/svg" id="qrcode-svg" style="width:30em; height:30em; display:none" stroke="none">
+					<rect width="100%" height="100%" fill="#FFFFFF"></rect>
+					<path d="" fill="#000000"></path>
+				</svg>
+			</td>
+		</tr>
+	</table>
 	<table class="layout" style="width:fit-content;">
 		<tbody>
-			<tr>
+			<!-- <tr>
 				<td><label for="text-input"><strong>Text string:</strong></label></td>
 				<td style=""><textarea placeholder="Enter your text to be put into the QR Code" id="text-input" style="width:100%; max-width:100%; height:5em;"></textarea></td>
 			</tr>
@@ -20,7 +36,7 @@
 						<path d="" fill="#000000"></path>
 					</svg>
 				</td>
-			</tr>
+			</tr> -->
 			<tr>
 				<td><strong>Error correction:</strong></td>
 				<td>
@@ -81,7 +97,6 @@ encoding mode = none, error correction = level H, data bits = 0.</td>
 <br>
 <hr>
 <br>
-<div class="inner-box">
 <code> * QR Code generator input demo (compiled from TypeScript)
  *
  * Copyright (c) Project Nayuki. (MIT License)
@@ -103,7 +118,6 @@ encoding mode = none, error correction = level H, data bits = 0.</td>
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
 </code>
-</div>
 
 <div class="inner-box lean">
 	{%= raw.link("/cali_leaning", "california leaning") %}
