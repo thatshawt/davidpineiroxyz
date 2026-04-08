@@ -1,5 +1,7 @@
 {% function block.content() %}
-	<h1>David Pineiro</h1>
+	<h1>DavidPineiro.xyz</h1>
+
+	<p>This is David Pineiro's website and portfolio.</p>
 	
 	<h2>About Me</h2>
 	<p>

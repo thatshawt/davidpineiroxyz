@@ -1,5 +1,5 @@
 {% function block.content() %}
-<h1>QR Code Tool</h1>
+<h1>QR Code Generator</h1>
 <p>I copied this from {%= raw.link("https://www.nayuki.io/page/qr-code-generator-library","https://www.nayuki.io/page/qr-code-generator-library")%}. I put it here so I can preserve it and style it.</p>
 
 <form onsubmit="event.preventDefault();">
@@ -78,7 +78,10 @@ encoding mode = none, error correction = level H, data bits = 0.</td>
 <script src="/static/qr/qrcodegen.js" defer="defer"></script>
 <script src="/static/qr/qrcode_demo.js" defer="defer"></script>
 
-<!-- <hr> -->
+<br>
+<hr>
+<br>
+<div class="inner-box">
 <code> * QR Code generator input demo (compiled from TypeScript)
  *
  * Copyright (c) Project Nayuki. (MIT License)
@@ -100,6 +103,7 @@ encoding mode = none, error correction = level H, data bits = 0.</td>
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
 </code>
+</div>
 
 <div class="inner-box lean">
 	{%= raw.link("/cali_leaning", "california leaning") %}

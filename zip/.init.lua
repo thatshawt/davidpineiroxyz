@@ -93,7 +93,6 @@ fm.setRoute({"/logout", method = {"POST"}},
 	function (r)
 		r.session = {}
 		
-		-- return [[ <meta http-equiv="refresh" content="0; url=/"> ]]
 		return fm.serveRedirect(302, "/") 
 	end
 )

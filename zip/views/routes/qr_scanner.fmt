@@ -1,0 +1,307 @@
+{% function block.content() %}
+<!-- MIT License
+
+Copyright (c) 2017 Nimiq, danimoh
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. -->
+
+<p>Scan QR codes. Yoinked and modified slightly from {%= raw.link("https://nimiq.github.io/qr-scanner/demo/","https://nimiq.github.io/qr-scanner/demo/") %}.</p>
+
+ <!-- Tab links -->
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'webcam_tab')">Scan From Webcam</button>
+  <button class="tablinks" onclick="openTab(event, 'file_tab')">Scan From A File</button>
+</div>
+
+<!-- Tab content -->
+<div id="webcam_tab" class="tabcontent">
+    <h1>Scan from WebCam:</h1>
+    <div id="video-container">
+        <video id="qr-video"></video>
+    </div>
+    <button id="start-button">Start</button>
+    <button id="stop-button">Stop</button>
+    <br>
+    <b>Detected QR code: </b>
+    <code id="cam-qr-result"></code>
+    <b>Last detected at: </b>
+    <span id="cam-qr-result-timestamp"></span>
+    <div>
+        <label>
+            Highlight Style
+            <select id="scan-region-highlight-style-select">
+                <option value="default-style">Default style</option>
+                <option value="example-style-1">Example custom style 1</option>
+                <option value="example-style-2">Example custom style 2</option>
+            </select>
+        </label>
+        <label>
+            <input id="show-scan-region" type="checkbox">
+            Show scan region canvas
+        </label>
+    </div>
+    <div>
+        <select id="inversion-mode-select">
+            <option value="original">Scan original (dark QR code on bright background)</option>
+            <option value="invert">Scan with inverted colors (bright QR code on dark background)</option>
+            <option value="both">Scan both</option>
+        </select>
+        <br>
+    </div>
+    <div>
+        <b>Preferred camera:</b>
+        <select id="cam-list">
+            <option value="environment" selected>Environment Facing (default)</option>
+            <option value="user">User Facing</option>
+        </select>
+    </div>
+    <b>Camera has flash: </b>
+    <span id="cam-has-flash"></span>
+    <div>
+        <button id="flash-toggle">📸 Flash: <span id="flash-state">off</span></button>
+    </div>
+    <b>Device has camera: </b>
+    <span id="cam-has-camera"></span>
+</div>
+
+<div id="file_tab" class="tabcontent">
+    <h1>Scan from File:</h1>
+    <input type="file" id="file-selector">
+    <br>
+    <b>Detected QR code: </b>
+    <code id="file-qr-result">None</code>
+</div>
+
+
+<script>
+function openTab(evt, tabname) {
+  // Declare all variables
+  var i, tabcontent, tablinks;
+
+  // Get all elements with class="tabcontent" and hide them
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+
+  // Get all elements with class="tablinks" and remove the class "active"
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  // Show the current tab, and add an "active" class to the button that opened the tab
+  document.getElementById(tabname).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+openTab(event, 'webcam_tab');
+</script>
+
+<!--<script src="../qr-scanner.umd.min.js"></script>-->
+<!--<script src="../qr-scanner.legacy.min.js"></script>-->
+<script type="module">
+    import QrScanner from "/static/qr_scan/qr-scanner.min.js";
+
+    const video = document.getElementById('qr-video');
+    const videoContainer = document.getElementById('video-container');
+    const camHasCamera = document.getElementById('cam-has-camera');
+    const camList = document.getElementById('cam-list');
+    const camHasFlash = document.getElementById('cam-has-flash');
+    const flashToggle = document.getElementById('flash-toggle');
+    const flashState = document.getElementById('flash-state');
+    const camQrResult = document.getElementById('cam-qr-result');
+    const camQrResultTimestamp = document.getElementById('cam-qr-result-timestamp');
+    const fileSelector = document.getElementById('file-selector');
+    const fileQrResult = document.getElementById('file-qr-result');
+
+    function setResult(label, result) {
+        console.log(result.data);
+        label.textContent = result.data;
+        camQrResultTimestamp.textContent = new Date().toString();
+        label.style.color = 'teal';
+        clearTimeout(label.highlightTimeout);
+        label.highlightTimeout = setTimeout(() => label.style.color = 'inherit', 100);
+    }
+
+    // ####### Web Cam Scanning #######
+
+    const scanner = new QrScanner(video, result => setResult(camQrResult, result), {
+        onDecodeError: error => {
+            camQrResult.textContent = error;
+            camQrResult.style.color = 'inherit';
+        },
+        highlightScanRegion: true,
+        highlightCodeOutline: true,
+    });
+
+    const updateFlashAvailability = () => {
+        scanner.hasFlash().then(hasFlash => {
+            camHasFlash.textContent = hasFlash;
+            flashToggle.style.display = hasFlash ? 'inline-block' : 'none';
+        });
+    };
+
+    scanner.start().then(() => {
+        updateFlashAvailability();
+        // List cameras after the scanner started to avoid listCamera's stream and the scanner's stream being requested
+        // at the same time which can result in listCamera's unconstrained stream also being offered to the scanner.
+        // Note that we can also start the scanner after listCameras, we just have it this way around in the demo to
+        // start the scanner earlier.
+        QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
+            const option = document.createElement('option');
+            option.value = camera.id;
+            option.text = camera.label;
+            camList.add(option);
+        }));
+    });
+
+    QrScanner.hasCamera().then(hasCamera => camHasCamera.textContent = hasCamera);
+
+    // for debugging
+    window.scanner = scanner;
+
+    document.getElementById('scan-region-highlight-style-select').addEventListener('change', (e) => {
+        videoContainer.className = e.target.value;
+        scanner._updateOverlay(); // reposition the highlight because style 2 sets position: relative
+    });
+
+    document.getElementById('show-scan-region').addEventListener('change', (e) => {
+        const input = e.target;
+        const label = input.parentNode;
+        label.parentNode.insertBefore(scanner.$canvas, label.nextSibling);
+        scanner.$canvas.style.display = input.checked ? 'block' : 'none';
+    });
+
+    document.getElementById('inversion-mode-select').addEventListener('change', event => {
+        scanner.setInversionMode(event.target.value);
+    });
+
+    camList.addEventListener('change', event => {
+        scanner.setCamera(event.target.value).then(updateFlashAvailability);
+    });
+
+    flashToggle.addEventListener('click', () => {
+        scanner.toggleFlash().then(() => flashState.textContent = scanner.isFlashOn() ? 'on' : 'off');
+    });
+
+    document.getElementById('start-button').addEventListener('click', () => {
+        scanner.start();
+    });
+
+    document.getElementById('stop-button').addEventListener('click', () => {
+        scanner.stop();
+    });
+
+    // ####### File Scanning #######
+
+    fileSelector.addEventListener('change', event => {
+        const file = fileSelector.files[0];
+        if (!file) {
+            return;
+        }
+        QrScanner.scanImage(file, { returnDetailedScanResult: true })
+            .then(result => setResult(fileQrResult, result))
+            .catch(e => setResult(fileQrResult, { data: e || 'No QR code found.' }));
+    });
+</script>
+
+<style>
+    /* TABS STYLING */
+    /* Style the tab */
+    /* .tab {
+        overflow: hidden;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+    } */
+
+    /* Style the buttons that are used to open the tab content */
+    .tab button {
+        /* background-color: inherit;
+        float: left;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px; */
+        transition: 0.3s;
+    }
+
+    #video-container {
+        line-height: 0;
+    }
+
+    #video-container.example-style-1 .scan-region-highlight-svg,
+    #video-container.example-style-1 .code-outline-highlight {
+        stroke: #64a2f3 !important;
+    }
+
+    #video-container.example-style-2 {
+        position: relative;
+        /* width: max-content;
+        height: max-content; */
+        overflow: hidden;
+    }
+    #video-container.example-style-2 .scan-region-highlight {
+        border-radius: 30px;
+        outline: rgba(0, 0, 0, .25) solid 50vmax;
+    }
+    #video-container.example-style-2 .scan-region-highlight-svg {
+        display: none;
+    }
+    #video-container.example-style-2 .code-outline-highlight {
+        stroke: rgba(255, 255, 255, .5) !important;
+        stroke-width: 15 !important;
+        stroke-dasharray: none !important;
+    }
+
+    #flash-toggle {
+        display: none;
+    }
+/* 
+    input[type="file"] {
+        display: block;
+        margin-bottom: 16px;
+    } */
+</style>
+<br>
+<hr>
+<br>
+<div class="inner-box">
+<code>MIT License
+
+Copyright (c) 2017 Nimiq, danimoh
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</code></div>
+{% end %}
+{% render("common", {title="QR Scanner"}) %}
