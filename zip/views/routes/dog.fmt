@@ -1,10 +1,20 @@
 {% function block.content() %}
+    <h2>Dog Exhibit</h2>
+    <p>These are dogs.</p>
     <div class="inner-box box-red-bg ">
-        <h1>Say Hello to <tag style="color:red;">Sukuna</tag></h1>
+        <table>
+            <tr>
+                <td>First Name</td>
+                <td>Giuseppe-Von-Trillious</td>
+            </tr>
+                <td>Last Name</td>
+                <td>The Dog</td>
+            </tr>
+        </table>
         <img class="sukuna" src="/static/android-chrome-512x512.png" onmouseover="PlayMusicSound('mySound')" onmouseout="PauseSound('mySound')" >
+    <audio loop id='mySound' src='https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d1/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm.240p.vp9.webm?download' ></audio>
     </div>
 
-    <audio loop id='mySound' src='https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d1/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm.240p.vp9.webm?download' ></audio>
 
 {% end %}
 {% render("common", {title="Hello Sukuna"}) %}

@@ -24,6 +24,14 @@ else
 	fm.setTemplateVar("turnstile_key", "0x4AAAAAACwAfT1Q_QwaUX-3")
 end
 
+-- load users from secrets and init sql
+do
+	local db <close> = common.getSqlConnection()
+    common.sqlInit(db)
+
+	common.loadSecretsUsers(db)
+end
+
 fm.setTemplateVar("serverStartDate", dateString)
 
 -- .fmt files loaded from /views/ folder
@@ -45,7 +53,6 @@ fm.setRoute({"/index.html", method = {"GET"}}, fm.serveContent("routes/index"))
 -- static files like css and fonts
 fm.setRoute("/static/*", fm.serveAsset)
 
-
 -- validate the email cloudlflare turnstile
 fm.setRoute({"/getInfo", method = {"POST"}},
   function(r)
@@ -58,35 +65,36 @@ fm.setRoute({"/getInfo", method = {"POST"}},
 end)
 
 -- login
-local usernamePasswordValidator = fm.makeValidator{
-  {"username", minlen = 1, maxlen = 64, msg = "Username must be between 1 and 64 length."},
-  {"password", minlen = 8, maxlen = 128, msg = "Password must be between 8 and 128 length."},
-}
 fm.setRoute({"/login", method = {"POST"}},
 	function(r)
-		local valid, error = usernamePasswordValidator(r.params)
+		-- if already logged in
+		if r.session and r.session.user then
+			return fm.serveContent("routes/login", {message = "You are already logged in with '%s'. Log out if you want to login to another account." % {r.session.user}})
+		end
+
+		local valid, error = common.usernamePasswordValidator(r.params)
 
 		-- check user and pass combo
 		if valid then
 			valid, error = common.checkUserPass(r.params.username, r.params.password)
 		end
 
-		if valid then
+		if valid then -- success
 			r.session.user = r.params.username
-			return fm.serveRedirect(302, "/")
-		else
+			return fm.serveRedirect(302, "/") 
+		else -- fail
 			return fm.serveContent("routes/login", {message = error})
 		end
 	end
 )
 
 -- logout
-
-fm.setRoute({"/logout", method = {"POST","GET"}},
+fm.setRoute({"/logout", method = {"POST"}},
 	function (r)
 		r.session = {}
 		
-		return [[ <meta http-equiv="refresh" content="0; url=/"> ]]
+		-- return [[ <meta http-equiv="refresh" content="0; url=/"> ]]
+		return fm.serveRedirect(302, "/") 
 	end
 )
 

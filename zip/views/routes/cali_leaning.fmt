@@ -9,6 +9,9 @@
     <br>
 
     <video src="/static/qr/cali_leaning.mp4" controls></video>
+    <br>
+    <br>
+    <div class="inner-box">{%= raw.link("/dog", "Dog Exhibit") %}</div>
 
 {% end %}
 {% render("common", {title="california leaning", extraClasses="lean"}) %}

@@ -1,0 +1,19 @@
+{% function block.content() %}
+	<h1>Logout</h1>
+
+    {% if message and type(message) == 'string' then %}
+        <p>{%& message %}</p>
+    {% elseif message and type(message) == 'table' then %}
+        <ul>
+        {% for k,v in pairs(message) do %}
+            <li>{%& v %}</li>
+        {% end %}
+        </ul>
+    {% end %}
+
+    <form action="/logout" method="POST">
+        <button type="submit">Log out!</button>
+    </form>
+
+{% end %}
+{% render("common", {title="Logout"}) %}

@@ -73,7 +73,7 @@ h2 {
 	cursor: help;
   &:hover {
     animation: shake 0.5s infinite;
-    border: 10px solid black;
+    border: 5px solid yellow;
   }
 }
 

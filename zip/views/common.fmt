@@ -6,9 +6,6 @@
 <a href="/qr" onmouseover="PlayUISound('uisound3-3')">QR Tool</a>.
 {% end %}
 
-{% function block.link(url, inner, unsafe) %}
-	{%= raw.link(url, inner, unsafe) %}
-{% end %}
 
 {% function block.makeBadge(url, image) %}
 	{%= raw.link(url, "<img class='web-badge' src='%s' alt=''>" % {image}, "unsafe") %}
@@ -24,6 +21,7 @@
 	{% end %}
 </div>
 {% end %}
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -163,6 +161,7 @@
 			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: center; display: grid;" onclick="sukuna_navbar_close()">△</a>
 			{% if session.user then %}
 				<p>Hello {%& session.user %}</p>
+				<p>{%= raw.link("/dog", "Dog Exhibit") %}</p>
 				<a href="/logout">Logout</a>
 			{% else %}
 				<a href="/login">Login</a>
