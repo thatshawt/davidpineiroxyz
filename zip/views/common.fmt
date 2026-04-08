@@ -1,10 +1,17 @@
 {% function block.navbar() %}
-<a onclick="sukuna_navbar_open()"><img class="navdog" src="/static/favicon-32x32.png" onmouseover="PlayUISound('uisound3-0')"></a>,
-<a href="/" onmouseover="PlayUISound('uisound3-1')">Home</a>,
-<a href="/projects" onmouseover="PlayUISound('uisound3-2')">Projects</a>,
-<a href="/readings" onmouseover="PlayUISound('uisound3-3')">Readings</a>,
-<a href="/qr" onmouseover="PlayUISound('uisound3-3')">QR Generator</a>,
-<a href="/qr_scanner" onmouseover="PlayUISound('uisound3-3')">QR Scanner</a>.
+	{% if session.user then %}
+		<p>Logged in: '{%& session.user %}'</p>
+		{%= raw.link("/dog", "Dog Exhibit") %}
+		<a href="/logout">Logout</a>
+	{% else %}
+		<a href="/login">Login</a>
+	{% end %}
+	<hr>
+	<a href="/" onmouseover="PlayUISound('uisound3-1')">Home</a>
+	<a href="/projects" onmouseover="PlayUISound('uisound3-2')">Projects</a>
+	<a href="/readings" onmouseover="PlayUISound('uisound3-3')">Readings</a>
+	<a href="/qr" onmouseover="PlayUISound('uisound3-3')">QR Generator</a>
+	<a href="/qr_scanner" onmouseover="PlayUISound('uisound3-3')">QR Scanner</a>
 {% end %}
 
 
@@ -85,11 +92,11 @@
 				var staticHeight = document.getElementById("static-navbar").offsetHeight.toFixed(0);
 
 				document.getElementById("closed-navbar").style = "";
-				window.requestAnimationFrame(() => {
-					var closedHeight = document.getElementById("closed-navbar").offsetHeight.toFixed(0);
+				// window.requestAnimationFrame(() => {
+				// 	var closedHeight = document.getElementById("closed-navbar").offsetHeight.toFixed(0);
 
-					document.getElementById("closed-navbar").style = `margin-bottom:${staticHeight-closedHeight}px;`;
-				});	
+				// 	document.getElementById("closed-navbar").style = `margin-bottom:${staticHeight-closedHeight}px;`;
+				// });	
 			}
 
 			function sukuna_navbar_close(){
@@ -126,47 +133,30 @@
 			}
 
 			function onload(){
-				navbar_close();
+				// navbar_close();
 			}
 
 			
     	</script>
 
-		<!-- three navbars for the top -->
+		<!-- static-navbar -->
 
 		<div class="navbar" id="static-navbar">
-			<div style="display: flex;justify-content: space-between;">
-				<div>
-					{% block.navbar() %}
-				</div>
-				<div style="visibility: hidden; word-wrap: break-word;"><a style="font-size: 30px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
-			</div>
+			{% block.navbar() %}
 		</div>
 
-		<div class="navbar" id="open-navbar" style="">
-			<div style="display: flex;justify-content: space-between;">
-				<div>
-					{% block.navbar() %}
-				</div>
-				<div style="word-wrap: break-word;"><a style="font-size: 30px; color:white; justify-content: right; display: grid;" onclick="navbar_close()">▷</a></div>
-			</div>
-		</div>
-			
-		<div class="navbar" id="closed-navbar" style="display: none;">
-			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: right; display: grid;" onclick="navbar_open()">◀</a>
+		<!-- fixed close button navbar -->
+		
+		<div class="navbar" id="closed-navbar" style="">
+			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: right; display: grid;" onclick="sukuna_navbar_open()">◀</a>
 		</div>
 
-		<!-- sukuna navbar -->
+		<!-- fixed sukuna dropdown navbar -->
 
 		<div class="sukuna-navbar" id="sukuna-navbar" style="display:none;">
 			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: center; display: grid;" onclick="sukuna_navbar_close()">△</a>
-			{% if session.user then %}
-				<p>Hello {%& session.user %}</p>
-				<p>{%= raw.link("/dog", "Dog Exhibit") %}</p>
-				<a href="/logout">Logout</a>
-			{% else %}
-				<a href="/login">Login</a>
-			{% end %}
+
+			{% block.navbar() %}
 		</div>
 
 		<!-- main content -->
