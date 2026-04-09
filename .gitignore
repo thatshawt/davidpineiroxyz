@@ -1,3 +1,6 @@
 .idea
 davidpineiroxyz.com
 database.db
+copyparty/*.db*
+copyparty/**/*.hist
+copyparty

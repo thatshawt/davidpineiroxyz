@@ -29,7 +29,7 @@ do
 	local db <close> = common.getSqlConnection()
     common.sqlInit(db)
 
-	common.loadSecretsUsers(db)
+	common.replaceSaveSecretsUsers(db)
 end
 
 fm.setTemplateVar("serverStartDate", dateString)
@@ -97,6 +97,79 @@ fm.setRoute({"/logout", method = {"POST"}},
 	end
 )
 
-common.sendNtfy("Ready!")
+-- fork copyparty
+-- python3 = assert(unix.commandv('python3'))
+-- strace = assert(unix.commandv('strace'))
+-- echo = assert(unix.commandv('echo'))
+-- echo = "/nix/store/3sdbmzgasq0yji85zhm1rjdhi17ya64c-coreutils-full-9.7/bin/echo"
+-- if assert(unix.fork()) == 0 then
+	-- set limits on memory and cpu just in case
+    -- assert(unix.setrlimit(unix.RLIMIT_RSS, 2*1024*1024)) -- is this 2097152 bytes? kilobytes?
+    -- assert(unix.setrlimit(unix.RLIMIT_CPU, 2))
+
+	-- restrict file system
+	-- assert(unix.unveil("./copyparty", "rwc"))
+	-- assert(unix.unveil("/etc", "rxc"))
+	-- assert(unix.unveil("/tmp", "rwc"))
+	-- assert(unix.unveil("/nix", "rx"))
+	-- assert(unix.unveil("/proc", "r"))
+	-- assert(unix.unveil(nil, nil))
+	
+	-- promises = "stdio vminfo tmppath id dpath settime exec prot_exec proc settime rpath cpath wpath inet anet dns fattr tty flock recvfd sendfd chown"
+	-- execpromises = "stdio exec rpath cpath wpath inet dns flock recvfd sendfd"
+	-- execpromises = promises
+	-- execpromises = Nil
+	-- assert(unix.pledge(promises, Nil, PLEDGE_PENALTY_RETURN_EPERM)) -- restrict system calls
+
+	-- unix.execve(strace, {strace, python3, "copyparty/copyparty.pyz", "--grid", "-v", "./copyparty/stuff::r", "-p", "8083", "--ses-db", "./copyparty/sessions.db", "--unsafe-state"})
+	-- unix.execve(strace, {strace, echo, "hello"}, {})
+
+	-- common.sendNtfy("copyparty", "Closed!")
+	-- unix.exit(127)
+-- end
+-- unix.wait()
+-- unix.exit(127)
+
+function OnWorkerStart()
+    -- set limits on memory and cpu just in case
+    assert(unix.setrlimit(unix.RLIMIT_RSS, 2*1024*1024)) -- is this 2097152 bytes? kilobytes?
+    assert(unix.setrlimit(unix.RLIMIT_CPU, 2))
+
+	-- restrict file system
+	assert(unix.unveil(".", "rwc"))
+	assert(unix.unveil("/etc", "r"))
+	-- assert(unix.unveil("/etc", "r"))
+	-- assert(unix.unveil("/run/current-system/sw/bin", "rcx"))
+	assert(unix.unveil(nil, nil))
+
+	-- restrict system calls
+	-- promises = "stdio vminfo unveil tmppath id dpath settime exec prot_exec proc settime rpath cpath wpath inet anet dns fattr tty flock recvfd sendfd chown"
+	-- promises = "stdio rpath cpath wpath inet dns flock recvfd sendfd"
+	-- promises = "rpath exec prot_exec"
+	-- execpromises = "stdio rpath cpath wpath inet dns unix flock recvfd sendfd"
+	-- execpromises = promises
+	-- assert(unix.pledge())
+	-- assert(unix.pledge(promises, execpromises, PLEDGE_PENALTY_RETURN_EPERM))
+end
+
+-- function OnWorkerStop()
+	-- promises = "proc stdio exec prot_exec rpath"
+	-- execpromises = "stdio rpath cpath wpath inet dns unix flock recvfd sendfd"
+	-- execpromises = promises
+	-- assert(unix.pledge())
+	
+	-- TODO: patch redbean pledge so that it allows PR_SET_MM for prctl.
+	-- when pledging proc AND stdio, then we have to allow all of prctl and not just some parameters for the first one.
+	-- see https://github.com/jart/cosmopolitan/blob/eedf7d2db6e5ee0e228862690339c166a3f003a7/libc/calls/pledge-linux.c#L2073
+
+	-- if unix.fork() == 0 then
+	-- 	assert(unix.pledge(promises, Nil, PLEDGE_PENALTY_RETURN_EPERM))
+	-- 	unix.execve(strace, {strace, echo, "hello"}, {})
+	-- 	-- unix.execve(echo, {echo, "hello"}, {})
+	-- end
+	-- unix.wait()
+-- end
+
+common.sendNtfy("davidpineiro.xyz","Ready!")
 
 fm.run()

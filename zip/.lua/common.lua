@@ -21,11 +21,11 @@ function common.userReplaceSave(db, username, cleartextPassword)
     local changed = db:exec("INSERT INTO users VALUES ('%s', '%s');" % {username, hashedPass}) or 0
     changed = changed + (db:exec("UPDATE users SET password='%s' WHERE username='%s';" % {hashedPass, username}) or 0)
     
-    if changed == 0 then
-        fm.logInfo("failed to generate: username '%s', password '%s'" % {username, hashedPass})
-    else
+    -- if changed ~= 0 then
+    --     fm.logInfo("failed to generate: username '%s', password '%s'" % {username, hashedPass})
+    -- else
         fm.logInfo("generated user: username '%s', password '%s'" % {username, hashedPass})
-    end
+    -- end
 end
 
 function common.userVerify(db, username, cleartextPass)
@@ -116,13 +116,13 @@ else
     secrets = DecodeJson(secrets)
 end
 
-function common.loadSecretsUsers(db)
+function common.replaceSaveSecretsUsers(db)
     for k,v in pairs(secrets.users) do
         common.userReplaceSave(db, k, v)
     end
 end
 
-function common.sendNtfy(body, title)
+function common.sendNtfy(title, body)
     if secrets.ntfyUrl then
         Fetch(secrets.ntfyUrl,
             {
@@ -134,7 +134,7 @@ function common.sendNtfy(body, title)
             }
         )
     else
-        print("%s %s" % {body,title or "davidpineiro.xyz"})
+        print("sendNtfy: %s, %s" % {title or "davidpineiro.xyz", body})
     end
 end
 

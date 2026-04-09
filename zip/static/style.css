@@ -297,6 +297,8 @@ button {
   padding: 8px;
   margin: 5px;
 
+  transition: 0.3s;
+
   &:hover{
     border: 2px solid #ffffff7a;
     background-color: #0f2908b5;

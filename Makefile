@@ -11,4 +11,5 @@ package: clean davidpineiroxyz.com
 
 run: package
 	chmod +x davidpineiroxyz.com
-	bash -c "./davidpineiroxyz.com -p 8080 -- devmode"
+# 	bash -c "./davidpineiroxyz.com --assimilate"
+	exec ./davidpineiroxyz.com -p 8080 -- devmode

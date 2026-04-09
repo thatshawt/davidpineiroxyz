@@ -21,18 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
-<p>Scan QR codes. Yoinked and modified slightly from {%= raw.link("https://nimiq.github.io/qr-scanner/demo/","https://nimiq.github.io/qr-scanner/demo/") %}.</p>
-
- <!-- Tab links -->
-<div class="tab">
-  <button class="tablinks" onclick="openTab(event, 'webcam_tab')">Scan From Webcam</button>
-  <button class="tablinks" onclick="openTab(event, 'file_tab')">Scan From A File</button>
-</div>
 
 <!-- Tab content -->
 <div id="webcam_tab" class="tabcontent">
-    <h1>Scan from WebCam:</h1>
     <div class="inner-box">
+        <!-- Tab links -->
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'webcam_tab')">Scan From Webcam</button><button class="tablinks" onclick="openTab(event, 'file_tab')">Scan From A File</button>
+        </div>
+        <h1>Scan QR Code from WebCam:</h1>
         <div id="video-container">
             <video id="qr-video"></video>
         </div>
@@ -83,8 +80,12 @@ SOFTWARE. -->
 </div>
 
 <div id="file_tab" class="tabcontent">
-    <h1>Scan from File:</h1>
     <div class="inner-box">
+        <!-- Tab links -->
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'webcam_tab')">Scan From Webcam</button><button class="tablinks" onclick="openTab(event, 'file_tab')">Scan From A File</button>
+        </div>
+        <h1>Scan QR Code from File:</h1>
         <input type="file" id="file-selector">
         <br>
         <b>Detected QR code: </b>
@@ -228,21 +229,30 @@ openTab(event, 'webcam_tab');
 <style>
     /* TABS STYLING */
     /* Style the tab */
-    /* .tab {
-        overflow: hidden;
-        border: 1px solid #ccc;
-        background-color: #f1f1f1;
-    } */
+    .tab {
+        /* overflow: hidden; */
+        border: 3px solid white;
+        width: fit-content;
+        color: white;
+    }
 
     /* Style the buttons that are used to open the tab content */
     .tab button {
-        /* background-color: inherit;
-        float: left;
-        border: none;
-        outline: none;
+        background-color: black;
+        background-image: none;
+        /* float: left; */
+        border: 2px solid white;
+        border-radius: 0px;
+        padding: 0px;
+        margin: 0px;
+        /* outline: none; */
         cursor: pointer;
-        padding: 14px 16px; */
-        transition: 0.3s;
+        padding: 14px 16px;
+        transition: 0s;
+
+        &:hover{
+            background-color: rgb(73, 73, 73);
+        }
     }
 
     #video-container {
@@ -285,6 +295,9 @@ openTab(event, 'webcam_tab');
 <br>
 <hr>
 <br>
+
+<p>Scan QR codes. Yoinked and modified slightly from {%= raw.link("https://nimiq.github.io/qr-scanner/demo/","https://nimiq.github.io/qr-scanner/demo/") %}.</p>
+
 <code>MIT License
 
 Copyright (c) 2017 Nimiq, danimoh
