@@ -310,15 +310,15 @@ function common.forkCopyParty(port_)
         -- unix.execve(strace, {strace, bash, "-c", "echo hello"})
 
         print("starting copyparty")
-		unix.execve(python3, {python3, "../copyparty/copyparty.pyz",
+		unix.execve(python3, {python3, "./copyparty/copyparty.pyz",
             "--rp-loc=/copyparty",
             "--xff-src=lan",
             "--rproxy", "1",
             "--no-fnugg",
             "--grid",
-            "-v", "../copyparty/stuff::r",
+            "-v", "./copyparty/stuff::r",
             "-p", port,
-            "--ses-db", "../copyparty/sessions.db",
+            "--ses-db", "./copyparty/sessions.db",
             "--xf-proto-fb=http",
         })
 		-- unix.execve(strace, {strace, "-f", "-e", "trace=ioctl", python3, "../copyparty/copyparty.pyz", "--grid", "-v", "../copyparty/stuff::r", "-p", port, "--ses-db", "../copyparty/sessions.db", "--unsafe-state"})

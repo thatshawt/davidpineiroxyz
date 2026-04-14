@@ -1,7 +1,7 @@
 .idea
 davidpineiroxyz.com
 database.db
-copyparty/*.db*
-copyparty/**/*.hist
-copyparty/copyparty-sfx.py
-copyparty/copyparty
+prod/copyparty/*.db*
+prod/copyparty/**/*.hist
+prod/copyparty/copyparty-sfx.py
+prod/copyparty/copyparty
