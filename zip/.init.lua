@@ -119,7 +119,12 @@ fm.setRoute("/copyparty/*copyparty",
 		-- local path = EscapePath(r.params.splat and r.params.splat or "/")
 		local parsedGetUrl = ParseUrl(GetUrl())
 		-- print(GetUrl())
-		local replaceUrl = "%s://%s:%s"%{parsedGetUrl.scheme, parsedGetUrl.host, parsedGetUrl.port}
+		local replaceUrl
+		if parsedGetUrl.port then
+			replaceUrl = "%s://%s:%s"%{parsedGetUrl.scheme, parsedGetUrl.host, parsedGetUrl.port}
+		else
+			replaceUrl = "%s://%s"%{parsedGetUrl.scheme, parsedGetUrl.host}
+		end
 		-- print(replaceUrl)
 		-- local path = EscapePath(r.params.copyparty and r.params.copyparty or "/")
 		local path = string.gsub(GetUrl(), replaceUrl, "", 1)
