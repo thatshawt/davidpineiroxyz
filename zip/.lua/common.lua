@@ -274,7 +274,7 @@ function common.forkCopyParty(port_)
         end
 
         -- set limits on memory and cpu just in case
-        assert(unix.setrlimit(unix.RLIMIT_RSS, 300*1024*1024)) -- 300 megabytes
+        assert(unix.setrlimit(unix.RLIMIT_RSS, 1000*1024*1024)) -- 1000 megabytes
         assert(unix.setrlimit(unix.RLIMIT_CPU, 2))
 
         -- restrict file system
