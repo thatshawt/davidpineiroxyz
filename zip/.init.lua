@@ -168,7 +168,12 @@ fm.setRoute("/*copyparty",
 
 		local parsedGetUrl = ParseUrl(GetUrl())
 		-- local path = EscapePath(r.params.copyparty and r.params.copyparty or "/")
-		local path = string.gsub(GetUrl(), "%s://%s:%s"%{parsedGetUrl.scheme, parsedGetUrl.host, parsedGetUrl.port}, "", 1)
+		local path
+		if parsedGetUrl.port then
+			path = string.gsub(GetUrl(), "%s://%s:%s"%{parsedGetUrl.scheme, parsedGetUrl.host, parsedGetUrl.port}, "", 1)
+		else
+			path = string.gsub(GetUrl(), "%s://%s"%{parsedGetUrl.scheme, parsedGetUrl.host}, "", 1)
+		end
 		if common.starts_with(path, "/") == false then path = "/"..path end
 
 		local internalPath = "/copyparty%s" % {path}
