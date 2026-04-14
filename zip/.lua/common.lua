@@ -244,18 +244,18 @@ function common.check_caps()
     -- check if we have NET_ADMIN or NET_RAW
     local cap = common.exec(bash, {bash, "-c", "cat /proc/self/status | grep CapEff"})
     print(cap)
-    return {unsafe=false}
-    cap = tonumber(cap:gsub("%D", ""))
+    return {unsafe=false} end
+--     cap = tonumber(cap:gsub("%D", ""))
 
-    local NET_ADMIN = (1 << 12)
-    local NET_RAW   = (1 << 13)
+--     local NET_ADMIN = (1 << 12)
+--     local NET_RAW   = (1 << 13)
 
-    return {
-        net_admin = (cap & NET_ADMIN) ~= 0,
-        net_raw = (cap & NET_RAW) ~= 0,
-        unsafe = ((cap & NET_ADMIN) ~= 0) or ((cap & NET_RAW) ~= 0)
-    }
-end
+--     return {
+--         net_admin = (cap & NET_ADMIN) ~= 0,
+--         net_raw = (cap & NET_RAW) ~= 0,
+--         unsafe = ((cap & NET_ADMIN) ~= 0) or ((cap & NET_RAW) ~= 0)
+--     }
+-- end
 
 -- strace = assert(unix.commandv('strace'))
 python3 = unix.commandv('python3')
