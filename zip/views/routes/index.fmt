@@ -8,7 +8,7 @@
 		I like programming random things and learning about science and programming.
 	</p>
 
-	<h2>My Links</h2>
+	<h2>Socials</h2>
 	<form id="turnstileForm" action="" method="">
 		<div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}" data-callback="turnstileEnable" data-error-callback="turnstileDisable" data-expired-callback="turnstileDisable" data-timeout-callback="turnstileDisable"></div>
 		<button type="submit" id="emailButton" disabled="true"><h3>Click To Populate</h3></button>
@@ -21,6 +21,7 @@
 			My Email: <pre class="inline" id="email"></pre>
 		</li>
 
+		<!-- turnstile javscript -->
 		<script>
 			function turnstileEnable(){
 				document.getElementById('emailButton').disabled = false;
@@ -60,33 +61,37 @@
 				.catch(error => console.error('Error:', error));
 			});
 		</script>
-		
-		
 	</ul>
 
-	<!-- <h2>Cat</h2> -->
+	<h2>Two Curious Cats</h2>
 	<div class="inner-box">
-		ᓚᘏᗢ &lt;&lt;&lt; it's a cat
+		ᓚᘏᗢ; cat; el gatto
 		<video src="/static/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
 	</div>
 
-	<!-- <hr> -->
+	<h2>Links</h2>
+	<ul>
+		<li>{%= raw.outLink("/copyparty/", "Culture Receptacle") %}</li>
+	</ul>
 
 	<h2>My 88x31 Badges</h2>
-	<ul>
-		<li><div class="inner-box">
-			<h3>Animated (15.0 KiB):</h3>
-			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.gif") %}
-			<code class="badge-code">&lt;a target="_blank" rel="noopener noreferrer" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.gif&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
-		</div></li>
-
-		<li><div class="inner-box">
-			<h3>Static (3.2 KiB):</h3>
-			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.png") %}
-			<code class="badge-code">&lt;a target="_blank" rel="noopener noreferrer" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.png&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code>
-		</div></li>
-	</ul>
-	<h2>Cool Stuff</h2>
+	<table>
+		<tr>
+			<td>Badge</td>
+			<td>HTML Code</td>
+		</tr>
+		<tr>
+			<td><div>Animated (15.0 KiB):</div>
+			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.gif") %}</td>
+			<td><code class="badge-code">&lt;a target="_blank" rel="noopener noreferrer" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.gif&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code></td>
+		</tr>
+		<tr>
+			<td><div>Static (3.2 KiB):</div>
+			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.png") %}</td>
+			<td><code class="badge-code">&lt;a target="_blank" rel="noopener noreferrer" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.png&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code></td>
+		</tr>
+	</table>
+	<h2>Other Cool Links</h2>
 	<div>
 		{% block.makeBadge("https://justine.lol/cosmopolitan/", "/static/cosmopolitan-88x31.png") %}
 		{% block.makeBadge("https://molecule31.neocities.org/", "/static/molecule31.gif") %}

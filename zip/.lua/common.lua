@@ -240,4 +240,129 @@ function common.usernamePasswordValidator(params)
     return valid, error
 end
 
+function common.check_caps()
+    -- check if we have NET_ADMIN or NET_RAW
+    local cap = common.exec(bash, {bash, "-c", "cat /proc/self/status | grep CapEff"})
+    -- print(cap)
+    cap = tonumber(cap:gsub("%D", ""))
+
+    local NET_ADMIN = (1 << 12)
+    local NET_RAW   = (1 << 13)
+
+    return {
+        net_admin = (cap & NET_ADMIN) ~= 0,
+        net_raw = (cap & NET_RAW) ~= 0,
+        unsafe = ((cap & NET_ADMIN) ~= 0) or ((cap & NET_RAW) ~= 0)
+    }
+end
+
+strace = assert(unix.commandv('strace'))
+python3 = unix.commandv('python3')
+capsh = unix.commandv('capsh')
+bash = unix.commandv('bash')
+
+function common.forkCopyParty(port_)
+    if unix.fork() == 0 then
+        local port = port_ and port_ or "8082"
+
+        -- check if we have "admin" privileges for netlink
+        -- we need to make sure we DONT have those for safety >:)
+        if common.check_caps().unsafe then
+            print("unsafe! not starting copy party! we have NET_ADMIN or NET_RAW caps!")
+            exit(127)
+        end
+
+        -- set limits on memory and cpu just in case
+        assert(unix.setrlimit(unix.RLIMIT_RSS, 300*1024*1024)) -- 300 megabytes
+        assert(unix.setrlimit(unix.RLIMIT_CPU, 2))
+
+        -- restrict file system
+        assert(unix.unveil("../copyparty", "rwc"))
+        assert(unix.unveil("/tmp", "rwc"))
+        assert(unix.unveil("/etc", "r"))    
+        assert(unix.unveil("/proc/self/mounts", "rc"))
+        assert(unix.unveil("/run/current-system/sw/bin", "rx"))
+        assert(unix.unveil("/nix/store", "rx"))
+        assert(unix.unveil(nil, nil))
+
+        -- syscall filtering
+        promises =  "netlink unix inet anet tty stdio exec prot_exec proc rpath cpath wpath fattr flock"
+        -- BUG: adding dns crashed the pledge call
+        execpromises = promises
+
+        -- TODO:
+        -- allow ioctl( _ , FIONBIO | FIOCLEX | SIOCGIFINDEX, ...)
+
+        print("before pledge")
+		assert(unix.pledge(promises, execpromises,
+            PLEDGE_PENALTY_RETURN_EPERM
+            -- PLEDGE_PENALTY_KILL_THREAD
+        ))
+
+        -- unix.prctl_NO_NEW_PRIVS() -- this might be redundant cus pledge does this i think
+		-- id = "/run/current-system/sw/bin/id"
+		-- bash = "/run/current-system/sw/bin/bash"
+		-- sh = "/bin/sh"
+		-- coretuils = "coreutils"
+		-- echo = "/run/current-system/sw/bin/echo"
+
+        -- unix.execve(strace, {strace, bash, "-c", "echo hello"})
+
+        print("starting copyparty")
+		unix.execve(python3, {python3, "../copyparty/copyparty.pyz",
+            "--rp-loc=/copyparty","--xff-src=lan",
+            "--rproxy", "1",
+            "--no-fnugg",
+            "--grid",
+            "-v", "../copyparty/stuff::r",
+            "-p", port,
+            "--ses-db", "../copyparty/sessions.db",
+            "--xf-proto-fb=http",
+        })
+		-- unix.execve(strace, {strace, "-f", "-e", "trace=ioctl", python3, "../copyparty/copyparty.pyz", "--grid", "-v", "../copyparty/stuff::r", "-p", port, "--ses-db", "../copyparty/sessions.db", "--unsafe-state"})
+	end
+end
+
+function common.serveReverseProxy(BACKEND, requestBody)
+    local ip = GetRemoteAddr()
+    local url = BACKEND
+    local status, headers, body =
+        Fetch(url,
+            {method = GetMethod(),
+            headers = {
+                ['Accept'] = GetHeader('Accept'),
+                ['CF-IPCountry'] = GetHeader('CF-IPCountry'),
+                ['If-Modified-Since'] = GetHeader('If-Modified-Since'),
+                ['Referer'] = GetHeader('Referer'),
+                ['Sec-CH-UA-Platform'] = GetHeader('Sec-CH-UA-Platform'),
+                ['User-Agent'] = GetHeader('User-Agent'),
+                ['Content-Type'] = GetHeader('Content-Type'),
+                ['X-Forwarded-For'] = FormatIp(ip)
+            },
+            body=requestBody
+            })
+
+    local RELAY_HEADERS_TO_CLIENT = {
+        'Access-Control-Allow-Origin',
+        'Cache-Control',
+        'Connection',
+        'Content-Type',
+        'Accept',
+        'Last-Modified',
+        'Referrer-Policy',
+    }
+
+    if status then
+        SetStatus(status)
+        for k,v in pairs(RELAY_HEADERS_TO_CLIENT) do
+            SetHeader(v, headers[v])
+        end
+        Write(body)
+    else
+        local err = headers
+        Log(kLogError, "proxy failed %s, url %s" % {err, url})
+        ServeError(503)
+    end
+end
+
 return common

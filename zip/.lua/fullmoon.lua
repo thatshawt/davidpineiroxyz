@@ -1234,6 +1234,7 @@ local fm = setmetatable({ _VERSION = VERSION, _NAME = NAME, _COPYRIGHT = "Paul K
   serveIndex = function(path) return function() return ServeIndex(checkPath(path)) end end,
   -- handle and serve existing path, including asset, Lua, folder/index, and pre-configured redirect
   servePath = function(path) return function() return RoutePath(checkPath(path)) end end,
+  serveRoute = function(path) return function() return Route(checkPath(path)) end end,
   -- return asset (de/compressed) along with checking for asset range and last/not-modified
   serveAsset = function(path) return function() return ServeAsset(checkPath(path)) end end,
   serveError = function(status, reason, msg)

@@ -97,49 +97,94 @@ fm.setRoute({"/logout", method = {"POST"}},
 	end
 )
 
--- fork copyparty
--- python3 = assert(unix.commandv('python3'))
--- strace = assert(unix.commandv('strace'))
--- echo = assert(unix.commandv('echo'))
--- echo = "/nix/store/3sdbmzgasq0yji85zhm1rjdhi17ya64c-coreutils-full-9.7/bin/echo"
--- if assert(unix.fork()) == 0 then
-	-- set limits on memory and cpu just in case
-    -- assert(unix.setrlimit(unix.RLIMIT_RSS, 2*1024*1024)) -- is this 2097152 bytes? kilobytes?
-    -- assert(unix.setrlimit(unix.RLIMIT_CPU, 2))
+echo = assert(unix.commandv('echo'))
 
-	-- restrict file system
-	-- assert(unix.unveil("./copyparty", "rwc"))
-	-- assert(unix.unveil("/etc", "rxc"))
-	-- assert(unix.unveil("/tmp", "rwc"))
-	-- assert(unix.unveil("/nix", "rx"))
-	-- assert(unix.unveil("/proc", "r"))
-	-- assert(unix.unveil(nil, nil))
-	
-	-- promises = "stdio vminfo tmppath id dpath settime exec prot_exec proc settime rpath cpath wpath inet anet dns fattr tty flock recvfd sendfd chown"
-	-- execpromises = "stdio exec rpath cpath wpath inet dns flock recvfd sendfd"
-	-- execpromises = promises
-	-- execpromises = Nil
-	-- assert(unix.pledge(promises, Nil, PLEDGE_PENALTY_RETURN_EPERM)) -- restrict system calls
+-- start copyparty
+local copyPartyPort = "8082"
+common.forkCopyParty(copyPartyPort)
+common.sendNtfy("copyparty", "started!")
 
-	-- unix.execve(strace, {strace, python3, "copyparty/copyparty.pyz", "--grid", "-v", "./copyparty/stuff::r", "-p", "8083", "--ses-db", "./copyparty/sessions.db", "--unsafe-state"})
-	-- unix.execve(strace, {strace, echo, "hello"}, {})
+-- /copyparty -> /copyparty/*
+fm.setRoute("/copyparty", "/copyparty/")
+-- fm.setRoute("/copyparty/",
+-- 	function(r)
+-- 		local url = "http://127.0.0.1:%s/" % {copyPartyPort}
+-- 		print(url)
+-- 		common.serveReverseProxy(url)
+-- 		return true
+-- 	end)
+-- /copyparty/* |rvrs-proxy> http://internalcopyparty/
+fm.setRoute("/copyparty/*copyparty",
+	function(r)
+		-- local path = EscapePath(r.params.splat and r.params.splat or "/")
+		local parsedGetUrl = ParseUrl(GetUrl())
+		-- print(GetUrl())
+		local replaceUrl = "%s://%s:%s"%{parsedGetUrl.scheme, parsedGetUrl.host, parsedGetUrl.port}
+		-- print(replaceUrl)
+		-- local path = EscapePath(r.params.copyparty and r.params.copyparty or "/")
+		local path = string.gsub(GetUrl(), replaceUrl, "", 1)
+		if common.starts_with(path, "/") == false then path = "/"..path end
+		-- print("serving reverse proxy path %s" % {path})
+		common.serveReverseProxy("http://127.0.0.1:%s%s" % {copyPartyPort, path}, GetBody() )
+		return true
+	end)
 
-	-- common.sendNtfy("copyparty", "Closed!")
-	-- unix.exit(127)
--- end
--- unix.wait()
--- unix.exit(127)
+-- catch requests from copyparty forked server
+fm.setRoute("/*copyparty",
+	function(r)
+		local referer = GetHeader('Referer')
+		-- print("got referer %s" % {referer})
+		if referer == Nil or referer == "" then return false end
+		-- print("catchall copyparty referer'%s' path'%s'" % {GetUrl(),referer})
+
+		referer = ParseUrl(referer).path
+		-- print("got referer path %s" % {referer})
+		-- print("ParseUrl(GetHeader('Referer')):")
+		-- for k,v in pairs(ParseUrl(GetHeader('Referer'))) do
+		-- 	print("%s = %s"%{k,v})
+		-- end
+		if referer == Nil then return false end
+
+		-- skip unsafe urls i think...
+		if IsAcceptablePath(referer) == false then return false end
+		-- print("acceptable")
+
+		local copyparty = common.starts_with(referer, '/copyparty/') or referer == "/copyparty"
+		if copyparty == false then return false end
+		
+		-- print("GetUrl() = %s" % {GetUrl()})
+		-- print("ParseUrl(GetUrl()):")
+		-- for k,v in pairs(ParseUrl(GetUrl()))
+		-- 	do print("%s = %s"%{k,v}) end
+
+		-- print("r.params:")
+		-- for k,v in pairs(r.params)
+		-- 	do print("%s = %s" % {k,v}) end
+
+		local parsedGetUrl = ParseUrl(GetUrl())
+		-- local path = EscapePath(r.params.copyparty and r.params.copyparty or "/")
+		local path = string.gsub(GetUrl(), "%s://%s:%s"%{parsedGetUrl.scheme, parsedGetUrl.host, parsedGetUrl.port}, "", 1)
+		if common.starts_with(path, "/") == false then path = "/"..path end
+
+		local internalPath = "/copyparty%s" % {path}
+		-- print("serving internal %s" % {internalPath})
+		common.serveReverseProxy("http://127.0.0.1:8080%s" % {internalPath})
+		
+		return true
+	end)
 
 function OnWorkerStart()
     -- set limits on memory and cpu just in case
-    assert(unix.setrlimit(unix.RLIMIT_RSS, 2*1024*1024)) -- is this 2097152 bytes? kilobytes?
+    assert(unix.setrlimit(unix.RLIMIT_RSS, 2*1024*1024)) -- 2 megabytes
     assert(unix.setrlimit(unix.RLIMIT_CPU, 2))
-
+	
 	-- restrict file system
 	assert(unix.unveil(".", "rwc"))
+	assert(unix.unveil("/tmp", "rwc"))
 	assert(unix.unveil("/etc", "r"))
-	-- assert(unix.unveil("/etc", "r"))
-	-- assert(unix.unveil("/run/current-system/sw/bin", "rcx"))
+	assert(unix.unveil("/proc/self/mounts", "rc"))
+	assert(unix.unveil("/run/current-system/sw/bin", "rx"))
+	assert(unix.unveil("/nix/store", "rx"))
 	assert(unix.unveil(nil, nil))
 
 	-- restrict system calls
@@ -152,23 +197,28 @@ function OnWorkerStart()
 	-- assert(unix.pledge(promises, execpromises, PLEDGE_PENALTY_RETURN_EPERM))
 end
 
--- function OnWorkerStop()
-	-- promises = "proc stdio exec prot_exec rpath"
-	-- execpromises = "stdio rpath cpath wpath inet dns unix flock recvfd sendfd"
-	-- execpromises = promises
-	-- assert(unix.pledge())
-	
-	-- TODO: patch redbean pledge so that it allows PR_SET_MM for prctl.
-	-- when pledging proc AND stdio, then we have to allow all of prctl and not just some parameters for the first one.
-	-- see https://github.com/jart/cosmopolitan/blob/eedf7d2db6e5ee0e228862690339c166a3f003a7/libc/calls/pledge-linux.c#L2073
+
+-- strace = assert(unix.commandv('strace'))
+function OnWorkerStop()
+	-- promises = "debug stdio proc vminfo unveil tmppath id dpath settime exec prot_exec settime rpath cpath wpath inet anet dns fattr tty flock recvfd sendfd chown"
 
 	-- if unix.fork() == 0 then
-	-- 	assert(unix.pledge(promises, Nil, PLEDGE_PENALTY_RETURN_EPERM))
-	-- 	unix.execve(strace, {strace, echo, "hello"}, {})
-	-- 	-- unix.execve(echo, {echo, "hello"}, {})
+	-- 	-- assert(unix.pledge(promises))
+	-- 	id = "/run/current-system/sw/bin/id"
+	-- 	bash = "/run/current-system/sw/bin/bash"
+	-- 	sh = "/bin/sh"
+	-- 	coretuils = "coreutils"
+	-- 	echo = "/run/current-system/sw/bin/echo"
+	-- 	-- unix.execve(echo, {echo, "hello"})
+	-- 	-- unix.execve(strace, {strace, echo, "hello"})
+	-- 	-- unix.execve(sh, {sh, "-c", "echo hello"})
+	-- 	-- unix.execve(bash, {bash, "-c", "echo hello"})
+	-- 	-- unix.execve(echo, {echo, "hello"})
+	-- 	-- unix.execve(coretuils, {coretuils, "--coreutils-prog=echo", "hello"})
+	-- 	unix.exit(127)
 	-- end
 	-- unix.wait()
--- end
+end
 
 common.sendNtfy("davidpineiro.xyz","Ready!")
 
