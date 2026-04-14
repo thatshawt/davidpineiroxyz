@@ -278,7 +278,7 @@ function common.forkCopyParty(port_)
         assert(unix.setrlimit(unix.RLIMIT_CPU, 2))
 
         -- restrict file system
-        assert(unix.unveil("../copyparty", "rwc"))
+        assert(unix.unveil("./copyparty", "rwc"))
         assert(unix.unveil("/tmp", "rwc"))
         assert(unix.unveil("/etc", "r"))    
         assert(unix.unveil("/proc/self/mounts", "rc"))
