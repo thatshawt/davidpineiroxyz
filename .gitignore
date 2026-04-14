@@ -3,4 +3,5 @@ davidpineiroxyz.com
 database.db
 copyparty/*.db*
 copyparty/**/*.hist
-copyparty
+copyparty/copyparty-sfx.py
+copyparty/copyparty

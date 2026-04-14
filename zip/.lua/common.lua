@@ -311,7 +311,8 @@ function common.forkCopyParty(port_)
 
         print("starting copyparty")
 		unix.execve(python3, {python3, "../copyparty/copyparty.pyz",
-            "--rp-loc=/copyparty","--xff-src=lan",
+            "--rp-loc=/copyparty",
+            "--xff-src=lan",
             "--rproxy", "1",
             "--no-fnugg",
             "--grid",
