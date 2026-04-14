@@ -256,9 +256,9 @@ function common.check_caps()
     }
 end
 
-strace = assert(unix.commandv('strace'))
+-- strace = assert(unix.commandv('strace'))
 python3 = unix.commandv('python3')
-capsh = unix.commandv('capsh')
+-- capsh = unix.commandv('capsh')
 bash = unix.commandv('bash')
 
 function common.forkCopyParty(port_)

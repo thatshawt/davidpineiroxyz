@@ -7,7 +7,7 @@ clean:
 	rm -f prod/davidpineiroxyz.com
 
 prod/davidpineiroxyz.com: ${REDBEAN}
-	mkdir prod
+	mkdir -p prod
 	cp ${REDBEAN} prod/davidpineiroxyz.com
 
 package: clean prod/davidpineiroxyz.com
