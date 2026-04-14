@@ -243,7 +243,7 @@ end
 function common.check_caps()
     -- check if we have NET_ADMIN or NET_RAW
     local cap = common.exec(bash, {bash, "-c", "cat /proc/self/status | grep CapEff"})
-    -- print(cap)
+    print(cap)
     cap = tonumber(cap:gsub("%D", ""))
 
     local NET_ADMIN = (1 << 12)
