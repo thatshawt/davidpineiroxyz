@@ -64,6 +64,16 @@ end
 
 common.stringtobool={ ["true"]=true, ["false"]=false }
 
+function common.isDevmode()
+    for k,v in pairs(arg) do
+        -- fm.logInfo(k.." = "..tostring(v))
+        if v == "--devmode" then
+            return true
+        end
+    end
+    return false
+end
+
 function common.exec(prog, args, env)
 	reader, writer = assert(unix.pipe())
 	if assert(unix.fork()) == 0 then
@@ -240,6 +250,16 @@ function common.usernamePasswordValidator(params)
     return valid, error
 end
 
+
+local python3 = assert(unix.commandv('python3'))
+-- capsh = assert(unix.commandv('capsh'))
+local bash = assert(unix.commandv('bash'))
+
+local strace
+if common.isDevmode() then
+    strace = assert(unix.commandv('strace'))
+end
+
 function common.check_caps()
     -- check if we have NET_ADMIN or NET_RAW
     local cap = common.exec(bash, {bash, "-c", "cat /proc/self/status | grep CapEff"})
@@ -256,11 +276,6 @@ function common.check_caps()
 --         unsafe = ((cap & NET_ADMIN) ~= 0) or ((cap & NET_RAW) ~= 0)
 --     }
 -- end
-
--- strace = assert(unix.commandv('strace'))
-python3 = unix.commandv('python3')
--- capsh = unix.commandv('capsh')
-bash = unix.commandv('bash')
 
 function common.forkCopyParty(port_)
     if unix.fork() == 0 then
@@ -292,7 +307,22 @@ function common.forkCopyParty(port_)
         execpromises = promises
 
         -- TODO:
-        -- allow ioctl( _ , FIONBIO | FIOCLEX | SIOCGIFINDEX, ...)
+        -- [25218971.186136]audit: 
+        -- type=1326 
+        -- audit(1776209985.282:154): auid=4294967295 
+        -- uid=1000 
+        -- gid=994 
+        -- ses=4294967295 
+        -- subj=kernel 
+        -- pid=2492144 
+        -- comm="python3" 
+        -- exe="/nix/store/dksjvr69ckglyw1k2ss1qgshhcix73p8-python3-3.12.8/bin/python3.12" 
+        -- sig=31 
+        -- arch=c000003e 
+        -- syscall=16 
+        -- compat=0 
+        -- ip=0x7ff624d1368f 
+        -- code=0x0
 
         print("before pledge")
 		assert(unix.pledge(promises, execpromises,
@@ -321,7 +351,18 @@ function common.forkCopyParty(port_)
             "--ses-db", "./copyparty/sessions.db",
             "--xf-proto-fb=http",
         })
-		-- unix.execve(strace, {strace, "-f", "-e", "trace=ioctl", python3, "../copyparty/copyparty.pyz", "--grid", "-v", "../copyparty/stuff::r", "-p", port, "--ses-db", "../copyparty/sessions.db", "--unsafe-state"})
+        -- unix.execve(strace, {strace, "-f", "-e", "trace=ioctl",
+        --     python3, "./copyparty/copyparty.pyz",
+        --     "--rp-loc=/copyparty",
+        --     "--xff-src=lan",
+        --     "--rproxy", "1",
+        --     "--no-fnugg",
+        --     "--grid",
+        --     "-v", "./copyparty/stuff::r",
+        --     "-p", port,
+        --     "--ses-db", "./copyparty/sessions.db",
+        --     "--xf-proto-fb=http",
+        -- })
 	end
 end
 

@@ -16,4 +16,4 @@ package: clean prod/davidpineiroxyz.com
 run: package
 	chmod +x prod/davidpineiroxyz.com
 # 	bash -c "./prod/davidpineiroxyz.com --assimilate"
-	cd prod; exec ./davidpineiroxyz.com -p 8080 -- devmode
+	cd prod; exec ./davidpineiroxyz.com -p 8080 -- --devmode

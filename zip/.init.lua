@@ -7,17 +7,11 @@ date = assert(unix.commandv('date'))
 local dateString = common.exec(date)
 dateString = dateString:sub(1, #dateString - 1) -- remove last char
 
-devMode = false
-for k,v in pairs(arg) do
-	fm.logInfo(k.." = "..tostring(v))
-	if v == "devmode" then
-		devMode = true
-	end
-end
 
-Log(kLogInfo, "devmode '%s'" % {tostring(devMode)})
 Log(kLogInfo, "got date string '%s'" % {dateString})
 
+devMode = common.isDevmode()
+Log(kLogInfo, "devmode '%s'" % {tostring(devMode)})
 if devMode then
 	fm.setTemplateVar("turnstile_key", "1x00000000000000000000AA")
 else
