@@ -253,11 +253,12 @@ end
 
 local python3 = assert(unix.commandv('python3'))
 -- capsh = assert(unix.commandv('capsh'))
-local bash = assert(unix.commandv('bash'))
 
+local bash
 local strace
 if common.isDevmode() then
     strace = assert(unix.commandv('strace'))
+    bash = assert(unix.commandv('bash'))
 end
 
 function common.check_caps()
