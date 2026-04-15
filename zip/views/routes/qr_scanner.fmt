@@ -22,24 +22,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
 
+<h2>Scan QR Code</h2>
 <!-- Tab content -->
 <div id="webcam_tab" class="tabcontent">
+    <!-- Tab links -->
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'webcam_tab')">Scan From Webcam</button><button class="tablinks" onclick="openTab(event, 'file_tab')">Scan From A File</button>
+    </div>
     <div class="inner-box">
-        <!-- Tab links -->
-        <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'webcam_tab')">Scan From Webcam</button><button class="tablinks" onclick="openTab(event, 'file_tab')">Scan From A File</button>
-        </div>
-        <h1>Scan QR Code from WebCam:</h1>
-        <div id="video-container">
-            <video id="qr-video"></video>
+        <div>
+            <b>Preferred camera:</b>
+            <select id="cam-list">
+                <option value="environment" selected>Environment Facing (default)</option>
+                <option value="user">User Facing</option>
+            </select>
         </div>
         <button id="start-button">Start</button>
         <button id="stop-button">Stop</button>
         <b>Detected QR code: </b>
         <code id="cam-qr-result"></code>
+        <div id="video-container">
+            <video id="qr-video"></video>
+        </div>
+        
+        
     </div>
-    <b>Last detected at: </b>
-    <span id="cam-qr-result-timestamp"></span>
+    <h2>Settings</h2>
     <div>
         <label>
             Highlight Style
@@ -56,20 +64,20 @@ SOFTWARE. -->
         </label>
     </div>
     <div>
-        <select id="inversion-mode-select">
-            <option value="original">Scan original (dark QR code on bright background)</option>
-            <option value="invert">Scan with inverted colors (bright QR code on dark background)</option>
-            <option value="both">Scan both</option>
-        </select>
+        <label>
+            Scan mode
+            <select id="inversion-mode-select">
+                <option value="original">Scan original (dark QR code on bright background)</option>
+                <option value="invert">Scan with inverted colors (bright QR code on dark background)</option>
+                <option value="both">Scan both</option>
+            </select>
+        </label>
         <br>
     </div>
-    <div>
-        <b>Preferred camera:</b>
-        <select id="cam-list">
-            <option value="environment" selected>Environment Facing (default)</option>
-            <option value="user">User Facing</option>
-        </select>
-    </div>
+    <h2>Info</h2>
+    <b>Last detected at: </b>
+    <span id="cam-qr-result-timestamp"></span>
+    <br>
     <b>Camera has flash: </b>
     <span id="cam-has-flash"></span>
     <div>
@@ -80,12 +88,12 @@ SOFTWARE. -->
 </div>
 
 <div id="file_tab" class="tabcontent">
+    <!-- Tab links -->
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'webcam_tab')">Scan From Webcam</button><button class="tablinks" onclick="openTab(event, 'file_tab')">Scan From A File</button>
+    </div>
     <div class="inner-box">
-        <!-- Tab links -->
-        <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'webcam_tab')">Scan From Webcam</button><button class="tablinks" onclick="openTab(event, 'file_tab')">Scan From A File</button>
-        </div>
-        <h1>Scan QR Code from File:</h1>
+        <!-- <h1>Scan QR Code from File:</h1> -->
         <input type="file" id="file-selector">
         <br>
         <b>Detected QR code: </b>

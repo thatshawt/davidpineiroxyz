@@ -263,8 +263,8 @@ end
 
 function common.check_caps()
     -- check if we have NET_ADMIN or NET_RAW
-    local cap = common.exec(bash, {bash, "-c", "cat /proc/self/status | grep CapEff"})
-    print(cap)
+    -- local cap = common.exec(bash, {bash, "-c", "cat /proc/self/status | grep CapEff"})
+    -- print(cap)q
     return {unsafe=false} end
 --     cap = tonumber(cap:gsub("%D", ""))
 
@@ -290,8 +290,8 @@ function common.forkCopyParty(port_)
         end
 
         -- set limits on memory and cpu just in case
-        assert(unix.setrlimit(unix.RLIMIT_RSS, 500*1024*1024)) -- 500 megabytes
-        assert(unix.setrlimit(unix.RLIMIT_CPU, 5, 10)) -- soft 5 cpu seconds, hard 10 cpu seconds
+        assert(unix.setrlimit(unix.RLIMIT_RSS, 700*1024*1024)) -- 700 megabytes
+        assert(unix.setrlimit(unix.RLIMIT_CPU, 10, 30)) -- soft 10 cpu seconds, hard 30 cpu seconds
 
         -- restrict file system
         assert(unix.unveil("./copyparty", "rwc"))
