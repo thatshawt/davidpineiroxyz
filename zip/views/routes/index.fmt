@@ -69,10 +69,10 @@
 		<video src="/static/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
 	</div>
 
-	<!-- <h2>Links</h2>
+	<h2>Links</h2>
 	<ul>
 		<li>{%= raw.outLink("/copyparty/", "Culture Receptacle") %}</li>
-	</ul> -->
+	</ul>
 
 	<h2>My 88x31 Badges</h2>
 	<table>
