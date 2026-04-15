@@ -5,6 +5,7 @@ all: clean package run
 
 clean:
 	rm -f prod/davidpineiroxyz.com
+	rm -rf prod/copyparty/stuff/.hist
 
 prod/davidpineiroxyz.com: ${REDBEAN}
 	mkdir -p prod
