@@ -69,7 +69,7 @@
 	</ul>
 
 	<h2>Cat Portal. ᓚᘏᗢ "Meow"</h2>
-	<div class="inner-box">
+	<div class="static-bg inner-box">
 		<video src="/static/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
 	</div>
 

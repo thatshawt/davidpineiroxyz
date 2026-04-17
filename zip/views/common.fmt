@@ -16,7 +16,9 @@
 
 
 {% function block.makeBadge(url, image) %}
+	<!-- <div class="inner-box"> -->
 	{%= raw.link(url, "<img class='web-badge' src='%s' alt=''>" % {image}, "unsafe") %}
+	<!-- </div> -->
 {% end %}
 
 {% function block.InnerBoxLinkDesc(url, urltext, bottomText, unsafe, flex) %}

@@ -4,7 +4,7 @@
 	<div id="loading" hidden=""></div>
 	<div id="loaded"></div>
 	<h1>QR Code Generator</h1>
-	<div class="inner-box">
+	<div class="">
 		<table class="layout" style="">
 			<tr>
 				<td><label for="text-input"><strong>Text string:</strong></label></td>

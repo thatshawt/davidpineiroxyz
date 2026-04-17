@@ -22,14 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. -->
 
 
-<h2>Scan QR Code</h2>
+<h1>QR Code Scanner</h1>
 <!-- Tab content -->
 <div id="webcam_tab" class="tabcontent">
     <!-- Tab links -->
     <div class="tab">
-        <button class="tablinks" onclick="openTab(event, 'webcam_tab')">Scan From Webcam</button><button class="tablinks" onclick="openTab(event, 'file_tab')">Scan From A File</button>
+        <button class="tablinks" disabled>Scan From Webcam</button><button class="tablinks" onclick="openTab(event, 'file_tab')">Scan From A File</button>
     </div>
-    <div class="inner-box">
+    <div class="">
         <div>
             <b>Preferred camera:</b>
             <select id="cam-list">
@@ -90,9 +90,9 @@ SOFTWARE. -->
 <div id="file_tab" class="tabcontent">
     <!-- Tab links -->
     <div class="tab">
-        <button class="tablinks" onclick="openTab(event, 'webcam_tab')">Scan From Webcam</button><button class="tablinks" onclick="openTab(event, 'file_tab')">Scan From A File</button>
+        <button class="tablinks" onclick="openTab(event, 'webcam_tab')">Scan From Webcam</button><button class="tablinks" disabled>Scan From A File</button>
     </div>
-    <div class="inner-box">
+    <div class="">
         <!-- <h1>Scan QR Code from File:</h1> -->
         <input type="file" id="file-selector">
         <br>

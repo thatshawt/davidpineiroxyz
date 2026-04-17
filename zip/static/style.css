@@ -144,6 +144,8 @@ div.footer{
 
 .navbar{
   border: 2px solid #2cff00db;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
 
   background-color: #165a135e;
   background-blend-mode: color-dodge;
@@ -177,7 +179,7 @@ div.navbar  p {
   margin: 0;
 }
 
-#open-navbar{
+/* #open-navbar{
   right:0;
   height: fit-content;
   position: fixed;
@@ -186,10 +188,11 @@ div.navbar  p {
   padding: 10px;
   display: block;
   z-index: 100;
-}
+} */
 
 #closed-navbar {
   border: 2px solid #ff5401db;
+  border-radius: 6px;
 
   background-color: #5a2e135e;
   background-blend-mode: color-dodge;
@@ -219,6 +222,7 @@ div.navbar  p {
   overflow-y: scroll;
 
   border: 2px solid #ff5401db;
+  border-radius: 6px;
 
   background-color: #5a2e135e;
   background-blend-mode: color-dodge;
@@ -309,24 +313,18 @@ button {
 div.section{
   background-color: #321436b0;
   border: 2px solid #00e7ffd6;
-/*   
-  border-bottom: 2px solid #00e7ffd6;
-  border-left: 2px solid #00e7ffd6;
-  border-right: 2px solid #00e7ffd6; 
-  */
-
-  /* margin-top: 10px;
-  margin-bottom: 10px; */
-  /* margin-left: 10px;
-  margin-right: 10px; */
   padding: 10px;
-  /* display: grid; */
   justify-content: left;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
 }
 
 .inner-box{
   background-color: #321436b0;
+  
   border: 2px solid #427ad1f2;
+  border-radius: 6px;
+
   margin: 10px;
   padding: 10px;
   display: grid;
@@ -334,6 +332,22 @@ div.section{
   width: fit-content;
   height: fit-content;
 }
+
+@keyframes rainbow { 
+    0%{background-position:0% 82%}
+    50%{background-position:100% 19%}
+    100%{background-position:0% 82%}
+}
+
+.static-bg {
+  background: linear-gradient(124deg, #ff22006d, #e81d1d6d, #e8b91d6d, #e5e81d6c, #1de83f66, #1ddee870, #2b1de877, #df00f36b, #df00f36e);
+  background-image: url("/static/404-static.gif");
+  background-size: 200%;
+  animation: rainbow 18s ease-out infinite;
+  image-rendering: pixelated;
+  background-color: unset;
+}
+
 
 div.lean {
   background-color: #c800ff7a;

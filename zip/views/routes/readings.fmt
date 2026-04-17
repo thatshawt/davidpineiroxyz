@@ -4,20 +4,37 @@
 	<ul>
 		<li>{% block.InnerBoxLinkDesc(
 				"/fun/natethesnake",
-				"Nate The Snake",
-				"This is a long read, like 1-2 hours. Great story and hilarious ending I highly recommend."
+				"&quot;Nate The Snake&quot;",
+				"This is a long read, like 1-2 hours. Great story and hilarious ending I highly recommend.",
+				"unsafe"
 				) %}
 		</li>
 		<li>{% block.InnerBoxLinkDesc(
 				"/fun/backyardcarnival",
-				"Backyard Carnival of Death",
-				"A classic. Like 5-10 minutes read."
+				"&quot;Backyard Carnival of Death&quot;",
+				"A classic. Like 5-10 minutes read.",
+				"unsafe"
 				) %}
 		</li>
 		<li>{% block.InnerBoxLinkDesc(
 				"/fun/regex_parse_html",
-				"RegEx match open tags except XHTML self-contained tags",
-				"Quick read. You dare not parse HTML with regex..."
+				"&quot;RegEx match open tags except XHTML self-contained tags&quot;",
+				"Quick read. You dare not parse HTML with regex...",
+				"unsafe"
+				) %}
+		</li>
+		<li>{% block.InnerBoxLinkDesc(
+				"/fun/python_dictionaries",
+				"&quot;Dictionary in Python&quot;",
+				[[We got <code class="inline">turds</code>, <code class="inline">virgins</code> and more!]]
+				,"unsafe"
+				) %}
+		</li>
+		<li>{% block.InnerBoxLinkDesc(
+				"https://www.icd10data.com/ICD10CM/Codes/V00-Y99/W50-W64/W59-/W59.22",
+				"&quot;Struck by turtle&quot;",
+				"Rest assured. If you are ever struck by a turtle, there is a code for that.",
+				"unsafe"
 				) %}
 		</li>
 	</ul>
