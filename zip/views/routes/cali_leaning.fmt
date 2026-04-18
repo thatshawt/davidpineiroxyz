@@ -1,14 +1,14 @@
 {% function block.content() %}
 	<h2>california leaning</h2>
 
-    {%=  raw.link("https://soundcloud.com/yungorion05/california-leaning", "soundcloud") %}
-    {%= raw.link("https://www.instagram.com/yungorion/","instagram.com/yungorion") %}
+    {%= raw.link("https://soundcloud.com/yungorion05/california-leaning", "https://soundcloud.com/yungorion05/california-leaning") %}
+    {%= raw.link("https://www.instagram.com/yungorion/","https://www.instagram.com/yungorion/") %}
 
     <p>all the lean is pink!!!</p>
 
     <br>
 
-    <video src="/static/qr/cali_leaning.mp4" controls></video>
+    <video preload src="/static/qr/cali_leaning.mp4" controls></video>
     <br>
     <br>
     <div class="inner-box">{%= raw.link("/dog", "Dog Exhibit") %}</div>
