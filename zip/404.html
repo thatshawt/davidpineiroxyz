@@ -33,5 +33,32 @@
         </div>
 
         <!-- <h2>music: <a href="song link">song name here</a></h2> -->
+        <script>
+            poo = async () => {
+                const audioCtx = new AudioContext();
+    
+                try {
+                    const response = await fetch("/static/sounds/cosmic-scapes-soft-brown-noise-299934.ogg");
+                    const buffer = await audioCtx.decodeAudioData(await response.arrayBuffer());
+    
+                    const source = audioCtx.createBufferSource();
+                    source.loop = true;
+                    source.buffer = buffer;
+        
+                    const gainNode = audioCtx.createGain();
+                    gainNode.gain.value = 0.05;
+                    
+                    source.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    
+                    source.start();
+                } catch (err) {
+                    console.error(`Unable to fetch the audio file. Error: ${err.message}`);
+                }
+                
+            };
+            poo();
+
+        </script>
     </body>
 </html>

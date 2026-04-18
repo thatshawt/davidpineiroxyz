@@ -148,11 +148,11 @@ div.footer{
   border-top-right-radius: 6px;
 
   background-color: #165a135e;
-  background-blend-mode: color-dodge;
-  background-image: url("/static/dark_exa.png");
-  background-attachment: fixed;
-  background-size: 66px;
-  background-repeat: repeat;
+  /* background-blend-mode: color-dodge; */
+  /* background-image: url("/static/dark_exa.png"); */
+  /* background-attachment: fixed; */
+  /* background-size: 66px; */
+  /* background-repeat: repeat; */
   
   animation: scrollbg 100s infinite linear;
 
@@ -163,6 +163,8 @@ div.footer{
   /* position: sticky; */
   top: 0;
   z-index: 100;
+
+  backdrop-filter: blur(1px);
 }
 
 div.navbar a {
@@ -195,11 +197,11 @@ div.navbar  p {
   border-radius: 6px;
 
   background-color: #5a2e135e;
-  background-blend-mode: color-dodge;
-  background-image: url("/static/dark_exa.png");
-  background-attachment: fixed;
-  background-size: 66px;
-  background-repeat: repeat;
+  /* background-blend-mode: color-dodge; */
+  /* background-image: url("/static/dark_exa.png"); */
+  /* background-attachment: fixed; */
+  /* background-size: 66px; */
+  /* background-repeat: repeat; */
 
   right:0;
   width: fit-content;
@@ -225,11 +227,11 @@ div.navbar  p {
   border-radius: 6px;
 
   background-color: #5a2e135e;
-  background-blend-mode: color-dodge;
-  background-image: url("/static/dark_exa.png");
-  background-attachment: fixed;
-  background-size: 66px;
-  background-repeat: repeat;
+  /* background-blend-mode: color-dodge; */
+  /* background-image: url("/static/dark_exa.png"); */
+  /* background-attachment: fixed; */
+  /* background-size: 66px; */
+  /* background-repeat: repeat; */
   
   animation: scrollbg 100s infinite linear;
 
@@ -245,6 +247,8 @@ div.navbar  p {
   top: 0;
   right:0;
   z-index: 102;
+
+  backdrop-filter: blur(3px);
 }
 
 div.sukuna-navbar a {
@@ -317,6 +321,7 @@ div.section{
   justify-content: left;
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
+  backdrop-filter: blur(1px);
 }
 
 .inner-box{

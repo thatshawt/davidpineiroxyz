@@ -100,13 +100,6 @@ common.sendNtfy("copyparty", "started!")
 
 -- /copyparty -> /copyparty/*
 fm.setRoute("/copyparty", "/copyparty/")
--- fm.setRoute("/copyparty/",
--- 	function(r)
--- 		local url = "http://127.0.0.1:%s/" % {copyPartyPort}
--- 		print(url)
--- 		common.serveReverseProxy(url)
--- 		return true
--- 	end)
 -- /copyparty/* |rvrs-proxy> http://internalcopyparty/
 fm.setRoute("/copyparty/*copyparty",
 	function(r)
