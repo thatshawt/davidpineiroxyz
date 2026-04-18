@@ -195,13 +195,13 @@
 		<!-- fixed close button navbar -->
 		
 		<div class="navbar" id="closed-navbar" style="">
-			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: right; display: grid;" onclick="sukuna_navbar_open()">◀</a>
+			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: right; display: grid; user-select: none;" onclick="sukuna_navbar_open()">◀</a>
 		</div>
 
 		<!-- fixed sukuna dropdown navbar -->
 
 		<div class="sukuna-navbar" id="sukuna-navbar" style="display:none;">
-			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: center; display: grid;" onclick="sukuna_navbar_close()">△</a>
+			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: center; display: grid; user-select: none;" onclick="sukuna_navbar_close()">△</a>
 
 			{% block.navbar() %}
 		</div>
