@@ -46,7 +46,7 @@
                     source.buffer = buffer;
         
                     const gainNode = audioCtx.createGain();
-                    gainNode.gain.value = 0.05;
+                    gainNode.gain.value = 0.2;
                     
                     source.connect(gainNode);
                     gainNode.connect(audioCtx.destination);
