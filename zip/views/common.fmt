@@ -111,6 +111,17 @@
 					buffers: {},
 				}
 
+// 		LICENSE FOR UI SOUNDS
+// Universal UI Soundpack
+
+// Created and distributed by Nathan Gibson (https://nathangibson.myportfolio.com)
+// Creation date: 27/9/2021
+
+// License: Attribution 4.0 International (CC BY 4.0)
+// https://creativecommons.org/licenses/by/4.0/
+
+// Support me by crediting Nathan Gibson or https://nathangibson.myportfolio.com
+
 				setAudioBuffNameUrl("uisound_min3", "/static/sounds/ui/Minimalist3.ogg");
 				setAudioBuffNameUrl("uisound_min9", "/static/sounds/ui/Minimalist9.ogg");
 				setAudioBuffNameUrl("uisound_min11", "/static/sounds/ui/Minimalist11.ogg");
@@ -122,6 +133,10 @@
 				// Check if context is in suspended state (autoplay policy)
 				if (context.state === "suspended") {
 					context.resume();
+				}
+				if (context.state === "interrupted") {
+					context.resume().then(() => playAudioBuffName(name));
+					return;
 				}
 
 				const track = window.audioObj.buffers[name];
@@ -219,19 +234,6 @@
 		</div>	
 
 		<br>
-
-<!-- 
-		LICENSE FOR UI SOUNDS
-Universal UI Soundpack
-
-Created and distributed by Nathan Gibson (https://nathangibson.myportfolio.com)
-Creation date: 27/9/2021
-
-License: Attribution 4.0 International (CC BY 4.0)
-https://creativecommons.org/licenses/by/4.0/
-
-Support me by crediting Nathan Gibson or https://nathangibson.myportfolio.com
--->
 
 
 	</body>

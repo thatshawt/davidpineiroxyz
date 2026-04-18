@@ -34,31 +34,52 @@
 
         <!-- <h2>music: <a href="song link">song name here</a></h2> -->
         <script>
+            const audioCtx = new AudioContext();
+            audioCtx.suspend();
+
             poo = async () => {
-                const audioCtx = new AudioContext();
-    
+                console.log("called poo");
                 try {
-                    const response = await fetch("/static/sounds/cosmic-scapes-soft-brown-noise-299934.ogg");
-                    const buffer = await audioCtx.decodeAudioData(await response.arrayBuffer());
-    
-                    const source = audioCtx.createBufferSource();
-                    source.loop = true;
-                    source.buffer = buffer;
+                    if (audioCtx.state === "interrupted") {
+                        audioCtx.resume().then(() => poo());
+                        return;
+                    }
+                    if (audioCtx.state === "suspended") {
+                        audioCtx.resume();
+                        const response = await fetch("/static/sounds/cosmic-scapes-soft-brown-noise-299934.ogg");
+                        const buffer = await audioCtx.decodeAudioData(await response.arrayBuffer());
         
-                    const gainNode = audioCtx.createGain();
-                    gainNode.gain.value = 0.3;
-                    
-                    source.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
-                    
-                    source.start();
+                        const source = audioCtx.createBufferSource();
+                        source.loop = true;
+                        source.buffer = buffer;
+            
+                        const gainNode = audioCtx.createGain();
+                        gainNode.gain.value = 0.4;
+                        
+                        source.connect(gainNode);
+                        gainNode.connect(audioCtx.destination);
+                        
+                        source.start();
+                        console.log("played");
+				    }
                 } catch (err) {
                     console.error(`Unable to fetch the audio file. Error: ${err.message}`);
                 }
-                
             };
-            poo();
 
+            document.querySelector('html').onmouseover = function() {
+                poo();
+            };
+
+            document.querySelector('html').onscroll = function() {
+                poo();
+            };
+
+            document.querySelector('html').onkeydown = function() {
+                poo();
+            };
+
+            poo();
         </script>
     </body>
 </html>
