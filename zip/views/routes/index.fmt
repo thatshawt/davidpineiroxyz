@@ -1,4 +1,8 @@
 {% function block.content() %}
+	<!-- <script
+		src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+		defer
+	></script> -->
 	<h1>DavidPineiro.xyz</h1>
 
 	<p>This is David Pineiro's website and portfolio.</p>
@@ -10,7 +14,8 @@
 
 	<h2>Socials</h2>
 	<form id="turnstileForm" action="" method="">
-		<div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}" data-callback="turnstileEnable" data-error-callback="turnstileDisable" data-expired-callback="turnstileDisable" data-timeout-callback="turnstileDisable"></div>
+		<!-- <div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}" data-callback="turnstileEnable" data-error-callback="turnstileDisable" data-expired-callback="turnstileDisable" data-timeout-callback="turnstileDisable"></div> -->
+		<div id="turnstileDiv"></div>
 		<button type="submit" id="emailButton" disabled="true"><h3>Click To Populate</h3></button>
 	</form>
 	<ul>
@@ -22,7 +27,7 @@
 		</li>
 
 		<!-- turnstile javscript -->
-		<script>
+		<script defer>
 			function turnstileEnable(){
 				document.getElementById('emailButton').disabled = false;
 			}
@@ -60,6 +65,23 @@
 				})
 				.catch(error => console.error('Error:', error));
 			});
+
+			// console.log("turnstile: ", turnstile);
+			// try{turnstile.reset('#turnstileDiv');}catch (err){}
+			turnstile.render('#turnstileDiv', {
+				sitekey: '{%& vars.turnstile_key %}',
+				// appearance: 'interaction-only',
+				theme: 'dark',
+				callback: function(token) {turnstileEnable();},
+				"error-callback": function(errorCode){turnstile.reset("#turnstileDiv");turnstileDisable();},
+				"expired-callback": function(errorCode){turnstile.reset("#turnstileDiv");turnstileDisable();},
+				"timeout-callback": function(errorCode){turnstile.reset("#turnstileDiv");turnstileDisable();},
+			});
+
+			window.barbaAfterLeave = function(current, next){
+				// console.log("removed turnstile");
+				turnstile.remove("#turnstileDiv");
+			};
 		</script>
 	</ul>
 

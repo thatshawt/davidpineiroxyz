@@ -98,8 +98,8 @@
 			</tr>
 	</table>
 </form>
-<script src="/static/qr/qrcodegen.js" defer="defer"></script>
-<script src="/static/qr/qrcode_demo.js" defer="defer"></script>
+<script src="/static/qr/qrcodegen.js" async defer></script>
+<script src="/static/qr/qrcode_demo.js" async defer></script>
 
 <br>
 <hr>

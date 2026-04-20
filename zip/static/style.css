@@ -14,12 +14,14 @@
 
 * { box-sizing: border-box; }
 
-td {
-  border: 3px solid #32787b91;
+table {
+  /* border: 3px solid #b3b3b3; */
+  border-radius: 5px;
 }
 
-tr{
-  /* border: 10px solid black; */
+td {
+  border: 2px solid #727272;
+  border-radius: 5px;
 }
 
 html {
@@ -38,7 +40,7 @@ body{
   background-size: 66px;
   background-repeat: repeat;
   
-  animation: scrollbg 100s infinite linear;
+  /* animation: scrollbg 100s infinite linear; */
 
   image-rendering: pixelated;
 
@@ -154,7 +156,7 @@ div.footer{
   background-size: 66px;
   background-repeat: repeat;
   
-  animation: scrollbg 100s infinite linear;
+  /* animation: scrollbg 70s infinite linear; */
 
   margin-top: 2px;
   margin-left: auto;
@@ -169,6 +171,7 @@ div.footer{
 
 div.navbar a {
   color: #5cff00;
+  background-color: #17390db6;
 
   &:hover {
     background-color: rgb(0, 0, 0);
@@ -191,6 +194,8 @@ div.navbar  p {
   background-attachment: fixed;
   background-size: 66px;
   background-repeat: repeat;
+
+  /* animation: scrollbg 10s infinite linear; */
 
   right:0;
   width: fit-content;
@@ -222,7 +227,7 @@ div.navbar  p {
   background-size: 66px;
   background-repeat: repeat;
   
-  animation: scrollbg 100s infinite linear;
+  /* animation: scrollbg 10s infinite linear; */
 
   margin-top: 2px;
   margin-right: 2px;
@@ -235,7 +240,7 @@ div.navbar  p {
 
   top: 0;
   right:0;
-  z-index: 102;
+  z-index: 103;
 
   /* backdrop-filter: blur(3px); */
 }
@@ -253,6 +258,38 @@ div.sukuna-navbar p {
   margin: 0;
 }
 
+.extras-menu {
+  position: fixed;
+  /* height: 100%; */
+  overflow-y: scroll;
+
+  border: 2px solid #ff5401db;
+  border-radius: 6px;
+
+  background-color: #5a2e135e;
+  background-blend-mode: color-dodge;
+  background-image: url("/static/dark_exa.png");
+  background-attachment: fixed;
+  background-size: 66px;
+  background-repeat: repeat;
+  
+  /* animation: scrollbg 10s infinite linear; */
+
+  padding: 10px;
+
+  display: grid;
+  justify-content: left;
+
+  /* min-width: 15%; */
+
+  bottom: 0;
+  right:0;
+  left:0;
+  z-index: 102;
+
+  user-select: none;
+}
+
 .navdog{
   transform: translateY(5.0px);
 
@@ -263,12 +300,12 @@ div.sukuna-navbar p {
 }
 
 button[disabled]{
-  background-color: rgb(197, 197, 197);
-  color:rgb(95, 95, 95);
+  background-color: rgb(133, 133, 133);
+  color:rgb(50, 50, 50);
   border: 2px solid rgb(50, 50, 50);
   &:hover{
-    background-color: rgb(197, 197, 197);
-    color:rgb(95, 95, 95);
+    background-color: rgb(133, 133, 133);
+    color:rgb(50, 50, 50);
     border: 2px solid rgb(50, 50, 50);
   }
 }
@@ -277,14 +314,14 @@ button[disabled]{
 button {
   border: 2px solid #ffffff7a;
 
-  background-color: #215a11b5;
-  background-blend-mode: color-dodge;
-  background-image: url("/static/dark_exa.png");
-  background-attachment: fixed;
-  background-size: 66px;
-  background-repeat: repeat;
+  background-color: #37ff0042;
+  /* background-blend-mode: color-dodge; */
+  /* background-image: url("/static/dark_exa.png"); */
+  /* background-attachment: fixed; */
+  /* background-size: 66px; */
+  /* background-repeat: repeat; */
   
-  animation: scrollbg 100s infinite linear;
+  /* animation: scrollbg 100s infinite linear; */
 
   border-radius: 5px;
 
@@ -403,13 +440,13 @@ code {
 
 /* For most modern browsers (Chrome, Edge, Safari, Firefox, Opera) */
 ::selection {
-  background-color: rgb(255, 252, 72);
+  background-color: #00b7ff69;
   color: rgb(0, 0, 0);
 }
 
 /* For compatibility with older Firefox versions */
 ::-moz-selection {
-  background-color: rgb(255, 252, 72);
+  background-color: #00b7ff69;
   color: rgb(0, 0, 0);
 }
 

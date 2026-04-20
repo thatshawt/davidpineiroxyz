@@ -4,6 +4,7 @@
 	<a href="/readings">Readings</a>
 	<a href="/qr">QR Generator</a>
 	<a href="/qr_scanner">QR Scanner</a>
+	<a onclick="toggleExtras()" style="background-color: rgba(0, 136, 255, 0.6); user-select: none;">Extras</a>
 	<hr>
 	{% if session.user then %}
 		<p>Logged in: '{%& session.user %}'</p>
@@ -72,170 +73,405 @@
 		<!-- <link rel="manifest" href="/static/site.webmanifest"> -->
 
 		<link rel="preconnect" href="https://challenges.cloudflare.com">
-		<script
-			src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-			async
-			defer
-		></script>
+		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"></script>
 	</head>
 
-	<body onload="onload()">
+	<body data-barba="wrapper" onload="onload()">
+		<!-- static content -->
+		<div >
+			<audio loop id='mySound' crossorigin="anonymous" src='https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d1/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm.240p.vp9.webm?download' ></audio>
+			<script>
+				window.firstLoad = true;
+
+				async function setAudioBuffNameUrl(name, url){
+					const context = window.audioObj.context;
+					try {
+						const response = await fetch(url);
+						window.audioObj.buffers[name] = await context.decodeAudioData(await response.arrayBuffer());
+					} catch (err) {
+						console.error(`Unable to fetch the audio file. Error: ${err.message}`);
+					}
+				}
+
+				function PlayMusicSoundFromId(id) {
+					var thissound = document.getElementById(id);
+					thissound.play();
+				}
+
+
+				function PauseSoundFromId(id) {
+					var thissound = document.getElementById(id);
+					thissound.pause();
+					//thissound.currentTime = 0;
+				}
+
+				function loadAudioObj(){
+					window.audioObj = {
+						context: new AudioContext(),
+						elements: {},
+						tracks: {},
+						buffers: {},
+
+						uiGainNode: null,
+						musicGainNode: null,
+
+						musicSourceNode: null,
+						musicAudioEl: null,
+
+						_setMetadata: (title, artist, album, artwork) => {
+							navigator.mediaSession.metadata = new MediaMetadata({
+								title: title,
+								artist: artist,
+								album: album,
+								artwork: [
+									{
+										src: artwork,
+									},
+								],
+							});
+						},
+
+						_updateMetadata: () => {
+							const audio = window.audioObj.musicAudioEl;
+							if(audio){
+								navigator.mediaSession.setPositionState({
+									duration: audio.duration,
+									playbackRate: audio.playbackRate,
+									position: audio.currentTime,
+								});
+								navigator.mediaSession.playbackState = audio.paused ? 'paused' : 'playing';
+								// console.log("updated metadata?", navigator.mediaSession);
+							}else{
+								navigator.mediaSession.setPositionState({});
+								navigator.mediaSession.playbackState = null;
+							}
+
+						},
+
+						playMusicFromAudioId: (id) => {
+							var audioCtx = window.audioObj.context;
+							if(window.audioObj.musicSourceNode){
+								window.audioObj.musicSourceNode.disconnect(window.audioObj.musicGainNode);
+								window.audioObj.musicSourceNode = null;
+								
+								window.audioObj.musicGainNode.connect(audioCtx.destination);
+							}
+
+							var myAudio = document.querySelector("#" + id);
+							window.audioObj.musicAudioEl = myAudio;
+
+							var source = audioCtx.createMediaElementSource(myAudio);
+							source.connect(audioCtx.destination);
+							window.audioObj.musicSourceNode = source;
+
+							myAudio.play();
+							// console.log("played audio?", myAudio);
+							
+							window.audioObj._updateMetadata();
+						}
+					}
+
+					var ctx = window.audioObj.context;
+					// console.log("audioObj", window.audioObj);
+					window.audioObj.uiGainNode = ctx.createGain();
+					window.audioObj.musicGainNode = ctx.createGain();
+
+					window.audioObj.uiGainNode.connect(ctx.destination);
+					window.audioObj.musicGainNode.connect(ctx.destination);
+
+	// 		LICENSE FOR UI SOUNDS
+	// Universal UI Soundpack
+
+	// Created and distributed by Nathan Gibson (https://nathangibson.myportfolio.com)
+	// Creation date: 27/9/2021
+
+	// License: Attribution 4.0 International (CC BY 4.0)
+	// https://creativecommons.org/licenses/by/4.0/
+
+	// Support me by crediting Nathan Gibson or https://nathangibson.myportfolio.com
+
+					setAudioBuffNameUrl("uisound_min3", "/static/sounds/ui/Minimalist3.ogg");
+					setAudioBuffNameUrl("uisound_min9", "/static/sounds/ui/Minimalist9.ogg");
+					setAudioBuffNameUrl("uisound_min11", "/static/sounds/ui/Minimalist11.ogg");
+					setAudioBuffNameUrl("uisound_min12", "/static/sounds/ui/Minimalist12.ogg");
+
+					if ("mediaSession" in navigator) {
+						window.audioObj._setMetadata(
+							"Doggy Dogawdawdwd",
+							"Prime Jr Prime VII",
+							"The Ultimate Collection (Remastered)",
+							"/static/android-chrome-192x192.png"
+						);
+
+						navigator.mediaSession.setActionHandler("play", () => {
+							const audio = window.audioObj.musicAudioEl;
+							if(audio){
+								audio.play();
+								window.audioObj._updateMetadata();
+							}
+						});
+						navigator.mediaSession.setActionHandler("pause", () => {
+							const audio = window.audioObj.musicAudioEl;
+							if(audio){
+								audio.pause();
+								window.audioObj._updateMetadata();
+							}
+						});
+						navigator.mediaSession.setActionHandler("stop", () => {
+							const audio = window.audioObj.musicAudioEl;
+							if(audio){
+								audio.pause();
+								window.audioObj._updateMetadata();
+							}
+						});
+						navigator.mediaSession.setActionHandler("seekbackward", () => {
+							const audio = window.audioObj.musicAudioEl;
+							if(audio){
+								audio.currentTime = Math.max(0, audio.currentTime - 10);
+								window.audioObj._updateMetadata();
+							}
+						});
+						navigator.mediaSession.setActionHandler("seekforward", () => {
+							const audio = window.audioObj.musicAudioEl;
+							if(audio){
+								audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
+								window.audioObj._updateMetadata();
+							}
+						});
+						navigator.mediaSession.setActionHandler("seekto", (details) => {
+							const audio = window.audioObj.musicAudioEl;
+
+							if (!audio || isNaN(audio.duration)) return;
+
+							let time = details.seekTime;
+
+							// Clamp to valid range
+							time = Math.max(0, Math.min(audio.duration, time));
+
+							// Use fastSeek if supported (better performance on some browsers)
+							if (details.fastSeek && typeof audio.fastSeek === "function") {
+								audio.fastSeek(time);
+							} else {
+								audio.currentTime = time;
+							}
+							window.audioObj._updateMetadata();
+						});
+						// navigator.mediaSession.setActionHandler("previoustrack", () => {
+						// 	/* Code excerpted. */
+						// });
+						// navigator.mediaSession.setActionHandler("nexttrack", () => {
+						// 	/* Code excerpted. */
+						// });
+					}
+					// window.audioObj.playMusicFromAudioId('mySound');
+					console.log("set metadata");
+				}
+
+				function playAudioBuffName(name){
+					const context = window.audioObj.context;
+					// Check if context is in suspended state (autoplay policy)
+					if (context.state === "suspended") {
+						context.resume();
+					}
+					if (context.state === "interrupted") {
+						context.resume().then(() => playAudioBuffName(name));
+						return;
+					}
+
+					const track = window.audioObj.buffers[name];
+
+					let source = context.createBufferSource();
+					source.buffer = track;
+					source.connect(window.audioObj.uiGainNode);
+					source.loop = false;
+					source.start();
+				}
+
+				function injectSoundFuncCallIntoElementAttr(element, attr, soundName)
+				{
+					const orig = element[attr];
+					if(orig == null){
+						element[attr] = () => {playAudioBuffName(soundName);};
+					}else{
+						const newFunc = () => {
+							playAudioBuffName(soundName);
+							orig();
+						};
+						element[attr] = newFunc;
+					}
+				}
+
+				function setupSoundsFX(){
+					document.querySelectorAll("a").forEach(element => {
+						// console.log(element);
+						injectSoundFuncCallIntoElementAttr(element, "onmouseover", "uisound_min3");
+					});
+
+					document.querySelectorAll("a[href]").forEach(element => {
+						// console.log(element);
+						injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min12");
+					});
+
+					document.querySelectorAll("button").forEach(element => {
+						// console.log(element);
+						injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min9");
+					});
+				}
+
+				function setupSoundsFXDynamic(){
+					document.querySelectorAll("div.section a").forEach(element => {
+						// console.log(element);
+						injectSoundFuncCallIntoElementAttr(element, "onmouseover", "uisound_min3");
+					});
+
+					document.querySelectorAll("div.section a[href]").forEach(element => {
+						// console.log(element);
+						injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min12");
+					});
+
+					document.querySelectorAll("div.section button").forEach(element => {
+						// console.log(element);
+						injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min9");
+					});
+				}
+
+				function sukuna_navbar_close(){
+					document.getElementById("sukuna-navbar").style = "display:none;";
+					playAudioBuffName("uisound_min11");
+				}
+
+				function sukuna_navbar_open(){
+					document.getElementById("sukuna-navbar").style = "";
+					playAudioBuffName("uisound_min11");
+				}
+
+				function toggleExtras(){
+					const extrasEl = document.getElementById("extras-menu");
+					console.log(extrasEl, extrasEl.style);
+					if(extrasEl.style.display == "none")extrasEl.style = "";
+					else extrasEl.style = "display:none;"
+					playAudioBuffName("uisound_min11");
+				}
+
+				function onload(){
+					loadAudioObj();
+				}
+
+				function replaceDynamicScripts(nextHtml) {
+					// console.log("replaceDynamicScripts() call");
+					// 1. Get the existing container
+					const oldScriptsDiv = document.querySelector('#dynamic-loaded-scripts');
+					if (!oldScriptsDiv) return;
+					// console.log("got old scripts div", oldScriptsDiv);
+
+					// // Parse the incoming HTML string into a DOM
+					const parser = new DOMParser();
+					const nextDoc = parser.parseFromString(nextHtml, 'text/html');
+
+					// 2. Get all <script> tags inside div.section
+					const newScripts = nextDoc.querySelectorAll('div.section script');
+					// console.log("new scripts found", newScripts);
+
+					// 3. Replace the old content with the new scripts
+					oldScriptsDiv.innerHTML = '';
+
+					newScripts.forEach((script) => {
+						const newScript = document.createElement('script');
+
+						// Copy attributes (like src, type, etc.)
+						for (let attr of script.attributes) {
+							newScript.setAttribute(attr.name, attr.value);
+						}
+
+						// Copy inline content
+						newScript.textContent = script.textContent;
+
+						oldScriptsDiv.appendChild(newScript);
+						// console.log("script added", newScript);
+					});
+				}
+			</script>
+
+			<!-- dyanmic loaded scripts -->
+			 <div id="dynamic-loaded-scripts"></div>
+
+			<!-- static-navbar -->
+
+			<div class="navbar" id="static-navbar">
+				{% block.navbar() %}
+			</div>
+
+			<!-- fixed close button navbar -->
+			
+			<div class="navbar" id="closed-navbar" style="">
+				<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: right; display: grid; user-select: none;" onclick="sukuna_navbar_open()">◀</a>
+			</div>
+
+			<!-- fixed sukuna dropdown navbar -->
+
+			<div class="sukuna-navbar" id="sukuna-navbar" style="display:none;">
+				<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: center; display: grid; user-select: none;" onclick="sukuna_navbar_close()">△</a>
+
+				{% block.navbar() %}
+			</div>
+
+			<!-- extras fixed menu -->
+			<div id="extras-menu" class="extras-menu" style="display:none;">
+				WHY HELLO THERE
+			</div>
+
+			<!-- dynamic content -->
+			<main data-barba="container" data-barba-namespace="home">
+				<div class="section {%& extraClasses or ''%}">
+					{% block.content() %}
+				</div>
+			</main>
+
+			<!-- footer -->
+
+			<div class="footer">
+				<p>Last updated: <i>{%& vars.serverStartDate %}</i>.</p>
+			</div>	
+
+			<br>
+
+		</div>
+
+		<script src="/static/barba.js"></script>
 		<script>
-			async function setAudioBuffNameUrl(name, url){
-				const context = window.audioObj.context;
-				try {
-					const response = await fetch(url);
-   					window.audioObj.buffers[name] = await context.decodeAudioData(await response.arrayBuffer());
-				} catch (err) {
-					console.error(`Unable to fetch the audio file. Error: ${err.message}`);
+			barba.hooks.beforeEnter(({ current, next }) => {
+				// console.log(current, next);
+				if(current.url.href != next.url.href){
+					if(!window.firstLoad){
+						replaceDynamicScripts(next.html);
+						
+						if(window.barbaBeforeEnter){
+							window.barbaBeforeEnter(current, next);
+							
+							window.barbaBeforeEnter = null;
+						}
+						
+						setupSoundsFXDynamic();
+						window.scrollTo(0,0);
+					}else{
+						setupSoundsFX();
+						window.firstLoad = false;
+					}
 				}
-			}
+			});
 
-			function PlayMusicSoundFromId(id) {
-				var thissound = document.getElementById(id);
-				thissound.play();
-			}
+			barba.hooks.afterLeave(({ current, next }) => {
+				if(window.barbaAfterLeave){
+					window.barbaAfterLeave();
 
-
-			function PauseSoundFromId(id) {
-				var thissound = document.getElementById(id);
-				thissound.pause();
-				//thissound.currentTime = 0;
-			}
-
-			function loadAudioObj(){
-				window.audioObj = {
-					context: new AudioContext(),
-					elements: {},
-					tracks: {},
-					buffers: {},
+					window.barbaAfterLeave = null;
 				}
-
-// 		LICENSE FOR UI SOUNDS
-// Universal UI Soundpack
-
-// Created and distributed by Nathan Gibson (https://nathangibson.myportfolio.com)
-// Creation date: 27/9/2021
-
-// License: Attribution 4.0 International (CC BY 4.0)
-// https://creativecommons.org/licenses/by/4.0/
-
-// Support me by crediting Nathan Gibson or https://nathangibson.myportfolio.com
-
-				setAudioBuffNameUrl("uisound_min3", "/static/sounds/ui/Minimalist3.ogg");
-				setAudioBuffNameUrl("uisound_min9", "/static/sounds/ui/Minimalist9.ogg");
-				setAudioBuffNameUrl("uisound_min11", "/static/sounds/ui/Minimalist11.ogg");
-				setAudioBuffNameUrl("uisound_min12", "/static/sounds/ui/Minimalist12.ogg");
-			}
-
-			function playAudioBuffName(name){
-				const context = window.audioObj.context;
-				// Check if context is in suspended state (autoplay policy)
-				if (context.state === "suspended") {
-					context.resume();
-				}
-				if (context.state === "interrupted") {
-					context.resume().then(() => playAudioBuffName(name));
-					return;
-				}
-
-				const track = window.audioObj.buffers[name];
-
-				let source = context.createBufferSource();
-				source.buffer = track;
-				source.connect(context.destination);
-				source.loop = false;
-				source.start();
-			}
-
-			function injectSoundFuncCallIntoElementAttr(element, attr, soundName)
-			{
-				const orig = element[attr];
-				if(orig == null){
-					element[attr] = () => {playAudioBuffName(soundName);};
-				}else{
-					const newFunc = () => {
-						playAudioBuffName(soundName);
-						orig();
-					};
-					element[attr] = newFunc;
-				}
-			}
-
-			function setupSoundsFX(){
-				document.querySelectorAll("a[href]").forEach(element => {
-					// console.log(element);
-					injectSoundFuncCallIntoElementAttr(element, "onmouseover", "uisound_min3");
-					injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min12");
-				});
-
-				document.querySelectorAll("button").forEach(element => {
-					// console.log(element);
-					injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min9");
-				});
-			}
-
-			// function navbar_close(){
-			// 	document.getElementById("open-navbar").style = "display:none;";
-			// 	document.getElementById("closed-navbar").style = "";
-			// }
-
-			function sukuna_navbar_close(){
-				document.getElementById("sukuna-navbar").style = "display:none;";
-				playAudioBuffName("uisound_min11");
-			}
-
-			function sukuna_navbar_open(){
-				document.getElementById("sukuna-navbar").style = "";
-				playAudioBuffName("uisound_min11");
-			}
-
-			// function navbar_open(){
-			// 	document.getElementById("open-navbar").style = "";
-			// 	document.getElementById("closed-navbar").style = "display:none;";
-			// }
-
-			function onload(){
-				loadAudioObj();
-				setupSoundsFX();
-			}
-    	</script>
-
-		<!-- static-navbar -->
-
-		<div class="navbar" id="static-navbar">
-			{% block.navbar() %}
-		</div>
-
-		<!-- fixed close button navbar -->
-		
-		<div class="navbar" id="closed-navbar" style="">
-			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: right; display: grid; user-select: none;" onclick="sukuna_navbar_open()">◀</a>
-		</div>
-
-		<!-- fixed sukuna dropdown navbar -->
-
-		<div class="sukuna-navbar" id="sukuna-navbar" style="display:none;">
-			<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: center; display: grid; user-select: none;" onclick="sukuna_navbar_close()">△</a>
-
-			{% block.navbar() %}
-		</div>
-
-		<!-- main content -->
-
-		<div class="section {%& extraClasses or ''%}">
-			{% block.content() %}
-		</div>
-
-		<!-- footer -->
-
-		<div class="footer">
-			<p>Last updated: <i>{%& vars.serverStartDate %}</i>.</p>
-		</div>	
-
-		<br>
-
-
+			});
+			
+			barba.init({
+				// ...
+			});
+		</script>
 	</body>
 
 </html>
