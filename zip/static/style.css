@@ -166,6 +166,8 @@ div.footer{
   top: 0;
   z-index: 100;
 
+  user-select: none;
+
   /* backdrop-filter: blur(1px); */
 }
 
@@ -235,6 +237,8 @@ div.navbar  p {
 
   display: grid;
   justify-content: left;
+
+  user-select: none;
 
   /* min-width: 15%; */
 
