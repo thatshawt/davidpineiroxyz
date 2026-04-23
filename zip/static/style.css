@@ -199,7 +199,7 @@ div.navbar  p {
 
   /* animation: scrollbg 10s infinite linear; */
 
-  right:0;
+  right: max(0px, calc((100vw - 1224px) / 2));
   width: fit-content;
   height: fit-content;
   justify-content: right;
@@ -216,6 +216,8 @@ div.navbar  p {
 
 .sukuna-navbar{
   position: fixed;
+  top: 0;
+  right: max(0px, calc((100vw - 1224px) / 2));
   max-height: 100%;
   overflow-y: scroll;
 
@@ -242,8 +244,6 @@ div.navbar  p {
 
   /* min-width: 15%; */
 
-  top: 0;
-  right:0;
   z-index: 103;
 
   /* backdrop-filter: blur(3px); */
@@ -265,10 +265,13 @@ div.sukuna-navbar p {
 .extras-menu {
   position: fixed;
   /* height: 100%; */
+  width: 100%;
+  max-width: 1224px;
   overflow-y: scroll;
 
   border: 2px solid #ff5401db;
-  border-radius: 6px;
+  border-top-right-radius: 6px;
+  border-top-left-radius: 6px;
 
   background-color: #5a2e135e;
   background-blend-mode: color-dodge;
@@ -287,8 +290,8 @@ div.sukuna-navbar p {
   /* min-width: 15%; */
 
   bottom: 0;
-  right:0;
-  left:0;
+  /* right:0; */
+  /* left:0; */
   z-index: 102;
 
   /* user-select: none; */
@@ -301,7 +304,7 @@ div.sukuna-navbar p {
   /* background: #181818; */
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
   /* padding: 10px 20px; */
   box-sizing: border-box;
 }
@@ -315,7 +318,7 @@ div.sukuna-navbar p {
   /* width: 40%; */
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   /* user-select: none; */
 }
 

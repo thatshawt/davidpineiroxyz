@@ -96,7 +96,7 @@ echo = assert(unix.commandv('echo'))
 -- start copyparty
 local copyPartyPort = "8082"
 common.forkCopyParty(copyPartyPort)
-common.sendNtfy("copyparty", "started!")
+-- common.sendNtfy("copyparty", "started!")
 
 -- /copyparty -> /copyparty/*
 fm.setRoute("/copyparty", "/copyparty/")

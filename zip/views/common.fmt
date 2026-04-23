@@ -487,13 +487,13 @@
 			<!-- fixed close button navbar -->
 			
 			<div class="navbar" id="closed-navbar" style="">
-				<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: right; display: grid; user-select: none;" onclick="sukuna_navbar_open()">menu</a>
+				<a style="font-size: 30px; background-color: unset; color:rgb(255, 255, 255); justify-content: right; display: grid; user-select: none;" onclick="sukuna_navbar_open()">menu</a>
 			</div>
 
 			<!-- fixed sukuna dropdown navbar -->
 
 			<div class="sukuna-navbar" id="sukuna-navbar" style="display:none;">
-				<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: center; display: grid; user-select: none;" onclick="sukuna_navbar_close()">△</a>
+				<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: center; display: grid; user-select: none;" onclick="sukuna_navbar_close()">menu</a>
 
 				{% block.navbar() %}
 			</div>
@@ -507,9 +507,9 @@
 
 					<div class="musiccenter">
 						<div class="musiccontrols">
+							<a onclick="toggleExtras()" style="background-color: rgba(0, 16, 255, 0.5); user-select: none;position: absolute;right: 10px;top: 10px;">Close</a>
 							<div class="musiccontrols">
-								<button id="playPause">▶</button>
-								<span id="currentTime">0:00</span> - <span id="duration">0:00</span>
+								<button id="playPause">▶</button><span id="currentTime">0:00</span>-<span id="duration">0:00</span>
 							</div>
 							<!-- <div class="musicprogress"> -->
 								<input class="music" type="range" id="seek" value="0" min="0" max="100">
@@ -581,11 +581,11 @@
 			</script>
 
 			<!-- dynamic content -->
-			<main data-barba="container" data-barba-namespace="home">
-				<div class="section {%& extraClasses or ''%}">
+			<div class="section {%& extraClasses or ''%}">
+				<main data-barba="container" data-barba-namespace="home">
 					{% block.content() %}
-				</div>
-			</main>
+				</main>
+			</div>
 
 			<!-- footer -->
 
