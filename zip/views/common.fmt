@@ -18,7 +18,7 @@
 
 {% function block.makeBadge(url, image) %}
 	<!-- <div class="inner-box"> -->
-	{%= raw.link(url, "<img class='web-badge' src='%s' alt=''>" % {image}, "unsafe") %}
+	{%= raw.link(url, "<img class='web-badge' loading='lazy' src='%s' alt=''>" % {image}, "unsafe") %}
 	<!-- </div> -->
 {% end %}
 
@@ -79,7 +79,6 @@
 	<body data-barba="wrapper" onload="onload()">
 		<!-- static content -->
 		<div >
-			<audio loop id='mySound' crossorigin="anonymous" src='https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d1/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm.240p.vp9.webm?download' ></audio>
 			<script>
 				window.firstLoad = true;
 
@@ -105,12 +104,21 @@
 					//thissound.currentTime = 0;
 				}
 
+				// Helper
+				function formatTime(sec) {
+					if (!sec) return "0:00";
+					const m = Math.floor(sec / 60);
+					const s = Math.floor(sec % 60).toString().padStart(2, '0');
+					return `${m}:${s}`;
+				}
+
 				function loadAudioObj(){
 					window.audioObj = {
 						context: new AudioContext(),
 						elements: {},
 						tracks: {},
 						buffers: {},
+						trackAudioId: "musicTrack",
 
 						uiGainNode: null,
 						musicGainNode: null,
@@ -119,6 +127,9 @@
 						musicAudioEl: null,
 
 						_setMetadata: (title, artist, album, artwork) => {
+							const trackNameEl = document.getElementById('trackName');
+							trackNameEl.innerHTML = `<span style='background-color:#fffb0047;'>${title}</span> by <span style='background-color:#ff000070;'>${artist}</span>`;
+							
 							navigator.mediaSession.metadata = new MediaMetadata({
 								title: title,
 								artist: artist,
@@ -145,30 +156,93 @@
 								navigator.mediaSession.setPositionState({});
 								navigator.mediaSession.playbackState = null;
 							}
-
 						},
 
-						playMusicFromAudioId: (id) => {
-							var audioCtx = window.audioObj.context;
-							if(window.audioObj.musicSourceNode){
-								window.audioObj.musicSourceNode.disconnect(window.audioObj.musicGainNode);
-								window.audioObj.musicSourceNode = null;
+						registerMusicTrack: (name, trackdata) => {
+							const audioObj = window.audioObj;
+
+							audioObj.tracks[name] = {
+								title: trackdata.title,
+								artist: trackdata.artist,
+								album: trackdata.album,
+								artwork: trackdata.artwork,
+								url: trackdata.url
+							};
+						},
+
+						_loadMusicTrackEl: (name) => {
+							const audioObj = window.audioObj;
+							var audioEl = document.getElementById(audioObj.trackAudioId);
+
+							if(audioEl){
+								document.removeChild(audioEl);
+							}
+
+							const track = audioObj.tracks[name];
+							console.log("track",track);
+
+							audioEl = document.createElement('audio');
+							audioEl.id = audioObj.trackAudioId;
+							audioEl.loop = true;
+							audioEl.setAttribute('crossorigin', 'anonymous');
+							audioEl.src = track.url;
+
+							const theBody = document.getElementsByTagName("body")[0];
+							theBody.appendChild(audioEl);
+
+							// Update progress
+							const audio = audioEl;
+							const durationEl = document.getElementById('duration');
+							const currentTimeEl = document.getElementById('currentTime');
+							const seek = document.getElementById('seek');
+							audio.ontimeupdate = () => {
+								seek.value = (audio.currentTime / audio.duration) * 100 || 0;
+								currentTimeEl.textContent = formatTime(audio.currentTime);
+							};
+
+							audio.onloadedmetadata = () => {
+								durationEl.textContent = formatTime(audio.duration);
+							};
+
+							console.log(audioEl);
+
+							audioObj._setMetadata(track.title, track.artist, track.album, track.artwork);
+						},
+
+						loadMusicTrack: async (name) => {
+							const audioObj = window.audioObj;
+							audioObj._loadMusicTrackEl(name);
+
+							const id = audioObj.trackAudioId;
+
+							var audioCtx = audioObj.context;
+							if(audioObj.musicSourceNode){
+								window.audioObj.musicSourceNode.disconnect(audioObj.musicGainNode);
+								audioObj.musicSourceNode = null;
 								
-								window.audioObj.musicGainNode.connect(audioCtx.destination);
+								audioObj.musicGainNode.connect(audioCtx.destination);
 							}
 
 							var myAudio = document.querySelector("#" + id);
-							window.audioObj.musicAudioEl = myAudio;
+							audioObj.musicAudioEl = myAudio;
 
 							var source = audioCtx.createMediaElementSource(myAudio);
-							source.connect(audioCtx.destination);
-							window.audioObj.musicSourceNode = source;
+							source.connect(audioObj.musicGainNode);
+							audioObj.musicSourceNode = source;
 
-							myAudio.play();
 							// console.log("played audio?", myAudio);
-							
-							window.audioObj._updateMetadata();
-						}
+							updatePlayPauseButton();
+							audioObj._updateMetadata();
+						},
+
+						playMusicCurrentTrack: () => {
+							const audio = audioObj.musicAudioEl;
+							if(audio){
+								audio.play();
+								updatePlayPauseButton();
+								audioObj._updateMetadata();
+							}
+						},
 					}
 
 					var ctx = window.audioObj.context;
@@ -195,14 +269,15 @@
 					setAudioBuffNameUrl("uisound_min11", "/static/sounds/ui/Minimalist11.ogg");
 					setAudioBuffNameUrl("uisound_min12", "/static/sounds/ui/Minimalist12.ogg");
 
-					if ("mediaSession" in navigator) {
-						window.audioObj._setMetadata(
-							"Doggy Dogawdawdwd",
-							"Prime Jr Prime VII",
-							"The Ultimate Collection (Remastered)",
-							"/static/android-chrome-192x192.png"
-						);
+					audioObj.registerMusicTrack("dog", {
+						title:"Devil's Trill Sonata",
+						artist:"Ray Chen and Amsterdam Sinfonietta",
+						album:"",
+						artwork:"/static/android-chrome-192x192.png",
+						url:"https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d1/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm.240p.vp9.webm?download",
+					});
 
+					if ("mediaSession" in navigator) {
 						navigator.mediaSession.setActionHandler("play", () => {
 							const audio = window.audioObj.musicAudioEl;
 							if(audio){
@@ -263,11 +338,19 @@
 						// 	/* Code excerpted. */
 						// });
 					}
-					// window.audioObj.playMusicFromAudioId('mySound');
+
+					setInterval(() => {
+						window.audioObj._updateMetadata();
+						updatePlayPauseButton();
+					}, 1000);
+
 					console.log("set metadata");
+
+					audioObj.loadMusicTrack("dog");
 				}
 
 				function playAudioBuffName(name){
+					if(!window.audioObj)return;
 					const context = window.audioObj.context;
 					// Check if context is in suspended state (autoplay policy)
 					if (context.state === "suspended") {
@@ -392,7 +475,7 @@
 				}
 			</script>
 
-			<!-- dyanmic loaded scripts -->
+			<!-- dynamic loaded scripts -->
 			 <div id="dynamic-loaded-scripts"></div>
 
 			<!-- static-navbar -->
@@ -404,7 +487,7 @@
 			<!-- fixed close button navbar -->
 			
 			<div class="navbar" id="closed-navbar" style="">
-				<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: right; display: grid; user-select: none;" onclick="sukuna_navbar_open()">◀</a>
+				<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: right; display: grid; user-select: none;" onclick="sukuna_navbar_open()">menu</a>
 			</div>
 
 			<!-- fixed sukuna dropdown navbar -->
@@ -417,8 +500,85 @@
 
 			<!-- extras fixed menu -->
 			<div id="extras-menu" class="extras-menu" style="display:none;">
-				WHY HELLO THERE
+				<div class="musicplayer">
+					<div class="musicleft">
+						<div id="trackName">My Song Title</div>
+					</div>
+
+					<div class="musiccenter">
+						<div class="musiccontrols">
+							<div class="musiccontrols">
+								<button id="playPause">▶</button>
+								<span id="currentTime">0:00</span> - <span id="duration">0:00</span>
+							</div>
+							<!-- <div class="musicprogress"> -->
+								<input class="music" type="range" id="seek" value="0" min="0" max="100">
+							<!-- </div> -->
+						</div>
+						<div class="musicright">
+							<input type="range" id="volume" min="0" max="3" value="1.0" step="0.1">🔊
+						</div>
+						<div class="musicright">
+							<input type="range" id="uivolume" min="0" max="3" value="1.0" step="0.1">UI🔊
+						</div>
+					</div>
+
+					
+				</div>
 			</div>
+
+			<!-- music controls script -->
+			<script>
+				const playPause = document.getElementById('playPause');
+				function updatePlayPauseButton(){
+					const audio = window.audioObj.musicAudioEl;
+					if(audio){
+						if (audio.paused) {
+							playPause.textContent = '▶';
+						} else {
+							playPause.textContent = '⏸';
+						}
+					}
+				}
+				// Play / Pause
+				playPause.onclick = () => {
+					const audio = window.audioObj.musicAudioEl;
+					if(audio){
+						if (audio.paused) {
+							audio.play();
+						} else {
+							audio.pause();
+						}
+						updatePlayPauseButton();
+					}
+				};
+
+				const seek = document.getElementById('seek');
+				// Seek
+				seek.oninput = () => {
+					const audio = window.audioObj.musicAudioEl;
+					if(audio){
+						audio.currentTime = (seek.value / 100) * audio.duration;
+					}
+				};
+
+				// Volume
+				const volume = document.getElementById('volume');
+				volume.oninput = () => {
+					const musicGainNode= window.audioObj.musicGainNode;
+					if(musicGainNode){
+						musicGainNode.gain.value = volume.value;
+					}
+				};
+
+				const uivolume = document.getElementById('uivolume');
+				uivolume.oninput = () => {
+					const uiGainNode = window.audioObj.uiGainNode;
+					if(uiGainNode){
+						uiGainNode.gain.value = uivolume.value;
+					}
+				};
+			</script>
 
 			<!-- dynamic content -->
 			<main data-barba="container" data-barba-namespace="home">

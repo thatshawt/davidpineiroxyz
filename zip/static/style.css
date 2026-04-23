@@ -49,7 +49,7 @@ body{
   font-family: 'FunnelSans', sans-serif;
   font-size: 22px;
 
-  /* word-wrap: break-word; */
+  word-wrap: break-word;
 
   max-width:1224px;
 
@@ -216,7 +216,7 @@ div.navbar  p {
 
 .sukuna-navbar{
   position: fixed;
-  /* height: 100%; */
+  max-height: 100%;
   overflow-y: scroll;
 
   border: 2px solid #ff5401db;
@@ -281,7 +281,7 @@ div.sukuna-navbar p {
 
   padding: 10px;
 
-  display: grid;
+  /* display: grid; */
   justify-content: left;
 
   /* min-width: 15%; */
@@ -291,6 +291,60 @@ div.sukuna-navbar p {
   left:0;
   z-index: 102;
 
+  /* user-select: none; */
+}
+
+.musicplayer {
+  /* position: fixed; */
+  /* bottom: 0; */
+  width: 100%;
+  /* background: #181818; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* padding: 10px 20px; */
+  box-sizing: border-box;
+}
+
+.musicleft {
+  width: 30%;
+  word-wrap: break-word;
+}
+
+.musiccenter {
+  /* width: 40%; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* user-select: none; */
+}
+
+.musiccontrols button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  margin: 0 10px;
+  &:hover{
+    border:none;
+  }
+}
+
+.musicprogress {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.musicprogress input[type="range"] {
+  flex: 1;
+}
+
+.musicright {
+  /* width: 20%; */
+  text-align: right;
   user-select: none;
 }
 
@@ -374,12 +428,12 @@ div.section{
 }
 
 .static-bg {
-  background: linear-gradient(124deg, #ff22006d, #e81d1d6d, #e8b91d6d, #e5e81d6c, #1de83f66, #1ddee870, #2b1de877, #df00f36b, #df00f36e);
+  /* background: linear-gradient(124deg, #ff22006d, #e81d1d6d, #e8b91d6d, #e5e81d6c, #1de83f66, #1ddee870, #2b1de877, #df00f36b, #df00f36e); */
+  background-color: black;
   background-image: url("/static/404-static.gif");
   background-size: 200%;
-  animation: rainbow 18s ease-out infinite;
+  /* animation: rainbow 18s ease-out infinite; */
   image-rendering: pixelated;
-  background-color: unset;
 }
 
 
