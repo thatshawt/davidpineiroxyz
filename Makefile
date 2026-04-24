@@ -28,4 +28,4 @@ dehehe:
 	bash -c "cd zip; gpg -d hehe.tar.gz.gpg | tar -xzf -"
 
 zip/hehe.tar.gz.gpg:
-	tar -czf - hehe | gpg -e -r server@davidpineiro.xyz > zip/hehe.tar.gz.gpg
+	cd hehe; tar -czf - . | gpg -e -r server@davidpineiro.xyz > ../zip/hehe.tar.gz.gpg
