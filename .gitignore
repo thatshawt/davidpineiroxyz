@@ -5,3 +5,4 @@ prod/copyparty/*.db*
 prod/copyparty/**/*.hist
 prod/copyparty/copyparty-sfx.py
 prod/copyparty/copyparty
+hehe

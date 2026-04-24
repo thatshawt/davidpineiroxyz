@@ -18,3 +18,14 @@ run: package
 	chmod +x prod/davidpineiroxyz.com
 # 	bash -c "./prod/davidpineiroxyz.com --assimilate"
 	cd prod; exec ./davidpineiroxyz.com -p 8080 -- --devmode
+
+hehe: rmhehe zip/hehe.tar.gz.gpg
+
+rmhehe:
+	rm -f zip/hehe.tar.gz.gpg
+
+dehehe:
+	cd zip; gpg -d hehe.tar.gz.gpg | tar -xzf -
+
+zip/hehe.tar.gz.gpg:
+	tar -czf - hehe | gpg -e -r server@davidpineiro.xyz > zip/hehe.tar.gz.gpg
