@@ -25,7 +25,7 @@ rmhehe:
 	rm -f zip/hehe.tar.gz.gpg
 
 dehehe:
-	cd zip; gpg -d hehe.tar.gz.gpg | tar -xzf -
+	bash -c "cd zip; gpg -d hehe.tar.gz.gpg | tar -xzf -"
 
 zip/hehe.tar.gz.gpg:
 	tar -czf - hehe | gpg -e -r server@davidpineiro.xyz > zip/hehe.tar.gz.gpg
