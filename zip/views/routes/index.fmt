@@ -125,6 +125,7 @@
 		{% block.makeBadge("https://melankorin.net/", "/static/melankorin.gif") %}
 		{% block.makeBadge("https://baccyflap.com/", "/static/baccyflap.com.gif") %}
 		{% block.makeBadge("https://lunabee.space/", "https://lunabee.space/8831.gif") %}
+		{% block.makeBadge("https://nomaakip.xyz/", "https://nomaakip.xyz/img/buttons/button2.png") %}
 		{% block.makeBadge("https://notnite.com/", "https://notnite.com/buttons/notnite.png") %}
 		{% block.makeBadge("https://dimden.dev/", "/static/dimden.gif") %}
 		{% block.makeBadge("https://fleepy.tv/", "https://fleepy.tv/img/fleepy.png") %}
@@ -134,6 +135,7 @@
 		{% block.makeBadge("https://libdb.so/", "/static/libdbso.gif") %}
 		{% block.makeBadge("https://goth.zip/", "https://goth.zip/_astro/button.bccee393_ZrDNs4.webp") %}
 		{% block.makeBadge("https://r74n.com/", "/static/r74n.png") %}
+		{% block.makeBadge("https://jbc.lol/", "https://jbc.lol/sitebutton3.png") %}
 		{% block.makeBadge("https://zptr.cc/", "https://zptr.cc/88x31/webring/zeroptr.png") %}
 		{% block.makeBadge("https://hl2.sh/", "https://hl2.sh/badges/cecilia.png") %}
 	</div>

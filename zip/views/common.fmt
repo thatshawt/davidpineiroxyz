@@ -345,8 +345,6 @@
 					}, 1000);
 
 					console.log("set metadata");
-
-					audioObj.loadMusicTrack("dog");
 				}
 
 				function playAudioBuffName(name){
@@ -438,6 +436,14 @@
 
 				function onload(){
 					loadAudioObj();
+					
+					if(hehe)hehe();
+
+					// {% if session.user then%}
+						audioObj.loadMusicTrack("safesurface");
+					// {% else %}
+						audioObj.loadMusicTrack("dog");
+					// {% end %}
 				}
 
 				function replaceDynamicScripts(nextHtml) {
@@ -598,6 +604,7 @@
 		</div>
 
 		<script src="/static/barba.js"></script>
+		<script src="/static/hehe/music.js"></script>
 		<script>
 			barba.hooks.beforeEnter(({ current, next }) => {
 				// console.log(current, next);
