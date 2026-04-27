@@ -7,10 +7,6 @@ clean:
 	rm -f prod/davidpineiroxyz.com
 	rm -rf prod/copyparty/stuff/.hist
 
-prod/davidpineiroxyz.com: ${REDBEAN}
-	mkdir -p prod
-	cp ${REDBEAN} prod/davidpineiroxyz.com
-
 package: clean prod/davidpineiroxyz.com
 	cd zip; zip -r ../prod/davidpineiroxyz.com .
 
@@ -18,6 +14,10 @@ run: package
 	chmod +x prod/davidpineiroxyz.com
 # 	bash -c "./prod/davidpineiroxyz.com --assimilate"
 	cd prod; exec ./davidpineiroxyz.com -p 8080 -- --devmode
+
+prod/davidpineiroxyz.com: ${REDBEAN}
+	mkdir -p prod
+	cp ${REDBEAN} prod/davidpineiroxyz.com
 
 hehe: rmhehe zip/hehe.tar.gz.gpg
 

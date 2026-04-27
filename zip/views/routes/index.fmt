@@ -27,7 +27,7 @@
 		</li>
 
 		<!-- turnstile javscript -->
-		<script defer>
+		<script>
 			function turnstileEnable(){
 				document.getElementById('emailButton').disabled = false;
 			}
@@ -65,24 +65,9 @@
 				})
 				.catch(error => console.error('Error:', error));
 			});
-
-			// console.log("turnstile: ", turnstile);
-			// try{turnstile.reset('#turnstileDiv');}catch (err){}
-			turnstile.render('#turnstileDiv', {
-				sitekey: '{%& vars.turnstile_key %}',
-				// appearance: 'interaction-only',
-				theme: 'dark',
-				callback: function(token) {turnstileEnable();},
-				"error-callback": function(errorCode){turnstile.reset("#turnstileDiv");turnstileDisable();},
-				"expired-callback": function(errorCode){turnstile.reset("#turnstileDiv");turnstileDisable();},
-				"timeout-callback": function(errorCode){turnstile.reset("#turnstileDiv");turnstileDisable();},
-			});
-
-			window.barbaAfterLeave = function(current, next){
-				// console.log("removed turnstile");
-				turnstile.remove("#turnstileDiv");
-			};
 		</script>
+
+		{% block.turnstileScript("turnstileDiv", "turnstileEnable", "turnstileDisable", "turnstileDisable", "turnstileDisable") %}
 	</ul>
 
 	<h2>Links</h2>

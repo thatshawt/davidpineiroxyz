@@ -66,11 +66,21 @@ fm.setRoute({"/login", method = {"POST"}},
 			return fm.serveContent("routes/login", {message = "You are already logged in with '%s'. Log out if you want to login to another account." % {r.session.user}})
 		end
 
+		-- make sure username and password are alphanumeric and stuff
 		local valid, error = common.usernamePasswordValidator(r.params)
 
-		-- check user and pass combo
 		if valid then
-			valid, error = common.checkUserPass(r.params.username, r.params.password)
+			-- validate turnstile
+			local cf_response = tostring(r.params["cf-turnstile-response"]) or ""
+			local turnstileValid = common.validateTurnstileKey(cf_response) == "true"
+			
+			if turnstileValid then
+				-- check user and pass combo
+				valid, error = common.checkUserPass(r.params.username, r.params.password)
+			else
+				valid = false
+				error = "cloudflare turnstile invalid?"
+			end
 		end
 
 		if valid then -- success
@@ -88,6 +98,141 @@ fm.setRoute({"/logout", method = {"POST"}},
 		r.session = {}
 
 		return fm.serveRedirect(302, "/") 
+	end
+)
+
+-- signup
+fm.setRoute({"/signup", method = {"GET"}},
+	function (r)
+		return fm.serveContent("routes/signup", {signup1 = true})
+	end
+)
+
+fm.setRoute({"/signup", method = {"POST"}},
+	function(r)
+		-- if already logged in
+		if r.session and r.session.user then
+			return fm.serveContent("routes/logout", {message = "You are already logged in with '%s'. Log out!!! NOWWWWWW!!!!! ROOOOOOAAAARRRRRRRRR O.o YYYYYEEEEAAAAAAHHHHHH" % {r.session.user}})
+		end
+
+		-- make sure email and username are goody good
+		local valid, error = common.emailUsernameValidate(r.params.email, r.params.username)
+
+		if valid then
+			-- validate turnstile
+			local cf_response = tostring(r.params["cf-turnstile-response"]) or ""
+			local turnstileValid = common.validateTurnstileKey(cf_response).success
+			
+			if turnstileValid then
+				local db <close> = common.getSqlConnection()
+				-- check if email or username exists
+				local existsAlready, msg = common.emailOrUsernameExists(db, r.params.email, r.params.username)
+
+				if existsAlready then
+					valid = false
+				end
+				error = msg
+			else
+				valid = false
+				error = "cloudflare turnstile invalid?"
+			end
+		end
+
+		-- try to send email code
+		if valid then
+			valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username)
+		end
+
+		if valid then -- success
+			return fm.serveContent("routes/signup", {
+				message = "Check your email for the code and paste it below.",
+				email = r.params.email,
+				username = r.params.username,
+				signup2 = true
+			})
+		else -- fail
+			return fm.serveContent("routes/signup", {message = error, signup1 = true})
+		end
+	end
+)
+
+-- signupCodeResend
+fm.setRoute({"/signupCodeResend", method = {"POST"}},
+	function (r)
+		-- sendNewSignupCode can fail cus the cooldown
+		valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username)
+
+		if valid then
+			return fm.serveContent("routes/signup", {
+				message = "Sent email again. It might take a few minutes to send, also dont forget to check spam folder just incase.",
+				email=r.params.email,
+				username=r.params.username,
+				signup2 = true})
+		else
+			return fm.serveContent("routes/signup", {
+				message = error,
+				email=r.params.email,
+				username=r.params.username,
+				signup2 = true})
+		end
+	end
+)
+
+-- signupCode
+fm.setRoute({"/signupCode", method = {"POST"}},
+	function (r)
+		-- try to validate the code
+		valid, error = common.signup.validateCode(r.params.username, r.params.code)
+
+		-- if valid code send them to next step
+		if valid then
+			return fm.serveContent("routes/signup", {
+				message = "Code is valid! Now type your password to create your account." % {r.params.username},
+				email = r.params.email,
+				username = r.params.username,
+				code = r.params.code,
+				signup3 = true
+			})
+		else -- otherwise show the error
+			return fm.serveContent("routes/signup", {message = error,
+				email = r.params.email,
+				username = r.params.username,
+				signup2 = true})
+		end
+
+	end
+)
+
+-- signupPassword
+fm.setRoute({"/signupPassword", method = {"POST"}},
+	function (r)
+		-- validate passwords
+		valid, error = common.signup.validatePasswords(r.params.password1, r.params.password2)
+
+		-- serve error
+		if valid == false then
+			return fm.serveContent("routes/signup", {message = error,
+				email = r.params.email,
+				username = r.params.username,
+				code = r.params.code,
+				signup3 = true})
+		end
+
+		-- try to create account
+		valid, error = common.signup.tryCreateAccount(r.params.email, r.params.username, r.params.password1)
+
+		-- if account created, log them in
+		if valid then
+			r.session.user = r.params.username
+
+			return fm.serveRedirect(302, "/")
+		else -- otherwise show the error
+			return fm.serveContent("routes/signup", {message = error,
+				email = r.params.email,
+				username = r.params.username,
+				code = r.params.code,
+				signup3 = true})
+		end
 	end
 )
 

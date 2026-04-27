@@ -8,15 +8,26 @@
                 <td>Giuseppe-Von-Trillious</td>
             </tr>
                 <td>Last Name</td>
-                <td>The Dog</td>
+                <td>The Great</td>
             </tr>
         </table>
         <img class="sukuna" src="/static/android-chrome-512x512.png">
-    <!-- <audio loop id='mySound' src='https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d1/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm.240p.vp9.webm?download' ></audio> -->
+    </div>
+    <div class="inner-box static-bg">
+        <table>
+            <tr>
+                <td>First Name</td>
+                <td>Deez Nuts</td>
+            </tr>
+                <td>Last Name</td>
+                <td>The Fortuitous</td>
+            </tr>
+        </table>
+        <!-- TODO put image of a beagle dog here -->
+        <img src="/static/android-chrome-512x512.png">
     </div>
 
-
 {% end %}
-{% render("common", {title="Hello Sukuna"}) %}
+{% render("common", {title="Hello Doggies"}) %}
 
 

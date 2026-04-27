@@ -2,6 +2,8 @@ local common = {}
 
 local fm = require "fullmoon"
 local argon2 = require 'argon2'
+local re = require 're'
+local math = require 'math'
 
 common.databaseFile = 'database.db'
 
@@ -11,20 +13,27 @@ function common.getSqlConnection()
 end
 
 function common.sqlInit(db)
-    db:exec([[CREATE TABLE users (username TEXT PRIMARY KEY, password TEXT NOT NULL);]])
+    db:exec([[CREATE TABLE users (username TEXT PRIMARY KEY, password TEXT NOT NULL, email TEXT NOT NULL);]])
 end
 
-function common.userReplaceSave(db, username, cleartextPassword)
+function common.userReplaceSave(db, username, cleartextPassword, email)
     local hashedPass, passSalt = common.generateHashedFromClear(cleartextPassword)
     -- local hashedUser, userSalt = common.generateHashedFromClear(username)
 
-    local changed = db:exec("INSERT INTO users VALUES ('%s', '%s');" % {username, hashedPass}) or 0
-    changed = changed + (db:exec("UPDATE users SET password='%s' WHERE username='%s';" % {hashedPass, username}) or 0)
+    local changed = 0
+    userExists, poo = common.usernameExists(db, username)
+    if not userExists then
+        changed = db:execute(
+            "INSERT INTO users VALUES (?, ?, ?);",
+            username, hashedPass, email
+        ) or 0
+    end
+    changed = changed + (db:execute("UPDATE users SET password=?, email=? WHERE username=?;", username, hashedPass, email) or 0)
     
     -- if changed ~= 0 then
     --     fm.logInfo("failed to generate: username '%s', password '%s'" % {username, hashedPass})
     -- else
-        fm.logInfo("generated user: username '%s', password '%s'" % {username, hashedPass})
+    fm.logInfo("saved user: username '%s', password '%s'" % {username, hashedPass})
     -- end
 end
 
@@ -43,8 +52,7 @@ function common.userVerify(db, username, cleartextPass)
     --     end
     -- end
 
-    local hashed = db:fetchOne("SELECT password FROM users WHERE username='%s';" % {username})
-    
+    local hashed = db:fetchOne("SELECT password FROM users WHERE username=?;", username)
     hashed = hashed and tostring(hashed.password) or Nil
 
     -- fm.logInfo("found hashed %s" % {tostring(hashed)})
@@ -61,8 +69,6 @@ end
 function common.ends_with(str, ending)
    return ending == "" or str:sub(-#ending) == ending
 end
-
-common.stringtobool={ ["true"]=true, ["false"]=false }
 
 function common.isDevmode()
     for k,v in pairs(arg) do
@@ -128,7 +134,7 @@ end
 
 function common.replaceSaveSecretsUsers(db)
     for k,v in pairs(secrets.users) do
-        common.userReplaceSave(db, k, v)
+        common.userReplaceSave(db, k, v, "test@test.test")
     end
 end
 
@@ -145,6 +151,101 @@ function common.sendNtfy(title, body)
         )
     else
         print("sendNtfy: %s, %s" % {title or "davidpineiro.xyz", body})
+    end
+end
+
+common.signup = {}
+
+function common.usernameExists(db, username)
+    local fetchUser = db:fetchOne("SELECT username FROM users WHERE username=?;", username)
+    fetchUser = fetchUser.username and tostring(fetchUser.username) or Nil
+
+    if fetchUser then
+        return true, "Username exists."
+    end
+
+    return false, "Username does not exist."
+end
+
+function common.emailOrUsernameExists(db, email, username)
+    local exists, msg = common.usernameExists(db, username)
+
+    if exists then
+        return true, msg
+    end
+
+    local fetchUser = db:fetchOne("SELECT email FROM users WHERE email=?;", email)
+    fetchUser = fetchUser.email and tostring(fetchUser.email) or Nil
+
+    if fetchUser then
+        return true, "Email exists."
+    end
+    
+    return false, "Email and username do not exist."
+end
+
+common.signup._userCodes = {}
+common.signup._codeCooldowns = {}
+common.signup.cooldownSeconds = 60
+function common.signup.sendNewSignupCode(email, username)
+    if common.signup._userCodes[username] == Nil then
+        common.signup._userCodes[username] = tostring(math.abs(Lemur64()))
+        common.signup._codeCooldowns[username] = GetDate()
+    end
+
+    local cooldownDiff = GetDate() - common.signup._codeCooldowns[username]
+    
+    if cooldownDiff < common.signup.cooldownSeconds then
+        --generate new code
+        common.signup._userCodes[username] = tostring(math.abs(Lemur64()))
+        common.signup._codeCooldowns[username] = GetDate()
+
+        local code = common.signup._userCodes[username]
+        
+        -- TODO send email with code
+        print("email %s username %s send code %s" % {email, username, code})
+
+        return true, "Sent email code."
+    else
+        return false, "Wait %s seconds before sending new code." % {cooldownDiff - tostring(common.signup.cooldownSeconds)}
+    end
+
+    print("sent email to '%s', username '%s' code '%s'" % {email, username, common.signup._userCodes[username]})
+end
+
+function common.signup.validateCode(username, code)
+    local userCode = common.signup._userCodes[username] or ""
+
+    if userCode == code then
+        return true, "Success, same code!"
+    else
+        return false, "Not the same code as in the email."
+    end
+end
+
+function common.signup.validatePasswords(password1, password2)
+    if password1 ~= password2 then
+        return false, "Passwords need to be the same!"
+    else
+        passwordOk, passwordError = common.passwordValidator(password1)
+        if passwordOk == false then
+            return false, passwordError
+        end
+
+        return true, "Passwords are both equal and valid!"
+    end
+end
+
+function common.signup.tryCreateAccount(email, username, password)
+    local db <close> = common.getSqlConnection()
+    local accountExists, accountErrorMsg = common.emailOrUsernameExists(db, email, username)
+
+    if accountExists == false then
+        common.userReplaceSave(db, username, password, email)
+
+        return true, "Created Account"
+    else
+        return false, accountErrorMsg
     end
 end
 
@@ -230,6 +331,73 @@ function common.checkUserPass(user, password)
     return false, "That username and password does not exist!"
 end
 
+function common.passwordValidator(password)
+    local valid, error = fm.makeValidator({
+        {"password", minlen = 8, maxlen = 128, msg = "Password must be between 8 and 128 length."},
+        ["all"] = true
+    })({password=password})
+
+    return valid, error
+end
+
+function common.usernameValidator(username)
+        local valid, error = fm.makeValidator({
+        {"username", minlen = 1, maxlen = 64, msg = "Username must be between 1 and 64 length."},
+        {"username", test = function(user) return user:match("^%w+$") end, msg = "Username must only contain numbers and/or letters."},
+        ["all"] = true
+    })({username=username})
+
+    return valid, error
+end
+
+-- https://colinhacks.com/essays/reasonable-email-regex
+
+-- simpler, POSIX-safe regex
+local emailRegex, err = re.compile(
+  [[^[a-z0-9_'+.-]+@[a-z0-9-]+(\.[a-z0-9-]+)+$]]
+)
+
+if err then
+    print(string.format("email regex error '%s'", err:doc()))
+end
+
+function common.emailValidate(email)
+    if type(email) ~= "string" then
+        return false, "Server error: email is not a string"
+    end
+
+    -- rule 1: no leading dot
+    if email:match("^%.") then
+        return false, "Email is invalid (starts with dot)"
+    end
+
+    -- rule 2: no consecutive dots
+    if email:match("%.%.") then
+        return false, "Email is invalid (contains consecutive dots)"
+    end
+
+    -- rule 3: basic structure via regex
+    local search = emailRegex:search(email)
+    if search ~= nil then
+        return true, "Email is valid."
+    else
+        return false, "Email is invalid."
+    end
+end
+
+function common.emailUsernameValidate(email, username)
+    -- print("%s %s" % {email, username})
+    local valid, error = common.emailValidate(email)
+
+    if not valid then
+        return valid, error
+    else
+        valid, error = common.usernameValidator(username)
+
+        return valid, error
+    end
+end
+
 function common.usernamePasswordValidator(params)
     local valid, error = fm.makeValidator({
         {"username", minlen = 1, maxlen = 64, msg = "Username must be between 1 and 64 length."},
@@ -238,18 +406,8 @@ function common.usernamePasswordValidator(params)
         ["all"] = true
     })(params)
 
-    -- local fullError = ""
-    -- if valid ~= true then
-    --     for k,v in pairs(error) do
-    --         fullError = fullError.." "..tostring(v)
-    --     end
-    --     --remove final \n
-    --     fullError = fullError:sub(1, #fullError - 1)
-    --     error = fullError
-    -- end
     return valid, error
 end
-
 
 local python3 = assert(unix.commandv('python3'))
 -- capsh = assert(unix.commandv('capsh'))

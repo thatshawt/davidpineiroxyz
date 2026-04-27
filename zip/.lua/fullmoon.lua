@@ -767,6 +767,7 @@ local function makeStorage(dbname, sqlsetup, opts)
     end
   end
   local function fetch(self, query, one, ...)
+    -- print("in fetch")
     -- re-open the connection if this is a forked process; see comment in `dbm:init()`
     if self.pid ~= unix.getpid() then self:init(true) end
     if not self.db then self:init() end
@@ -780,6 +781,7 @@ local function makeStorage(dbname, sqlsetup, opts)
       end
       if not stmt then return nil, "can't prepare: "..self.db:errmsg() end
       -- if the last statement is incomplete
+      -- print("did this")
       if not stmt:isopen() then break end
       -- if the first parameter is a table, then use it to bind parameters by name
       local tbl = select(1, ...)

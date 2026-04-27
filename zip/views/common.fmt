@@ -12,6 +12,7 @@
 		<a href="/logout">Logout</a>
 	{% else %}
 		<a href="/login">Login</a>
+		<a href="/signup">Signup</a>
 	{% end %}
 {% end %}
 
@@ -31,6 +32,28 @@
 		<div>{%& bottomText %}</div>
 	{% end %}
 </div>
+{% end %}
+
+{% function block.turnstileScript(turnstileDivId, callback, error_callback, expired_callback, timeout_callback) %}
+<script defer>
+	turnstile.render('#{%& turnstileDivId %}', {
+		sitekey: '{%& vars.turnstile_key %}',
+		// appearance: 'interaction-only',
+		theme: 'dark',
+		callback: function(token) {{%& callback %}(token);},
+		"error-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& error_callback %}();},
+		"expired-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& expired_callback %}();},
+		"timeout-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& timeout_callback %}()();},
+	});
+
+	window.oldAfterLeave = window.barbaAfterLeave || (() => {});
+	window.barbaAfterLeave = () => {
+		turnstile.remove('#{%& turnstileDivId %}');
+		// window.oldAfterLeave();
+		// window.oldAfterLeave = null;
+	};
+	
+</script>
 {% end %}
 
 
