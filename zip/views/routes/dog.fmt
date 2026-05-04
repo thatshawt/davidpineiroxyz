@@ -1,31 +1,59 @@
 {% function block.content() %}
     <h2>Dog Exhibit</h2>
-    <p>These are dogs.</p>
-    <div class="inner-box box-red-bg ">
-        <table>
-            <tr>
-                <td>First Name</td>
-                <td>Giuseppe-Von-Trillious</td>
-            </tr>
-                <td>Last Name</td>
-                <td>The Great</td>
-            </tr>
-        </table>
-        <img class="sukuna" src="/static/android-chrome-512x512.png">
+    <p>Email me some photos I could add to the exhibit.</p>
+
+    <style>
+        div.inner-box img {
+            width:400px;
+        }
+
+        .photo-container{
+            display:flex;
+            flex-wrap: wrap;
+        }
+    </style>
+
+    <div class="photo-container">
+        <div class="inner-box box-red-bg ">
+            <table>
+                <tr>
+                    <td>First Name</td>
+                    <td>Giuseppe-Von-Trillious</td>
+                </tr>
+                    <td>Last Name</td>
+                    <td>The Great</td>
+                </tr>
+            </table>
+            <img loading='lazy' src="/static/android-chrome-512x512.png">
+        </div>
+        <div class="inner-box static-bg">
+            <table>
+                <tr>
+                    <td>First Name</td>
+                    <td>Deez Nuts</td>
+                </tr>
+                    <td>Last Name</td>
+                    <td>The Fortuitous</td>
+                </tr>
+            </table>
+            <img src="/copyparty/memes/beagle.jpg" loading='lazy'>
+        </div>
+
+        <div class="inner-box">
+            <table>
+                <tr>
+                    <td>First Name</td>
+                    <td>Issa</td>
+                </tr>
+                    <td>Last Name</td>
+                    <td>Cat</td>
+                </tr>
+            </table>
+            <img src="/copyparty/memes/cat.jpg" loading='lazy'>
+        </div>
     </div>
-    <div class="inner-box static-bg">
-        <table>
-            <tr>
-                <td>First Name</td>
-                <td>Deez Nuts</td>
-            </tr>
-                <td>Last Name</td>
-                <td>The Fortuitous</td>
-            </tr>
-        </table>
-        <!-- TODO put image of a beagle dog here -->
-        <img src="/static/android-chrome-512x512.png">
-    </div>
+
+    
 
 {% end %}
 {% render("common", {title="Hello Doggies"}) %}

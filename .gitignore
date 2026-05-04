@@ -1,8 +1,11 @@
 .idea
 davidpineiroxyz.com
-database.db
+database.*
 prod/copyparty/*.db*
 prod/copyparty/**/*.hist
 prod/copyparty/copyparty-sfx.py
 prod/copyparty/copyparty
 hehe
+
+# we need to supply this ourselves in prod
+prod/mailer
