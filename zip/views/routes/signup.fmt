@@ -71,8 +71,6 @@
             <br>
             Username: <code class="inline">{%& username %}</code>
         </p>
-        <!-- if passwords match or not -->
-        <span id="passwordStatus"></span>
         <form action="/signupPassword" method="POST">
             <input type="hidden" value="{%& email %}" name="email">
             <input type="hidden" value="{%& username %}" name="username">
@@ -88,9 +86,6 @@
 
             <button id="signupBtn" type="submit">Create Account</button>
         </form>
-        <script>
-            // check if passwords match
-        </script>
     {% end %}
 
 {% end %}

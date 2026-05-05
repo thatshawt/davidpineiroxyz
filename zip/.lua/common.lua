@@ -1,4 +1,5 @@
 local common = {}
+common.unsafe = {}
 
 local fm = require "fullmoon"
 local argon2 = require 'argon2'
@@ -7,55 +8,65 @@ local math = require 'math'
 
 common.databaseFile = 'database.db'
 
+function common.mday()
+    unixsec, nanos = unix.clock_gettime()
+    year,mon,mday,hour,min,sec = unix.localtime(unixsec)
+
+    return mday
+end
+
+function common.month()
+    unixsec, nanos = unix.clock_gettime()
+    year,mon,mday,hour,min,sec = unix.localtime(unixsec)
+
+    return mon
+end
+
 -- local db <close> = common.getSqlConnection()
 function common.getSqlConnection()
     return fm.makeStorage(common.databaseFile, [[PRAGMA journal_mode=WAL;PRAGMA synchronous=NORMAL;]])
 end
 
 function common.sqlInit(db)
-    db:exec([[CREATE TABLE users (username TEXT PRIMARY KEY, password TEXT NOT NULL, email TEXT NOT NULL);]])
+    db:exec([[CREATE TABLE users (
+        username TEXT COLLATE NOCASE PRIMARY KEY,
+        password TEXT NOT NULL,
+        email TEXT NOT NULL
+        );]])
+
+    db:exec([[CREATE TABLE dailyEmailSends (email TEXT PRIMARY KEY, sends INTEGER DEFAULT 0);]])
+    db:exec([[CREATE TABLE monthlyEmailSends (email TEXT PRIMARY KEY, sends INTEGER DEFAULT 0);]])
+    db:exec([[CREATE TABLE dailyIpSignups (ip TEXT PRIMARY KEY, signups INTEGER DEFAULT 0);]])
+    db:exec([[CREATE TABLE signupEmailWhitelist (email TEXT PRIMARY KEY);]])
+    db:exec([[CREATE TABLE signups (
+        email TEXT,
+        username TEXT,
+        lastAttempt INTEGER DEFAULT 0,
+        code TEXT,
+        PRIMARY KEY (email,username)
+        );]])
+
+    db:exec([[CREATE TABLE globals (id TEXT PRIMARY KEY, data TEXT NOT NULL);]])
+
+    db:exec([[CREATE TABLE emailLookups (domain TEXT PRIMARY KEY, result TEXT NOT NULL);]])
 end
 
 function common.userReplaceSave(db, username, cleartextPassword, email)
     local hashedPass, passSalt = common.generateHashedFromClear(cleartextPassword)
-    -- local hashedUser, userSalt = common.generateHashedFromClear(username)
-
-    local changed = 0
-    userExists, poo = common.usernameExists(db, username)
-    if not userExists then
-        changed = db:execute(
-            "INSERT INTO users VALUES (?, ?, ?);",
-            username, hashedPass, email
-        ) or 0
-    end
-    changed = changed + (db:execute("UPDATE users SET password=?, email=? WHERE username=?;", username, hashedPass, email) or 0)
     
-    -- if changed ~= 0 then
-    --     fm.logInfo("failed to generate: username '%s', password '%s'" % {username, hashedPass})
-    -- else
+    db:execute([[INSERT OR REPLACE INTO users (username, password, email) VALUES (?,?,?);]], username, hashedPass, email)
+
     fm.logInfo("saved user: username '%s', password '%s'" % {username, hashedPass})
-    -- end
+end
+
+function common.deleteUser(db, username)
+    db:execute([[DELETE FROM users WHERE username=?;]], username)
 end
 
 function common.userVerify(db, username, cleartextPass)
-    -- local result = assert(db:fetchAll[[SELECT password FROM users;]])
-
-    -- fm.logInfo("SELECT password FROM users WHERE username='david':")
-    -- for k,v in pairs(result) do
-    --     if type(v) == "table" then
-    --         fm.logInfo(k.." is table:")
-    --         for k,v in pairs(v) do
-    --             fm.logInfo("    "..k.." = "..tostring(v))
-    --         end
-    --     else
-    --         fm.logInfo(k.." = "..tostring(v))
-    --     end
-    -- end
 
     local hashed = db:fetchOne("SELECT password FROM users WHERE username=?;", username)
     hashed = hashed and tostring(hashed.password) or Nil
-
-    -- fm.logInfo("found hashed %s" % {tostring(hashed)})
 
     if hashed == Nil then return false end
 
@@ -70,6 +81,14 @@ function common.ends_with(str, ending)
    return ending == "" or str:sub(-#ending) == ending
 end
 
+function common.trim(str)
+    return str:match("^%s*(.-)%s*$")
+end
+
+function common.rmWhitespace(str)
+    return str:gsub("%s+", "")
+end
+
 function common.isDevmode()
     for k,v in pairs(arg) do
         -- fm.logInfo(k.." = "..tostring(v))
@@ -80,13 +99,34 @@ function common.isDevmode()
     return false
 end
 
-function common.exec(prog, args, env)
+local python3 = assert(unix.commandv('python3'))
+-- capsh = assert(unix.commandv('capsh'))
+
+local bash = assert(unix.commandv('bash'))
+local strace
+if common.isDevmode() then
+    strace = assert(unix.commandv('strace'))
+    bash = assert(unix.commandv('bash'))
+end
+
+function common.exec(prog, args, env, stderr)
 	reader, writer = assert(unix.pipe())
 	if assert(unix.fork()) == 0 then
+        -- collect stdin
 		unix.close(1)
 		unix.dup(writer)
-		unix.close(writer)
+
+        -- collect stderr as well
+        if stderr then
+            unix.close(2)
+            unix.dup(writer)
+        end
+
+        -- idk
+        unix.close(writer)
 		unix.close(reader)
+
+        -- spawn process
 		unix.execve(prog, args, env)
 		unix.exit(127)
 	else
@@ -112,6 +152,10 @@ function common.exec(prog, args, env)
 
 		return returnStr
 	end
+end
+
+function common.exec_with_stderr(prog, args, env)
+    return common.exec(prog, args, env, true)
 end
 
 -- curl = assert(unix.commandv('curl'))
@@ -153,8 +197,84 @@ function common.sendNtfy(title, body)
         print("sendNtfy: %s, %s" % {title or "davidpineiro.xyz", body})
     end
 end
+common.validate = {}
 
-common.signup = {}
+function common.validate.passwordValidator(password)
+    local valid, error = fm.makeValidator({
+        {"password", minlen = 8, maxlen = 128, msg = "Password must be between 8 and 128 length."},
+        ["all"] = true
+    })({password=password})
+
+    return valid, error
+end
+
+function common.validate.usernameValidator(username)
+    local valid, error = fm.makeValidator({
+        {"username", minlen = 1, maxlen = 64, msg = "Username must be between 1 and 64 length."},
+        {"username", test = function(user) return user:match("^%w+$") end, msg = "Username must only contain numbers and/or letters."},
+        ["all"] = true
+    })({username=username})
+
+    return valid, error
+end
+
+-- simpler, POSIX-safe regex
+local emailRegex, err = re.compile(
+  [[^[a-z0-9_'+.-]+@[a-z0-9-]+(\.[a-z0-9-]+)+$]]
+)
+
+if err then
+    print(string.format("email regex error '%s'", err:doc()))
+end
+
+
+function common.validate.emailValidate(email)
+    if type(email) ~= "string" then
+        return false, "Server error: email is not a string"
+    end
+
+    -- rule 1: no leading dot
+    if email:match("^%.") then
+        return false, "Email is invalid (starts with dot)"
+    end
+
+    -- rule 2: no consecutive dots
+    if email:match("%.%.") then
+        return false, "Email is invalid (contains consecutive dots)"
+    end
+
+    -- rule 3: basic structure via regex
+    local search = emailRegex:search(email)
+    if search ~= nil then
+        return true, "Email is valid."
+    else
+        return false, "Email is invalid."
+    end
+end
+
+function common.validate.emailUsernameValidate(email, username)
+    -- print("%s %s" % {email, username})
+    local valid, error = common.validate.emailValidate(email)
+
+    if not valid then
+        return valid, error
+    else
+        valid, error = common.validate.usernameValidator(username)
+
+        return valid, error
+    end
+end
+
+function common.validate.usernamePasswordValidator(params)
+    local valid, error = fm.makeValidator({
+        {"username", minlen = 1, maxlen = 64, msg = "Username must be between 1 and 64 length."},
+        {"username", test = function(user) return user:match("^%w+$") end, msg = "Username must only contain numbers and/or letters."},
+        {"password", minlen = 8, maxlen = 128, msg = "Password must be between 8 and 128 length."},
+        ["all"] = true
+    })(params)
+
+    return valid, error
+end
 
 function common.usernameExists(db, username)
     local fetchUser = db:fetchOne("SELECT username FROM users WHERE username=?;", username)
@@ -184,37 +304,208 @@ function common.emailOrUsernameExists(db, email, username)
     return false, "Email and username do not exist."
 end
 
-common.signup._userCodes = {}
-common.signup._codeCooldowns = {}
-common.signup.cooldownSeconds = 60
-function common.signup.sendNewSignupCode(email, username)
-    if common.signup._userCodes[username] == Nil then
-        common.signup._userCodes[username] = tostring(math.abs(Lemur64()))
-        common.signup._codeCooldowns[username] = GetDate()
-    end
-
-    local cooldownDiff = GetDate() - common.signup._codeCooldowns[username]
-    
-    if cooldownDiff < common.signup.cooldownSeconds then
-        --generate new code
-        common.signup._userCodes[username] = tostring(math.abs(Lemur64()))
-        common.signup._codeCooldowns[username] = GetDate()
-
-        local code = common.signup._userCodes[username]
-        
-        -- TODO send email with code
-        print("email %s username %s send code %s" % {email, username, code})
-
-        return true, "Sent email code."
-    else
-        return false, "Wait %s seconds before sending new code." % {cooldownDiff - tostring(common.signup.cooldownSeconds)}
-    end
-
-    print("sent email to '%s', username '%s' code '%s'" % {email, username, common.signup._userCodes[username]})
+function common.getGlobal(db, id)
+    return db:fetchOne([[SELECT data FROM globals WHERE id=?;]], id).data
 end
 
-function common.signup.validateCode(username, code)
-    local userCode = common.signup._userCodes[username] or ""
+function common.setGlobal(db, id, val)
+    db:execute([[INSERT OR REPLACE INTO globals (id, data) VALUES (?,?);]], id, val)
+end
+
+function common.updateGlobals(db)
+    local mday = tostring(common.mday())
+    local globalMday = common.getGlobal(db, "mday")
+    if mday ~= globalMday then
+        common.setGlobal(db, "mday", mday)
+        db:execute([[DELETE FROM dailyEmailSends;]])
+        db:execute([[DELETE FROM signups;]])
+        db:execute([[DELETE FROM dailyIpSignups;]])
+
+        common.setGlobal(db, "dailyGlobalSignups", 0)
+    end
+
+    local mon = tostring(common.month())
+    local globalMon = common.getGlobal(db, "mon")
+    if mon ~= globalMon then
+        common.setGlobal(db, "mon", mon)
+        db:execute([[DELETE FROM monthlyEmailSends;]])
+    end
+    
+end
+
+local dig = assert(unix.commandv('dig'))
+function common.unsafe.mxLookup(domain)
+    local db <close> = common.getSqlConnection()
+
+    domain = common.trim(domain:lower())
+
+    local cachedResult = db:fetchOne([[SELECT result FROM emailLookups WHERE domain=?;]], domain).result
+
+    if cachedResult ~= Nil then
+        if cachedResult == 'true' then
+            return true, "Domain has email server."
+        else
+            return false, "%s does not have an email dns record. Double check the email is correct pretty please. Or, you can send me an email and I can figure it out in due time (my email is on the home page in 'Socials')." % {domain}
+        end
+    end
+
+    local digCommand = {dig, "mx", domain, "+short"}
+
+    -- print("right before dig exec")
+    local result = common.exec(dig, digCommand)
+
+    print("dig command got '%s'" % {result})
+
+    if result:match('no servers') or common.rmWhitespace(result) == '' then
+        db:execute([[INSERT OR REPLACE INTO emailLookups (domain,result) VALUES (?,?);]], domain, 'false')
+        return false, "%s does not have an email dns record. Double check the email is correct pretty please. Or, you can send me an email and I can figure it out in due time (my email is on the home page in 'Socials')." % {domain}
+    else
+        db:execute([[INSERT OR REPLACE INTO emailLookups (domain,result) VALUES (?,?);]], domain, 'true')
+        return true, result
+    end
+end
+
+-- NOTE: we need 'getmail6', 'msmtp', 'dig' from nixpkgs in path
+local msmtp = assert(unix.commandv('msmtp'))
+local printf = assert(unix.commandv('printf'))
+function common.unsafe.sendEmail(recipient, subject, body)
+    recipient = common.trim(recipient:lower())
+
+    local valid, msg = common.validate.emailValidate(recipient)
+
+    if valid then
+        -- check domain to see if it has an mx record
+        local domain = string.match(recipient, "@(%w+%.%w+)")
+        valid, msg = common.unsafe.mxLookup(domain)
+
+        if valid then
+            local emailText = "Subject: %s\\n\\n%s" % {subject, body}
+            local bashCommand = "cd mailer; %s '%s' | %s -C ./.msmtprc %s" % {printf, emailText, msmtp, recipient}
+        
+            print("ran bash command '%s'" % {bashCommand})
+
+            local result = common.exec_with_stderr(bash, {bash, '-c', bashCommand})
+
+            print("command result -> '%s'" % {result})
+            -- idk yet
+            if result == '' then
+                return true, "Email sent."
+            else
+                return false, result
+            end
+        else
+            return false, msg
+        end
+    else
+        return false, msg
+    end
+end
+
+common.signup = {}
+
+function common.signup.fromEmailUsername(db, email, username)
+    local result = db:fetchOne([[SELECT email, username, lastAttempt, code FROM signups WHERE email=? AND username=?;]],
+    email, username) or {}
+
+    return result.email or email, result.username or username, math.floor(tonumber(result.lastAttempt or 0)), result.code
+end
+
+function common.signup.setSignup(db, email, username, lastAttempt, code)
+    db:execute([[INSERT OR REPLACE INTO signups (email, username, lastAttempt, code) VALUES (?,?,?,?);]],
+    email, username, lastAttempt, code)
+end
+
+-- cooldowns per email
+common.signup.cooldownSeconds = 10
+common.signup.dailyEmailQuota = 5
+common.signup.monthlyEmailQuota = 20
+
+-- cooldowns for global signups
+common.signup.dailyGlobalSignupQuota = 200
+
+-- cooldowns per ip
+common.signup.dailyIpSignupsQuota = 10
+
+function common.signup.sendNewSignupCode(email, username, ip)
+    local db <close> = common.getSqlConnection()
+
+    -- common.updateGlobals(db)
+
+    local whitelisted = db:fetchOne([[SELECT email FROM signupEmailWhitelist WHERE email=?;]], email).email ~= Nil
+
+    local globalEmailSignups = 0
+    local ipSignups = 0
+    local dailyEmailSends = 0
+    local monthlyEmailSends = 0
+
+    if whitelisted == false then
+        globalEmailSignups = tonumber(common.getGlobal(db, "dailyGlobalSignups") or 0)
+        if globalEmailSignups > common.signup.dailyGlobalSignupQuota then
+            return false, "Lots of people signed up today! Try again tomorrow! If this keeps happening email me with your email and I will whitelist you so you can signup without problems."
+        end
+
+        ipSignups = tonumber(db:fetchOne([[SELECT signups FROM dailyIpSignups WHERE ip=?;]], ip).signups or 0)
+        if ipSignups > common.signup.dailyIpSignupsQuota then
+            return false, "Hit maximum daily signup codes for your ip!. You can try again when the clock hits 12 PM!!"
+        end
+
+        dailyEmailSends = tonumber(db:fetchOne([[SELECT sends FROM dailyEmailSends WHERE email=?;]], email).sends or 0)
+        if dailyEmailSends > common.signup.dailyEmailQuota then
+            return false, "Hit maximum email sends for the day!"
+        end
+
+        monthlyEmailSends = tonumber(db:fetchOne([[SELECT sends FROM monthlyEmailSends WHERE email=?;]], email).sends or 0)
+        if monthlyEmailSends > common.signup.monthlyEmailQuota then
+            return false, "Hit maximum email sends for the whole MONTH!!!!!! Try again next month."
+        end
+    end
+
+    local _, _, lastAttempt, code = common.signup.fromEmailUsername(db, email, username)
+
+    local currentTime = math.floor(GetTime())
+
+    -- print("usercode %s, usercooldown %d, now() %d, dailyEmailSends %d" % {code or "", lastAttempt, currentTime, dailyEmailSends or 0})
+    
+    local cooldownDiff = currentTime - lastAttempt
+
+    -- print("code cooldownDiff seconds " .. tostring(cooldownDiff))
+    
+    if cooldownDiff > common.signup.cooldownSeconds then
+        -- generate new code
+        local code = tostring(math.abs(Rand64()) % 999999)
+
+        common.signup.setSignup(db, email, username, currentTime, code)
+
+        -- TODO send email with code
+        print("TODO SEND EMAIL CODE email %s username %s send code %s" % {email, username, code})
+        local emailSent, msg =
+            common.unsafe.sendEmail(email, "Account Code", "Hi,\\nThis is an automated message.\\n\\nThe code for your account is: %s.\\n\\n6 7 Skibidiah Jr. 7 8 9.\\nMay you have ever lasting health and jubious joyful moments." % {code})
+
+        if emailSent then
+            -- increment email sends
+            db:execute([[INSERT OR REPLACE INTO dailyEmailSends (email, sends) VALUES (?,?);]],
+                email, math.floor((dailyEmailSends)+1))
+
+            db:execute([[INSERT OR REPLACE INTO monthlyEmailSends (email, sends) VALUES (?,?);]],
+                email, math.floor((monthlyEmailSends)+1))
+
+            db:execute([[INSERT OR REPLACE INTO dailyIpSignups (ip, signups) VALUES (?,?);]],
+                ip, math.floor((ipSignups)+1))
+
+            return true, "Sent email code."
+        else
+            return false, "Email might not have been sent. Error message: '%s'" % {msg}
+        end
+
+    else
+        return false, "Wait %s seconds before sending new code." % {tostring(common.signup.cooldownSeconds - cooldownDiff)}
+    end
+end
+
+function common.signup.validateCode(email, username, code)
+    local db <close> = common.getSqlConnection()
+
+    local _, _, lastAttempt, userCode = common.signup.fromEmailUsername(db, email, username)
 
     if userCode == code then
         return true, "Success, same code!"
@@ -227,7 +518,7 @@ function common.signup.validatePasswords(password1, password2)
     if password1 ~= password2 then
         return false, "Passwords need to be the same!"
     else
-        passwordOk, passwordError = common.passwordValidator(password1)
+        passwordOk, passwordError = common.validate.passwordValidator(password1)
         if passwordOk == false then
             return false, passwordError
         end
@@ -241,9 +532,22 @@ function common.signup.tryCreateAccount(email, username, password)
     local accountExists, accountErrorMsg = common.emailOrUsernameExists(db, email, username)
 
     if accountExists == false then
-        common.userReplaceSave(db, username, password, email)
+        local valid, msg = common.signup.validatePasswords(password, password)
 
-        return true, "Created Account"
+        if valid then
+            common.userReplaceSave(db, username, password, email)
+            
+            local globalEmailSignups = tonumber(common.getGlobal(db, "dailyGlobalSignups") or 0)
+            common.setGlobal(db, "dailyGlobalSignups", globalEmailSignups+1)
+            
+            db:execute([[DELETE FROM signupEmailWhitelist WHERE email=?;]], email)
+            db:execute([[DELETE FROM signups WHERE email=?;]], email)
+
+            return true, "Created Account"
+        else
+            return false, msg
+        end
+
     else
         return false, accountErrorMsg
     end
@@ -329,94 +633,6 @@ function common.checkUserPass(user, password)
         return true, ""
     end
     return false, "That username and password does not exist!"
-end
-
-function common.passwordValidator(password)
-    local valid, error = fm.makeValidator({
-        {"password", minlen = 8, maxlen = 128, msg = "Password must be between 8 and 128 length."},
-        ["all"] = true
-    })({password=password})
-
-    return valid, error
-end
-
-function common.usernameValidator(username)
-        local valid, error = fm.makeValidator({
-        {"username", minlen = 1, maxlen = 64, msg = "Username must be between 1 and 64 length."},
-        {"username", test = function(user) return user:match("^%w+$") end, msg = "Username must only contain numbers and/or letters."},
-        ["all"] = true
-    })({username=username})
-
-    return valid, error
-end
-
--- https://colinhacks.com/essays/reasonable-email-regex
-
--- simpler, POSIX-safe regex
-local emailRegex, err = re.compile(
-  [[^[a-z0-9_'+.-]+@[a-z0-9-]+(\.[a-z0-9-]+)+$]]
-)
-
-if err then
-    print(string.format("email regex error '%s'", err:doc()))
-end
-
-function common.emailValidate(email)
-    if type(email) ~= "string" then
-        return false, "Server error: email is not a string"
-    end
-
-    -- rule 1: no leading dot
-    if email:match("^%.") then
-        return false, "Email is invalid (starts with dot)"
-    end
-
-    -- rule 2: no consecutive dots
-    if email:match("%.%.") then
-        return false, "Email is invalid (contains consecutive dots)"
-    end
-
-    -- rule 3: basic structure via regex
-    local search = emailRegex:search(email)
-    if search ~= nil then
-        return true, "Email is valid."
-    else
-        return false, "Email is invalid."
-    end
-end
-
-function common.emailUsernameValidate(email, username)
-    -- print("%s %s" % {email, username})
-    local valid, error = common.emailValidate(email)
-
-    if not valid then
-        return valid, error
-    else
-        valid, error = common.usernameValidator(username)
-
-        return valid, error
-    end
-end
-
-function common.usernamePasswordValidator(params)
-    local valid, error = fm.makeValidator({
-        {"username", minlen = 1, maxlen = 64, msg = "Username must be between 1 and 64 length."},
-        {"username", test = function(user) return user:match("^%w+$") end, msg = "Username must only contain numbers and/or letters."},
-        {"password", minlen = 8, maxlen = 128, msg = "Password must be between 8 and 128 length."},
-        ["all"] = true
-    })(params)
-
-    return valid, error
-end
-
-local python3 = assert(unix.commandv('python3'))
--- capsh = assert(unix.commandv('capsh'))
-
-local bash
-local strace
-if common.isDevmode() then
-    strace = assert(unix.commandv('strace'))
-    bash = assert(unix.commandv('bash'))
 end
 
 function common.check_caps()

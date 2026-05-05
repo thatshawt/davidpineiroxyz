@@ -67,12 +67,12 @@ fm.setRoute({"/login", method = {"POST"}},
 		end
 
 		-- make sure username and password are alphanumeric and stuff
-		local valid, error = common.usernamePasswordValidator(r.params)
+		local valid, error = common.validate.usernamePasswordValidator(r.params)
 
 		if valid then
 			-- validate turnstile
 			local cf_response = tostring(r.params["cf-turnstile-response"]) or ""
-			local turnstileValid = common.validateTurnstileKey(cf_response) == "true"
+			local turnstileValid = common.validateTurnstileKey(cf_response).success
 			
 			if turnstileValid then
 				-- check user and pass combo
@@ -85,6 +85,11 @@ fm.setRoute({"/login", method = {"POST"}},
 
 		if valid then -- success
 			r.session.user = r.params.username
+
+			if r.session.user == 'test' then
+				r.session.isAdmin = true
+			end
+
 			return fm.serveRedirect(302, "/") 
 		else -- fail
 			return fm.serveContent("routes/login", {message = error})
@@ -95,6 +100,7 @@ fm.setRoute({"/login", method = {"POST"}},
 -- logout
 fm.setRoute({"/logout", method = {"POST"}},
 	function (r)
+		-- r.session.user = {}
 		r.session = {}
 
 		return fm.serveRedirect(302, "/") 
@@ -115,8 +121,10 @@ fm.setRoute({"/signup", method = {"POST"}},
 			return fm.serveContent("routes/logout", {message = "You are already logged in with '%s'. Log out!!! NOWWWWWW!!!!! ROOOOOOAAAARRRRRRRRR O.o YYYYYEEEEAAAAAAHHHHHH" % {r.session.user}})
 		end
 
+		r.params.email = common.trim(r.params.email:lower())
+
 		-- make sure email and username are goody good
-		local valid, error = common.emailUsernameValidate(r.params.email, r.params.username)
+		local valid, error = common.validate.emailUsernameValidate(r.params.email, r.params.username)
 
 		if valid then
 			-- validate turnstile
@@ -140,10 +148,11 @@ fm.setRoute({"/signup", method = {"POST"}},
 
 		-- try to send email code
 		if valid then
-			valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username)
+			valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username, tostring(GetRemoteAddr()))
 		end
 
 		if valid then -- success
+			r.session.signupStage = "code"
 			return fm.serveContent("routes/signup", {
 				message = "Check your email for the code and paste it below.",
 				email = r.params.email,
@@ -159,8 +168,15 @@ fm.setRoute({"/signup", method = {"POST"}},
 -- signupCodeResend
 fm.setRoute({"/signupCodeResend", method = {"POST"}},
 	function (r)
+		if r.session.signupStage ~= "code" then
+			return fm.serveContent("routes/signup", {
+				signup1 = true})
+		end
+
+		r.params.email = common.trim(r.params.email:lower())
+
 		-- sendNewSignupCode can fail cus the cooldown
-		valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username)
+		valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username, tostring(GetRemoteAddr()))
 
 		if valid then
 			return fm.serveContent("routes/signup", {
@@ -181,11 +197,19 @@ fm.setRoute({"/signupCodeResend", method = {"POST"}},
 -- signupCode
 fm.setRoute({"/signupCode", method = {"POST"}},
 	function (r)
+		if r.session.signupStage ~= "code" then
+			return fm.serveContent("routes/signup", {
+				signup1 = true})
+		end
+
+		r.params.email = common.trim(r.params.email:lower())
+
 		-- try to validate the code
-		valid, error = common.signup.validateCode(r.params.username, r.params.code)
+		valid, error = common.signup.validateCode(r.params.email, r.params.username, r.params.code)
 
 		-- if valid code send them to next step
 		if valid then
+			r.session.signupStage = "pass"
 			return fm.serveContent("routes/signup", {
 				message = "Code is valid! Now type your password to create your account." % {r.params.username},
 				email = r.params.email,
@@ -194,7 +218,8 @@ fm.setRoute({"/signupCode", method = {"POST"}},
 				signup3 = true
 			})
 		else -- otherwise show the error
-			return fm.serveContent("routes/signup", {message = error,
+			return fm.serveContent("routes/signup", {
+				message = error,
 				email = r.params.email,
 				username = r.params.username,
 				signup2 = true})
@@ -206,12 +231,20 @@ fm.setRoute({"/signupCode", method = {"POST"}},
 -- signupPassword
 fm.setRoute({"/signupPassword", method = {"POST"}},
 	function (r)
+		if r.session.signupStage ~= "pass" then
+			return fm.serveContent("routes/signup", {
+				signup1 = true})
+		end
+
+		r.params.email = common.trim(r.params.email:lower())
+
 		-- validate passwords
 		valid, error = common.signup.validatePasswords(r.params.password1, r.params.password2)
 
 		-- serve error
 		if valid == false then
-			return fm.serveContent("routes/signup", {message = error,
+			return fm.serveContent("routes/signup", {
+				message = error,
 				email = r.params.email,
 				username = r.params.username,
 				code = r.params.code,
@@ -224,15 +257,90 @@ fm.setRoute({"/signupPassword", method = {"POST"}},
 		-- if account created, log them in
 		if valid then
 			r.session.user = r.params.username
+			r.session.signupStage = Nil
 
 			return fm.serveRedirect(302, "/")
 		else -- otherwise show the error
-			return fm.serveContent("routes/signup", {message = error,
+			return fm.serveContent("routes/signup", {
+				message = error,
 				email = r.params.email,
 				username = r.params.username,
 				code = r.params.code,
 				signup3 = true})
 		end
+	end
+)
+
+-- post admin routes
+fm.setRoute({"/admin/:action", method = {"POST"}},
+	function (r)
+		if r.session.isAdmin ~= true then
+			return fm.serveRedirect(302, "/")
+		end
+
+		local db <close> = common.getSqlConnection()
+
+		local actions = {
+			["unbanSelfSignupIp"] = 
+				function ()
+					db:execute([[DELETE FROM dailyIpSignups WHERE ip=?;]], tostring(GetRemoteAddr()))
+					return fm.serveContent("routes/admin")
+				end,
+			["deleteUser"] = 
+				function ()
+					local user = r.params.user
+
+					if user == Nil or user == '' then
+						return fm.serveContent("routes/admin", {message="You didnt specify a user."})
+					end
+
+					local userExists, msg = common.usernameExists(db, user)
+
+					if userExists == false then
+						return fm.serveContent("routes/admin", {message="User '%s' doesnt exist!" % {user}})
+					end
+
+					common.deleteUser(db, user)
+
+					return fm.serveContent("routes/admin", {message="Deleted user '%s'!" % {user}})
+				end,
+		}
+		
+		local action = r.params.action
+
+		if actions[action] then
+			return actions[action]()
+		else
+			return fm.serveRedirect(302, "/")
+		end
+
+	end
+)
+
+-- get admin routes
+fm.setRoute({"/admin/:action", method = {"GET"}},
+	function (r)
+		if r.session.isAdmin ~= true then
+			return fm.serveRedirect(302, "/")
+		end
+
+		local db <close> = common.getSqlConnection()
+
+		local actions = {
+			["userCount"] = function ()
+				local userCount = db:fetchOne([[SELECT count(*) FROM users;]])["count(*)"]
+				return fm.serveResponse(200, Nil, tostring(userCount))
+			end,
+		}
+		
+		local action = r.params.action
+
+		if actions[action] then
+			return actions[action]()
+		else
+			return fm.serveRedirect(302, "/")
+		end
+
 	end
 )
 
@@ -318,15 +426,16 @@ fm.setRoute("/*copyparty",
 function OnWorkerStart()
     -- set limits on memory and cpu just in case
     assert(unix.setrlimit(unix.RLIMIT_RSS, 2*1024*1024)) -- 2 megabytes
-    assert(unix.setrlimit(unix.RLIMIT_CPU, 2))
+    assert(unix.setrlimit(unix.RLIMIT_CPU, 5, 10))
 	
 	-- restrict file system
 	assert(unix.unveil(".", "rwc"))
 	assert(unix.unveil("/tmp", "rwc"))
-	assert(unix.unveil("/etc", "r"))
+	assert(unix.unveil("/etc", "rc"))
 	assert(unix.unveil("/proc/self/mounts", "rc"))
 	assert(unix.unveil("/run/current-system/sw/bin", "rx"))
 	assert(unix.unveil("/nix/store", "rx"))
+	assert(unix.unveil("/dev/null", "rw"))
 	assert(unix.unveil(nil, nil))
 
 	-- restrict system calls
@@ -342,25 +451,20 @@ end
 
 -- strace = assert(unix.commandv('strace'))
 function OnWorkerStop()
-	-- promises = "debug stdio proc vminfo unveil tmppath id dpath settime exec prot_exec settime rpath cpath wpath inet anet dns fattr tty flock recvfd sendfd chown"
-
-	-- if unix.fork() == 0 then
-	-- 	-- assert(unix.pledge(promises))
-	-- 	id = "/run/current-system/sw/bin/id"
-	-- 	bash = "/run/current-system/sw/bin/bash"
-	-- 	sh = "/bin/sh"
-	-- 	coretuils = "coreutils"
-	-- 	echo = "/run/current-system/sw/bin/echo"
-	-- 	-- unix.execve(echo, {echo, "hello"})
-	-- 	-- unix.execve(strace, {strace, echo, "hello"})
-	-- 	-- unix.execve(sh, {sh, "-c", "echo hello"})
-	-- 	-- unix.execve(bash, {bash, "-c", "echo hello"})
-	-- 	-- unix.execve(echo, {echo, "hello"})
-	-- 	-- unix.execve(coretuils, {coretuils, "--coreutils-prog=echo", "hello"})
-	-- 	unix.exit(127)
-	-- end
-	-- unix.wait()
 end
+
+
+fm.setSchedule("15 * * * *", function()
+	local db <close> = common.getSqlConnection()
+
+	db:execute([[DELETE FROM emailLookups;]])
+end)
+
+fm.setSchedule("5 * * * *", function()
+	local db <close> = common.getSqlConnection()
+
+	common.updateGlobals(db)
+end)
 
 common.sendNtfy("davidpineiro.xyz","Ready!")
 

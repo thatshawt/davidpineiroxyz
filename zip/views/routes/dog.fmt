@@ -6,14 +6,9 @@
         div.inner-box img {
             width:400px;
         }
-
-        .photo-container{
-            display:flex;
-            flex-wrap: wrap;
-        }
     </style>
 
-    <div class="photo-container">
+    <div class="flex-container">
         <div class="inner-box box-red-bg ">
             <table>
                 <tr>

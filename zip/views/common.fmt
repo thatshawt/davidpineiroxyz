@@ -7,8 +7,13 @@
 	<a onclick="toggleExtras()" style="background-color: rgba(0, 136, 255, 0.6); user-select: none;">Extras</a>
 	<hr>
 	{% if session.user then %}
-		<p>Logged in: '{%& session.user %}'</p>
+		<p>Hello <span style="user-select: all;">{%& session.user %}</span>.</p>
+		
 		{%= raw.link("/dog", "Dog Exhibit") %}
+
+		{% if session.isAdmin == true then %}
+			{%= raw.link("/admin", "Admin Page") %}
+		{% end %}
 		<a href="/logout">Logout</a>
 	{% else %}
 		<a href="/login">Login</a>
@@ -16,11 +21,8 @@
 	{% end %}
 {% end %}
 
-
 {% function block.makeBadge(url, image) %}
-	<!-- <div class="inner-box"> -->
 	{%= raw.link(url, "<img class='web-badge' loading='lazy' src='%s' alt=''>" % {image}, "unsafe") %}
-	<!-- </div> -->
 {% end %}
 
 {% function block.InnerBoxLinkDesc(url, urltext, bottomText, unsafe, flex) %}
@@ -35,20 +37,27 @@
 {% end %}
 
 {% function block.turnstileScript(turnstileDivId, callback, error_callback, expired_callback, timeout_callback) %}
-<script defer>
-	turnstile.render('#{%& turnstileDivId %}', {
-		sitekey: '{%& vars.turnstile_key %}',
-		// appearance: 'interaction-only',
-		theme: 'dark',
-		callback: function(token) {{%& callback %}(token);},
-		"error-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& error_callback %}();},
-		"expired-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& expired_callback %}();},
-		"timeout-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& timeout_callback %}()();},
-	});
+<script>
+	window.oldAfterLeave = window.barbaAfter || (() => {});
+	window.barbaAfter = () => {
+		console.log("turnstile render");
+		turnstile.render('#{%& turnstileDivId %}', {
+			sitekey: '{%& vars.turnstile_key %}',
+			// appearance: 'interaction-only',
+			theme: 'dark',
+			callback: function(token) {{%& callback %}(token);},
+			"error-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& error_callback %}();},
+			"expired-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& expired_callback %}();},
+			"timeout-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& timeout_callback %}()();},
+		});
+	};
+
+	if(window.firstLoad)window.barbaAfter();
 
 	window.oldAfterLeave = window.barbaAfterLeave || (() => {});
 	window.barbaAfterLeave = () => {
 		turnstile.remove('#{%& turnstileDivId %}');
+		console.log("removed widget");
 		// window.oldAfterLeave();
 		// window.oldAfterLeave = null;
 	};
@@ -453,7 +462,7 @@
 					const extrasEl = document.getElementById("extras-menu");
 					console.log(extrasEl, extrasEl.style);
 					if(extrasEl.style.display == "none")extrasEl.style = "";
-					else extrasEl.style = "display:none;"
+					else extrasEl.style = "display:none;";
 					playAudioBuffName("uisound_min11");
 				}
 
@@ -505,7 +514,7 @@
 			</script>
 
 			<!-- dynamic loaded scripts -->
-			 <div id="dynamic-loaded-scripts"></div>
+			<div id="dynamic-loaded-scripts"></div>
 
 			<!-- static-navbar -->
 
@@ -655,6 +664,13 @@
 					window.barbaAfterLeave();
 
 					window.barbaAfterLeave = null;
+				}
+			});
+
+			barba.hooks.after(({ current, next }) => {
+				if(window.barbaAfter){
+					window.barbaAfter();
+					window.barbaAfter = null;
 				}
 			});
 			

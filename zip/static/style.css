@@ -133,6 +133,11 @@ div.footer{
   #mobile-navbar {display: grid;}
 } */
 
+.flex-container{
+  display:flex;
+  flex-wrap: wrap;
+}
+
 .navbar-container{
   position: relative;
 }

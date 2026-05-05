@@ -100,11 +100,19 @@
 	</table>
 	<h2>Other Cool Links</h2>
 	<div>
+		{% block.makeBadge("https://jack-dawlia.neocities.org/page/shrines/portal/aperturewebring", "/static/8831/aperture-webring-blue.png") %}
+		{% block.makeBadge("https://www.swyx.io/learn-in-public", "/static/8831/learninpublic.gif") %}
+		{% block.makeBadge("https://clutterbox.neocities.org/", "https://clutterbox.neocities.org/Images/CB_banner.PNG") %}
 		{% block.makeBadge("https://justine.lol/cosmopolitan/", "/static/cosmopolitan-88x31.png") %}
 		{% block.makeBadge("https://molecule31.neocities.org/", "/static/molecule31.gif") %}
+		{% block.makeBadge("https://dsring.neocities.org/", "/static/8831/dsring.gif") %}
 		{% block.makeBadge("https://scp-wiki.wikidot.com/", "/static/scp-88x31.gif") %}
+		{% block.makeBadge("https://evehibi.nekoweb.org/", "https://evehibi.nekoweb.org/button1.gif") %}
 		{% block.makeBadge("https://smokepowered.com/", "https://smokepowered.com/smoke.gif") %}
+		{% block.makeBadge("https://squarebowl.club/", "https://squarebowl.club/images/88x31/plate.gif") %}
 		{% block.makeBadge("https://yummypillow.art/", "https://yummypillow.art/buttons/pillow.png") %}
+		{% block.makeBadge("https://magmaus3.eu.org/", "https://magmaus3.eu.org/buttons/magmaus3.gif") %}
+		{% block.makeBadge("https://sepiarecord.net/", "https://sepiarecord.net/assets/imgs/sepiarecord-btn.png") %}
 		{% block.makeBadge("https://bigrat.monster/", "/static/bigrat-88x31.png") %}
 		{% block.makeBadge("https://corru.observer/", "/static/corru.gif") %}
 		{% block.makeBadge("https://melankorin.net/", "/static/melankorin.gif") %}
@@ -113,6 +121,7 @@
 		{% block.makeBadge("https://nomaakip.xyz/", "https://nomaakip.xyz/img/buttons/button2.png") %}
 		{% block.makeBadge("https://notnite.com/", "https://notnite.com/buttons/notnite.png") %}
 		{% block.makeBadge("https://dimden.dev/", "/static/dimden.gif") %}
+		{% block.makeBadge("https://rice.place/", "https://rice.place/button/ricebandaid.gif") %}
 		{% block.makeBadge("https://fleepy.tv/", "https://fleepy.tv/img/fleepy.png") %}
 		{% block.makeBadge("https://ghostk.id/", "/static/ghostk.id.gif") %}
 		{% block.makeBadge("https://msx.horse/", "/static/msx_horse.gif") %}
@@ -123,6 +132,9 @@
 		{% block.makeBadge("https://jbc.lol/", "https://jbc.lol/sitebutton3.png") %}
 		{% block.makeBadge("https://zptr.cc/", "https://zptr.cc/88x31/webring/zeroptr.png") %}
 		{% block.makeBadge("https://hl2.sh/", "https://hl2.sh/badges/cecilia.png") %}
+
+		
+		
 	</div>
 {% end %}
 {% render("common", {title="Home"}) %}
