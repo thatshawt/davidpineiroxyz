@@ -69,7 +69,7 @@ fm.setRoute({"/login", method = {"POST"}},
 		-- make sure username and password are alphanumeric and stuff
 		local valid, error = common.validate.usernamePasswordValidator(r.params)
 
-		if valid then
+		if valid == true then
 			-- validate turnstile
 			local cf_response = tostring(r.params["cf-turnstile-response"]) or ""
 			local turnstileValid = common.validateTurnstileKey(cf_response).success
@@ -83,7 +83,7 @@ fm.setRoute({"/login", method = {"POST"}},
 			end
 		end
 
-		if valid then -- success
+		if valid == true then -- success
 			r.session.user = r.params.username
 
 			if r.session.user == 'test' then
@@ -126,7 +126,7 @@ fm.setRoute({"/signup", method = {"POST"}},
 		-- make sure email and username are goody good
 		local valid, error = common.validate.emailUsernameValidate(r.params.email, r.params.username)
 
-		if valid then
+		if valid == true then
 			-- validate turnstile
 			local cf_response = tostring(r.params["cf-turnstile-response"]) or ""
 			local turnstileValid = common.validateTurnstileKey(cf_response).success
@@ -147,11 +147,11 @@ fm.setRoute({"/signup", method = {"POST"}},
 		end
 
 		-- try to send email code
-		if valid then
-			valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username, tostring(GetRemoteAddr()))
+		if valid == true then
+			valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username, FormatIp(GetRemoteAddr()))
 		end
 
-		if valid then -- success
+		if valid == true then -- success
 			r.session.signupStage = "code"
 			return fm.serveContent("routes/signup", {
 				message = "Check your email for the code and paste it below.",
@@ -176,9 +176,9 @@ fm.setRoute({"/signupCodeResend", method = {"POST"}},
 		r.params.email = common.trim(r.params.email:lower())
 
 		-- sendNewSignupCode can fail cus the cooldown
-		valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username, tostring(GetRemoteAddr()))
+		valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username, FormatIp(GetRemoteAddr()))
 
-		if valid then
+		if valid == true then
 			return fm.serveContent("routes/signup", {
 				message = "Sent email again. It might take a few minutes to send, also dont forget to check spam folder just incase.",
 				email=r.params.email,
@@ -208,7 +208,7 @@ fm.setRoute({"/signupCode", method = {"POST"}},
 		valid, error = common.signup.validateCode(r.params.email, r.params.username, r.params.code)
 
 		-- if valid code send them to next step
-		if valid then
+		if valid == true then
 			r.session.signupStage = "pass"
 			return fm.serveContent("routes/signup", {
 				message = "Code is valid! Now type your password to create your account." % {r.params.username},
@@ -240,6 +240,8 @@ fm.setRoute({"/signupPassword", method = {"POST"}},
 
 		-- validate passwords
 		valid, error = common.signup.validatePasswords(r.params.password1, r.params.password2)
+
+		-- print("we got", tostring(valid), tostring(error))
 
 		-- serve error
 		if valid == false then
@@ -283,7 +285,7 @@ fm.setRoute({"/admin/:action", method = {"POST"}},
 		local actions = {
 			["unbanSelfSignupIp"] = 
 				function ()
-					db:execute([[DELETE FROM dailyIpSignups WHERE ip=?;]], tostring(GetRemoteAddr()))
+					db:execute([[DELETE FROM dailyIpSignups WHERE ip=?;]], FormatIp(GetRemoteAddr()))
 					return fm.serveContent("routes/admin")
 				end,
 			["deleteUser"] = 

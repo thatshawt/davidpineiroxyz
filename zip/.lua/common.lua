@@ -197,6 +197,7 @@ function common.sendNtfy(title, body)
         print("sendNtfy: %s, %s" % {title or "davidpineiro.xyz", body})
     end
 end
+
 common.validate = {}
 
 function common.validate.passwordValidator(password)
@@ -205,7 +206,7 @@ function common.validate.passwordValidator(password)
         ["all"] = true
     })({password=password})
 
-    return valid, error
+    return valid or false, error
 end
 
 function common.validate.usernameValidator(username)
@@ -215,7 +216,7 @@ function common.validate.usernameValidator(username)
         ["all"] = true
     })({username=username})
 
-    return valid, error
+    return valid or false, error
 end
 
 -- simpler, POSIX-safe regex
@@ -261,7 +262,7 @@ function common.validate.emailUsernameValidate(email, username)
     else
         valid, error = common.validate.usernameValidator(username)
 
-        return valid, error
+        return valid or false, error
     end
 end
 
@@ -273,7 +274,7 @@ function common.validate.usernamePasswordValidator(params)
         ["all"] = true
     })(params)
 
-    return valid, error
+    return valid or false, error
 end
 
 function common.usernameExists(db, username)
@@ -416,7 +417,7 @@ function common.signup.setSignup(db, email, username, lastAttempt, code)
 end
 
 -- cooldowns per email
-common.signup.cooldownSeconds = 10
+common.signup.cooldownSeconds = 30
 common.signup.dailyEmailQuota = 5
 common.signup.monthlyEmailQuota = 20
 
@@ -428,8 +429,6 @@ common.signup.dailyIpSignupsQuota = 10
 
 function common.signup.sendNewSignupCode(email, username, ip)
     local db <close> = common.getSqlConnection()
-
-    -- common.updateGlobals(db)
 
     local whitelisted = db:fetchOne([[SELECT email FROM signupEmailWhitelist WHERE email=?;]], email).email ~= Nil
 
@@ -476,10 +475,29 @@ function common.signup.sendNewSignupCode(email, username, ip)
 
         common.signup.setSignup(db, email, username, currentTime, code)
 
-        -- TODO send email with code
+        local emailBody = 
+[[Hi,
+This is an automated message.
+
+The code for your account is: %s.
+
+Thanks,
+DavidPineiro.xyz.
+
+-------------------------
+If you did not register an account with https://davidpineiro.xyz then you can ignore this email. If you are still curious, then you can email me at %s with any questions.
+
+Signup details
+    email: %s
+    username: %s
+    ip: %s
+]]
+        emailBody = emailBody:gsub("\n", "\\n"):format(code, secrets.email, email, username, ip)
+
         print("TODO SEND EMAIL CODE email %s username %s send code %s" % {email, username, code})
         local emailSent, msg =
-            common.unsafe.sendEmail(email, "Account Code", "Hi,\\nThis is an automated message.\\n\\nThe code for your account is: %s.\\n\\n6 7 Skibidiah Jr. 7 8 9.\\nMay you have ever lasting health and jubious joyful moments." % {code})
+            -- true, "DEBUG"
+            common.unsafe.sendEmail(email, "Account Code", emailBody)
 
         if emailSent then
             -- increment email sends
@@ -519,7 +537,7 @@ function common.signup.validatePasswords(password1, password2)
         return false, "Passwords need to be the same!"
     else
         passwordOk, passwordError = common.validate.passwordValidator(password1)
-        if passwordOk == false then
+        if passwordOk ~= true then
             return false, passwordError
         end
 
@@ -534,7 +552,7 @@ function common.signup.tryCreateAccount(email, username, password)
     if accountExists == false then
         local valid, msg = common.signup.validatePasswords(password, password)
 
-        if valid then
+        if valid == true then
             common.userReplaceSave(db, username, password, email)
             
             local globalEmailSignups = tonumber(common.getGlobal(db, "dailyGlobalSignups") or 0)
