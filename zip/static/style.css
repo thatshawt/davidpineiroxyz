@@ -178,18 +178,19 @@ div.footer{
   color: #c3b0b0;
 }
 
-/* #mobile-navbar {
-  display: none;
-}
-
-@media screen and (max-width: 450px) {
-  #desktop-navbar {display: none;}
-  #mobile-navbar {display: grid;}
-} */
 
 .flex-container{
   display:flex;
   flex-wrap: wrap;
+}
+
+.nav-badge img{
+  transform: translateY(7px);
+  filter: sepia(1) saturate(0);
+}
+
+.nav-badge:hover img{
+  filter: none;
 }
 
 .navbar-container{
