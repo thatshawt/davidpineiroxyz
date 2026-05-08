@@ -34,13 +34,13 @@ function common.sqlInit(db)
         email TEXT NOT NULL
         );]])
 
-    db:exec([[CREATE TABLE dailyEmailSends (email TEXT PRIMARY KEY, sends INTEGER DEFAULT 0);]])
-    db:exec([[CREATE TABLE monthlyEmailSends (email TEXT PRIMARY KEY, sends INTEGER DEFAULT 0);]])
+    db:exec([[CREATE TABLE dailyEmailSends (email TEXT COLLATE NOCASE PRIMARY KEY, sends INTEGER DEFAULT 0);]])
+    db:exec([[CREATE TABLE monthlyEmailSends (email TEXT COLLATE NOCASE PRIMARY KEY, sends INTEGER DEFAULT 0);]])
     db:exec([[CREATE TABLE dailyIpSignups (ip TEXT PRIMARY KEY, signups INTEGER DEFAULT 0);]])
-    db:exec([[CREATE TABLE signupEmailWhitelist (email TEXT PRIMARY KEY);]])
+    db:exec([[CREATE TABLE signupEmailWhitelist (email TEXT COLLATE NOCASE PRIMARY KEY);]])
     db:exec([[CREATE TABLE signups (
-        email TEXT,
-        username TEXT,
+        email TEXT COLLATE NOCASE,
+        username TEXT COLLATE NOCASE,
         lastAttempt INTEGER DEFAULT 0,
         code TEXT,
         PRIMARY KEY (email,username)
@@ -48,7 +48,7 @@ function common.sqlInit(db)
 
     db:exec([[CREATE TABLE globals (id TEXT PRIMARY KEY, data TEXT NOT NULL);]])
 
-    db:exec([[CREATE TABLE emailLookups (domain TEXT PRIMARY KEY, result TEXT NOT NULL);]])
+    db:exec([[CREATE TABLE emailLookups (domain TEXT COLLATE NOCASE PRIMARY KEY, result TEXT NOT NULL);]])
 end
 
 function common.userReplaceSave(db, username, cleartextPassword, email)
@@ -168,7 +168,8 @@ if secrets == Nil then secrets = {
         resume="/caca/resume.caca",
         turnstile_key="1x0000000000000000000000000000000AA",
         users = {
-            test = "123123123"
+            test = "123123123",
+            david = "123123123"
         },
         ntfyUrl = Nil
     }

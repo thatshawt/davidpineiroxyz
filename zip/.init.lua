@@ -86,7 +86,7 @@ fm.setRoute({"/login", method = {"POST"}},
 		if valid == true then -- success
 			r.session.user = r.params.username
 
-			if r.session.user == 'test' then
+			if r.session.user == 'david' then
 				r.session.isAdmin = true
 			end
 
@@ -306,7 +306,27 @@ fm.setRoute({"/admin/:action", method = {"POST"}},
 
 					return fm.serveContent("routes/admin", {message="Deleted user '%s'!" % {user}})
 				end,
+			["whitelistEmailSignup"] = 
+				function ()
+					local email = r.params.email
+
+					if type(email) ~= "string" or email == '' then
+						return fm.serveContent("routes/admin", {message="you didnt put an email to whitelist :/"})
+					end
+
+					local valid, msg = common.validate.emailValidate(email)
+
+					if valid == false then
+						return fm.serveContent("routes/admin", {message=msg})
+					end
+
+					db:execute([[INSERT OR REPLACE INTO signupEmailWhitelist (email) VALUES (?);]], email)
+					
+					return fm.serveContent("routes/admin", {message="whitelisted %s" % {email}})
+				end,
 		}
+
+		
 		
 		local action = r.params.action
 

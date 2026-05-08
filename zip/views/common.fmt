@@ -1,5 +1,5 @@
 {% function block.navbar() %}
-	<a href="/">Home</a>
+	<a href="/"><img src="/static/david-badge-88x31.gif" alt="david badge" style="transform: translateY(7px);"></a>
 	<a href="/projects">Projects</a>
 	<a href="/readings">Readings</a>
 	<a href="/qr">QR Generator</a>
