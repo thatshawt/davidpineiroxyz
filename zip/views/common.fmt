@@ -539,8 +539,6 @@
 			<!-- extras fixed menu -->
 			<div id="extras-menu" class="extras-menu" style="display:none;">
 				<div class="musicplayer">
-					
-
 					<div class="musiccenter">
 						<div class="musiccontrols">
 							<a onclick="toggleExtras()" style="background-color: rgba(0, 16, 255, 0.5); user-select: none;position: absolute;right: 10px;top: 10px;">Close Extras</a>
@@ -562,8 +560,6 @@
 					<div class="musicleft">
 						<div id="trackName">My Song Title</div>
 					</div>
-
-					
 				</div>
 			</div>
 
@@ -621,11 +617,11 @@
 			</script>
 
 			<!-- dynamic content -->
-			<div class="section {%& extraClasses or ''%}">
-				<main data-barba="container" data-barba-namespace="home">
+			<main data-barba="container" data-barba-namespace="home">
+				<div class="section {%& extraClasses or ''%}">
 					{% block.content() %}
-				</main>
-			</div>
+				</div>
+			</main>
 
 			<!-- footer -->
 
@@ -640,6 +636,10 @@
 			</div>	
 
 			<br>
+
+			<video autoplay muted loop playsinline class="bg-video">
+				<source src="/static/media/404-static.webm" type="video/webm">
+			</video>
 
 		</div>
 

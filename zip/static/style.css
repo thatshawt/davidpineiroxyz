@@ -2,21 +2,21 @@
   font-family: FunnelSans;
   font-style: normal;
   font-weight: 400;
-  src: url("/static/font/FunnelSans-Regular.ttf") format('ttf');
+  src: url("/static/font/FunnelSans-Regular.ttf");
 }
 
 @font-face {
   font-family: FunnelSans;
   font-style: italic;
   font-weight: 400;
-  src: url("/static/font/FunnelSans-Italic.ttf") format('ttf');
+  src: url("/static/font/FunnelSans-Italic.ttf");
 }
 
 @font-face {
   font-family: Jersey25;
   font-style: normal;
   font-weight: 400;
-  src: url("/static/font/Jersey25-Regular.ttf");
+  src: url("/static/font/Jersey25-Regular.woff2");
 }
 
 @font-face {
@@ -28,12 +28,9 @@
 
 * {
   box-sizing: border-box;
-  font-family: Jersey25;
+  /* font-family: Jersey25; */
   /* font-size: 30px; */
 }
-
-
-
 
 table {
   border: 2px solid #b3b3b3;
@@ -57,9 +54,9 @@ html {
 
 body{
   background-color: black;
-  background-image: url("/static/media/404-static.gif");
-  background-attachment: fixed;
-  background-size: 65%;
+  background-image: url("/static/media/404-static-single.png");
+  /* background-attachment: scroll; */
+  background-size: 90%;
   background-repeat: repeat;
   
   /* animation: scrollbg 100s infinite linear; */
@@ -69,15 +66,31 @@ body{
   color: rgb(255, 255, 255);
   
   /* font-family: 'FunnelSans', sans-serif; */
-  /* font-family: Jersey25; */
+  font-family: Jersey25;
   font-size: 30px;
 
   word-wrap: break-word;
 
-  max-width:1224px;
+  max-width: 1224px;
 
   margin:0 auto;
 }
+
+.bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+/* @media (max-width: 600px) {
+  body {
+    background-image: none;
+  }
+} */
 
 h1, h2, h3, h4, h5, h6 {
   /* font-weight: 400; */
@@ -105,9 +118,15 @@ h1 {
 
 form {
   background-color: #11111178;
+  
   border: 1px solid white;
   border-radius: 5px;
+  
   width:fit-content;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+
+  max-width: 100%;
   padding:4px;
 }
 
@@ -211,9 +230,9 @@ div.footer{
   border-top-right-radius: 6px;
 
   background-color: #165a135e;
-  background-blend-mode: color-dodge;
-  background-image: url("/static/media/dark_exa.png");
-  background-attachment: fixed;
+  /* background-blend-mode: color-dodge; */
+  background-image: linear-gradient(#165a135e, #165a135e), url("/static/media/dark_exa.png");
+  /* background-attachment: scroll; */
   background-size: 66px;
   background-repeat: repeat;
   
@@ -252,9 +271,9 @@ div.navbar  p {
   border-radius: 6px;
 
   background-color: #5a2e135e;
-  background-blend-mode: color-dodge;
-  background-image: url("/static/media/dark_exa.png");
-  background-attachment: fixed;
+  /* background-blend-mode: color-dodge; */
+  background-image: linear-gradient(#5a2e135e, #5a2e135e), url("/static/media/dark_exa.png");
+  /* background-attachment: scroll; */
   background-size: 66px;
   background-repeat: repeat;
 
@@ -286,9 +305,9 @@ div.navbar  p {
   border-radius: 6px;
 
   background-color: #5a2e135e;
-  background-blend-mode: color-dodge;
-  background-image: url("/static/media/dark_exa.png");
-  background-attachment: fixed;
+  /* background-blend-mode: color-dodge; */
+  background-image: linear-gradient(#5a2e135e, #5a2e135e), url("/static/media/dark_exa.png");
+  /* background-attachment: scroll; */
   background-size: 66px;
   background-repeat: repeat;
   
@@ -336,9 +355,9 @@ div.sukuna-navbar p {
   border-top-left-radius: 6px;
 
   background-color: #5a2e135e;
-  background-blend-mode: color-dodge;
-  background-image: url("/static/media/dark_exa.png");
-  background-attachment: fixed;
+  /* background-blend-mode: color-dodge; */
+  background-image: linear-gradient(#5a2e135e, #5a2e135e), url("/static/media/dark_exa.png");
+  /* background-attachment: scroll; */
   background-size: 66px;
   background-repeat: repeat;
   
@@ -440,7 +459,7 @@ button {
   background-color: #37ff0042;
   /* background-blend-mode: color-dodge; */
   /* background-image: url("/static/dark_exa.png"); */
-  /* background-attachment: fixed; */
+  /* background-attachment: scroll; */
   /* background-size: 66px; */
   /* background-repeat: repeat; */
   
@@ -471,12 +490,15 @@ div.section{
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
   
-  background-blend-mode: color-dodge;
+  /* background-blend-mode: color-dodge; */
   background-color: #321436b0;
-  background-image: url("/static/media/dark_exa.png");
-  background-attachment: fixed;
+  background-image: linear-gradient(#321436b0, #321436b0), url("/static/media/dark_exa.png");
+  /* background-attachment: scroll; */
   background-size: 66px;
   background-repeat: repeat;
+
+  /* content-visibility: auto; */
+  /* contain-intrinsic-size: 2000px; */
 
   /* backdrop-filter: blur(1px); */
 }
@@ -489,7 +511,7 @@ div.section{
 
   margin: 10px;
   padding: 10px;
-  display: grid;
+  display: block;
   justify-content: left;
   width: fit-content;
   height: fit-content;
@@ -513,9 +535,9 @@ div.section{
 
 div.lean {
   background-color: #c800ff7a;
-  background-blend-mode: color-dodge;
-  background-image: url("/static/qr/orion-hotel_lean_artwork.jpg");
-  background-attachment: fixed;
+  /* background-blend-mode: color-dodge; */
+  background-image: linear-gradient(#c800ff7a, #c800ff7a),url("/static/qr/orion-hotel_lean_artwork.jpg");
+  /* background-attachment: scroll; */
   background-size: 80px;
   background-repeat: repeat;
   
