@@ -19,7 +19,7 @@
                     <td>The Great</td>
                 </tr>
             </table>
-            <img loading='lazy' src="/static/android-chrome-512x512.png">
+            <img loading='lazy' src="/static/media/android-chrome-512x512.png">
         </div>
         <div class="inner-box static-bg">
             <table>

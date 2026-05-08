@@ -1,21 +1,43 @@
 @font-face {
-  font-family: 'FunnelSans', sans-serif;
+  font-family: FunnelSans;
   font-style: normal;
-  font-weight: 0 400;
-  src: url("/static/FunnelSans-Regular.ttf") format('ttf');
+  font-weight: 400;
+  src: url("/static/font/FunnelSans-Regular.ttf") format('ttf');
 }
 
 @font-face {
-  font-family: 'FunnelSans', sans-serif;
+  font-family: FunnelSans;
   font-style: italic;
-  font-weight: 1 400;
-  src: url("/static/FunnelSans-Italic.ttf") format('ttf');
+  font-weight: 400;
+  src: url("/static/font/FunnelSans-Italic.ttf") format('ttf');
 }
 
-* { box-sizing: border-box; }
+@font-face {
+  font-family: Jersey25;
+  font-style: normal;
+  font-weight: 400;
+  src: url("/static/font/Jersey25-Regular.ttf");
+}
+
+@font-face {
+  font-family: Jersey25Charted;
+  font-style: normal;
+  font-weight: 400;
+  src: url("/static/font/Jersey25Charted-Regular.ttf");
+}
+
+* {
+  box-sizing: border-box;
+  font-family: Jersey25;
+  /* font-size: 30px; */
+}
+
+
+
 
 table {
-  /* border: 3px solid #b3b3b3; */
+  border: 2px solid #b3b3b3;
+  background-color: #0000007a;
   border-radius: 5px;
 }
 
@@ -35,7 +57,7 @@ html {
 
 body{
   background-color: #111;
-  background-image: url("/static/dark_exa.png");
+  background-image: url("/static/media/dark_exa.png");
   background-attachment: fixed;
   background-size: 66px;
   background-repeat: repeat;
@@ -46,8 +68,9 @@ body{
 
   color: rgb(255, 255, 255);
   
-  font-family: 'FunnelSans', sans-serif;
-  font-size: 22px;
+  /* font-family: 'FunnelSans', sans-serif; */
+  /* font-family: Jersey25; */
+  font-size: 30px;
 
   word-wrap: break-word;
 
@@ -56,20 +79,51 @@ body{
   margin:0 auto;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  /* font-weight: 400; */
+  font-style: italic;
+
+  white-space: collapse;
+  max-width: 100%;
+
+  &:before{
+    content: "/";
+  }
+  &:after{
+    content: "/";
+  }
+}
+
 h1 {
-  white-space: collapse;
+  &:before{
+    content: "=";
+  }
+  &:after{
+    content: "=";
+  }
+}
+
+form {
+  background-color: #111;
+  border: 1px solid white;
+  border-radius: 5px;
+  width:fit-content;
+}
+
+input, select, option, textarea {
+  font-family: Jersey25;
+  font-size: 25px;
+
+  border: 1px solid rgb(128, 255, 0);
+  color: white;
+  background-color: black;
+
   max-width: 100%;
 }
 
-h2 {
-  white-space: collapse;
-  max-width: 100%;
+input[type="range"] {
+  font-size: revert;
 }
-
-select {
-  max-width: 100%;
-}
-
 
 .sukuna {
 	/* width: 88px;
@@ -156,7 +210,7 @@ div.footer{
 
   background-color: #165a135e;
   background-blend-mode: color-dodge;
-  background-image: url("/static/dark_exa.png");
+  background-image: url("/static/media/dark_exa.png");
   background-attachment: fixed;
   background-size: 66px;
   background-repeat: repeat;
@@ -197,7 +251,7 @@ div.navbar  p {
 
   background-color: #5a2e135e;
   background-blend-mode: color-dodge;
-  background-image: url("/static/dark_exa.png");
+  background-image: url("/static/media/dark_exa.png");
   background-attachment: fixed;
   background-size: 66px;
   background-repeat: repeat;
@@ -231,7 +285,7 @@ div.navbar  p {
 
   background-color: #5a2e135e;
   background-blend-mode: color-dodge;
-  background-image: url("/static/dark_exa.png");
+  background-image: url("/static/media/dark_exa.png");
   background-attachment: fixed;
   background-size: 66px;
   background-repeat: repeat;
@@ -271,6 +325,7 @@ div.sukuna-navbar p {
   position: fixed;
   /* height: 100%; */
   width: 100%;
+  max-height: 50%;
   max-width: 1224px;
   overflow-y: scroll;
 
@@ -280,7 +335,7 @@ div.sukuna-navbar p {
 
   background-color: #5a2e135e;
   background-blend-mode: color-dodge;
-  background-image: url("/static/dark_exa.png");
+  background-image: url("/static/media/dark_exa.png");
   background-attachment: fixed;
   background-size: 66px;
   background-repeat: repeat;
@@ -307,15 +362,16 @@ div.sukuna-navbar p {
   /* bottom: 0; */
   width: 100%;
   /* background: #181818; */
-  display: flex;
+  display: grid;
   align-items: center;
   justify-content: space-around;
+  align-content: center;
   /* padding: 10px 20px; */
   box-sizing: border-box;
 }
 
 .musicleft {
-  width: 30%;
+  /* width: 77%; */
   word-wrap: break-word;
 }
 
@@ -376,7 +432,6 @@ button[disabled]{
   }
 }
 
-
 button {
   border: 2px solid #ffffff7a;
 
@@ -393,6 +448,7 @@ button {
 
   color: white;
   font-weight: bold;
+  font-size: 20px;
   
   padding: 8px;
   margin: 5px;
@@ -438,7 +494,7 @@ div.section{
 .static-bg {
   /* background: linear-gradient(124deg, #ff22006d, #e81d1d6d, #e8b91d6d, #e5e81d6c, #1de83f66, #1ddee870, #2b1de877, #df00f36b, #df00f36e); */
   background-color: black;
-  background-image: url("/static/404-static.gif");
+  background-image: url("/static/media/404-static.gif");
   background-size: 200%;
   /* animation: rainbow 18s ease-out infinite; */
   image-rendering: pixelated;
@@ -482,7 +538,8 @@ ul{
 }
 
 code {
-  background-color: #424242;
+  font-family: Jersey25;
+  background-color: #211f1f;
   white-space: pre-wrap;
   word-break: break-word;
   display: grid;
@@ -492,6 +549,7 @@ code {
   max-width: 100%;
 */
   overflow-wrap: anywhere;
+  border: 1px solid white;
 }
 
 .badge-code {

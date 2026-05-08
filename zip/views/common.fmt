@@ -83,22 +83,22 @@
 		<meta property="og:title" content="DavidPineiro.xyz" />
 		<meta property="og:description" content="davidpineiro.xyz... the website." />
 		<meta property="og:url" content="https://davidpineiro.xyz/" />
-		<meta property="og:image" content="/static/android-chrome-512x512.png" />
+		<meta property="og:image" content="/static/media/android-chrome-512x512.png" />
 		<meta property="og:image:alt" content="a white fluffy dog with a dog's haircut" />
 
 		<meta name="twitter:title" content="DavidPineiro.xyz" />
 		<meta name="twitter:description" content="davidpineiro.xyz... the website." />
 		<meta name="twitter:url" content="https://davidpineiro.xyz/" />
-		<meta name="twitter:image:src" content="/static/android-chrome-512x512.png" />
+		<meta name="twitter:image:src" content="/static/media/android-chrome-512x512.png" />
 		<meta name="twitter:image:alt" content="a white fluffy dog with a dog's haircut" />
 
-		<link rel="apple-touch-startup-image" href="/static/android-chrome-512x512.png" media="orientation: portrait" />
-		<link rel="apple-touch-startup-image" href="/static/android-chrome-512x512.png" media="orientation: landscape" />
+		<link rel="apple-touch-startup-image" href="/static/media/android-chrome-512x512.png" media="orientation: portrait" />
+		<link rel="apple-touch-startup-image" href="/static/media/android-chrome-512x512.png" media="orientation: landscape" />
 
-		<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="/static/media/apple-touch-icon.png">
 		
-		<link rel="icon" sizes="16x16" href="/static/favicon-animated-16x16.gif" type="image/gif" >
-		<link rel="icon" sizes="32x32" href="/static/favicon-animated-32x32.gif" type="image/gif" >
+		<link rel="icon" sizes="16x16" href="/static/media/favicon-animated-16x16.gif" type="image/gif" >
+		<link rel="icon" sizes="32x32" href="/static/media/favicon-animated-32x32.gif" type="image/gif" >
 		
 		<link rel="stylesheet" type="text/css" href="/static/style.css">
 
@@ -525,13 +525,13 @@
 			<!-- fixed close button navbar -->
 			
 			<div class="navbar" id="closed-navbar" style="">
-				<a style="font-size: 30px; background-color: unset; color:rgb(255, 255, 255); justify-content: right; display: grid; user-select: none;" onclick="sukuna_navbar_open()">menu</a>
+				<a style="font-size: 40px; background-color: unset; color:rgb(255, 255, 255); justify-content: right; display: grid; user-select: none;" onclick="sukuna_navbar_open()">menu</a>
 			</div>
 
 			<!-- fixed sukuna dropdown navbar -->
 
 			<div class="sukuna-navbar" id="sukuna-navbar" style="display:none;">
-				<a style="font-size: 30px; color:rgb(255, 255, 255); justify-content: center; display: grid; user-select: none;" onclick="sukuna_navbar_close()">menu</a>
+				<a style="font-size: 40px; color:rgb(255, 255, 255); justify-content: center; display: grid; user-select: none;" onclick="sukuna_navbar_close()">menu</a>
 
 				{% block.navbar() %}
 			</div>
@@ -539,13 +539,11 @@
 			<!-- extras fixed menu -->
 			<div id="extras-menu" class="extras-menu" style="display:none;">
 				<div class="musicplayer">
-					<div class="musicleft">
-						<div id="trackName">My Song Title</div>
-					</div>
+					
 
 					<div class="musiccenter">
 						<div class="musiccontrols">
-							<a onclick="toggleExtras()" style="background-color: rgba(0, 16, 255, 0.5); user-select: none;position: absolute;right: 10px;top: 10px;">Close</a>
+							<a onclick="toggleExtras()" style="background-color: rgba(0, 16, 255, 0.5); user-select: none;position: absolute;right: 10px;top: 10px;">Close Extras</a>
 							<div class="musiccontrols">
 								<button id="playPause">▶</button><span id="currentTime">0:00</span>-<span id="duration">0:00</span>
 							</div>
@@ -559,6 +557,10 @@
 						<div class="musicright">
 							<input type="range" id="uivolume" min="0" max="3" value="1.0" step="0.1">UI🔊
 						</div>
+					</div>
+
+					<div class="musicleft">
+						<div id="trackName">My Song Title</div>
 					</div>
 
 					
@@ -635,7 +637,7 @@
 
 		</div>
 
-		<script src="/static/barba.js"></script>
+		<script src="/static/js/barba.js"></script>
 		<script src="/static/hehe/music.js"></script>
 		<script>
 			barba.hooks.beforeEnter(({ current, next }) => {

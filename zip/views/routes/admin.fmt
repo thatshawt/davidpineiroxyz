@@ -40,10 +40,7 @@
 {% end %}
 
 {% if session.isAdmin ~= true then %}
-<!DOCTYPE HTML>
-<html>
-<head><meta http-equiv="refresh" content="0; url=/" /></head>
-</html>
+    {%= raw.redirectPage('/') %}
 {% else %}
     {% render("common", {title="Admin Page"}) %}
 {% end %}

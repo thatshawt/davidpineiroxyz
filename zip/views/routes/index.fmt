@@ -16,14 +16,14 @@
 	<form id="turnstileForm" action="" method="">
 		<!-- <div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}" data-callback="turnstileEnable" data-error-callback="turnstileDisable" data-expired-callback="turnstileDisable" data-timeout-callback="turnstileDisable"></div> -->
 		<div id="turnstileDiv"></div>
-		<button type="submit" id="emailButton" disabled="true"><h3>Click To Populate</h3></button>
+		<button type="submit" id="emailButton" disabled="true"><span>Click To Populate</span></button>
 	</form>
 	<ul>
 		<li>GitHub: {%= raw.link("https://github.com/thatshawt", "https://github.com/thatshawt", "unsafe") %}</li>
 		<li>Resume: {%= raw.link("https://foobar", "", "safe", "id='resume' style='display:none;'") %}</li>
 		<li>LinkedIn: {%= raw.link("https://foobar", "", "safe", "id='linkedin' style='display:none;'") %}</li>
 		<li>
-			My Email: <pre class="inline" id="email"></pre>
+			My Email: <span class="inline" id="email"></span>
 		</li>
 
 		<!-- turnstile javscript -->
@@ -75,9 +75,9 @@
 		<li>{%= raw.outLink("/copyparty/", "Culture Receptacle") %}</li>
 	</ul>
 
-	<h2>Cat Portal. ᓚᘏᗢ "Meow"</h2>
+	<h2>Cat Portal; <code class="inline" style="padding-right:9px;">ᓚᘏᗢ</code> "Meow"</h2>
 	<div class="static-bg inner-box">
-		<video src="/static/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
+		<video src="/static/media/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
 	</div>
 
 
@@ -103,38 +103,43 @@
 		{% block.makeBadge("https://jack-dawlia.neocities.org/page/shrines/portal/aperturewebring", "/static/8831/aperture-webring-blue.png") %}
 		{% block.makeBadge("https://www.swyx.io/learn-in-public", "/static/8831/learninpublic.gif") %}
 		{% block.makeBadge("https://clutterbox.neocities.org/", "https://clutterbox.neocities.org/Images/CB_banner.PNG") %}
-		{% block.makeBadge("https://justine.lol/cosmopolitan/", "/static/cosmopolitan-88x31.png") %}
-		{% block.makeBadge("https://molecule31.neocities.org/", "/static/molecule31.gif") %}
+		{% block.makeBadge("https://justine.lol/cosmopolitan/", "/static/8831/cosmopolitan-88x31.png") %}
+		{% block.makeBadge("https://molecule31.neocities.org/", "/static/8831/molecule31.gif") %}
+		{% block.makeBadge("https://netsqhere.neocities.org/", "https://netsqhere.neocities.org/images/netsphere_button2.gif") %}
 		{% block.makeBadge("https://dsring.neocities.org/", "/static/8831/dsring.gif") %}
-		{% block.makeBadge("https://scp-wiki.wikidot.com/", "/static/scp-88x31.gif") %}
+		{% block.makeBadge("https://scp-wiki.wikidot.com/", "/static/8831/scp-88x31.gif") %}
+		{% block.makeBadge("https://sheref.neocities.org/", "https://sheref.neocities.org/assets/my-button.png") %}
 		{% block.makeBadge("https://evehibi.nekoweb.org/", "https://evehibi.nekoweb.org/button1.gif") %}
 		{% block.makeBadge("https://smokepowered.com/", "https://smokepowered.com/smoke.gif") %}
 		{% block.makeBadge("https://squarebowl.club/", "https://squarebowl.club/images/88x31/plate.gif") %}
 		{% block.makeBadge("https://yummypillow.art/", "https://yummypillow.art/buttons/pillow.png") %}
 		{% block.makeBadge("https://magmaus3.eu.org/", "https://magmaus3.eu.org/buttons/magmaus3.gif") %}
 		{% block.makeBadge("https://sepiarecord.net/", "https://sepiarecord.net/assets/imgs/sepiarecord-btn.png") %}
-		{% block.makeBadge("https://bigrat.monster/", "/static/bigrat-88x31.png") %}
-		{% block.makeBadge("https://corru.observer/", "/static/corru.gif") %}
-		{% block.makeBadge("https://melankorin.net/", "/static/melankorin.gif") %}
-		{% block.makeBadge("https://baccyflap.com/", "/static/baccyflap.com.gif") %}
+		{% block.makeBadge("https://bigrat.monster/", "/static/8831/bigrat-88x31.png") %}
+		{% block.makeBadge("https://corru.observer/", "/static/8831/corru.gif") %}
+		{% block.makeBadge("https://melankorin.net/", "/static/8831/melankorin.gif") %}
+		{% block.makeBadge("https://baccyflap.com/", "/static/8831/baccyflap.com.gif") %}
 		{% block.makeBadge("https://lunabee.space/", "https://lunabee.space/8831.gif") %}
+		{% block.makeBadge("https://sadgrl.online/", "/static/8831/sadgirl.webp") %}
 		{% block.makeBadge("https://nomaakip.xyz/", "https://nomaakip.xyz/img/buttons/button2.png") %}
+		{% block.makeBadge("https://milkyway.moe/", "https://milkyway.moe/milkybuttons/MiLKYStelle.gif") %}
 		{% block.makeBadge("https://notnite.com/", "https://notnite.com/buttons/notnite.png") %}
-		{% block.makeBadge("https://dimden.dev/", "/static/dimden.gif") %}
+		{% block.makeBadge("https://dimden.dev/", "/static/8831/dimden.gif") %}
+		{% block.makeBadge("https://dabric.xyz/", "https://dabric.xyz/butt.png") %}
 		{% block.makeBadge("https://rice.place/", "https://rice.place/button/ricebandaid.gif") %}
 		{% block.makeBadge("https://fleepy.tv/", "https://fleepy.tv/img/fleepy.png") %}
-		{% block.makeBadge("https://ghostk.id/", "/static/ghostk.id.gif") %}
-		{% block.makeBadge("https://msx.horse/", "/static/msx_horse.gif") %}
+		{% block.makeBadge("https://ghostk.id/", "/static/8831/ghostk.id.gif") %}
+		{% block.makeBadge("https://msx.horse/", "/static/8831/msx_horse.gif") %}
 		{% block.makeBadge("https://zvava.org/", "https://zvava.org/images/buttons/zvava.org.png") %}
-		{% block.makeBadge("https://libdb.so/", "/static/libdbso.gif") %}
+		{% block.makeBadge("https://libdb.so/", "/static/8831/libdbso.gif") %}
 		{% block.makeBadge("https://goth.zip/", "https://goth.zip/_astro/button.bccee393_ZrDNs4.webp") %}
-		{% block.makeBadge("https://r74n.com/", "/static/r74n.png") %}
+		{% block.makeBadge("https://pocl.vip/", "https://pocl.vip/img/buttons/poclbutton.gif") %}
+		{% block.makeBadge("https://r74n.com/", "/static/8831/r74n.png") %}
 		{% block.makeBadge("https://jbc.lol/", "https://jbc.lol/sitebutton3.png") %}
 		{% block.makeBadge("https://zptr.cc/", "https://zptr.cc/88x31/webring/zeroptr.png") %}
 		{% block.makeBadge("https://hl2.sh/", "https://hl2.sh/badges/cecilia.png") %}
+		{% block.makeBadge("https://fyz.sh/", "https://api.fyz.sh/button/88x31?v=20281bd") %}
 
-		
-		
 	</div>
 {% end %}
 {% render("common", {title="Home"}) %}

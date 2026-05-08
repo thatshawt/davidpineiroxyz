@@ -492,9 +492,9 @@ Signup details
     username: %s
     ip: %s
 ]]
-        emailBody = emailBody:gsub("\n", "\\n"):format(code, secrets.email, email, username, ip)
+        emailBody = emailBody:gsub("\\","\\\\"):gsub("\n", "\\n"):format(code, secrets.email, email, username, ip)
 
-        print("TODO SEND EMAIL CODE email %s username %s send code %s" % {email, username, code})
+        -- print("TODO SEND EMAIL CODE email %s username %s send code %s" % {email, username, code})
         local emailSent, msg =
             -- true, "DEBUG"
             common.unsafe.sendEmail(email, "Account Code", emailBody)

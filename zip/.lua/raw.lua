@@ -24,4 +24,11 @@ function raw.link(url, inner, unsafe, attributes)
 	end
 end
 
+function raw.redirectPage(url)
+	return string.format([[<!DOCTYPE HTML>
+<html>
+<head><meta http-equiv="refresh" content="0; url=%s" /></head>
+</html>]], url)
+end
+
 return raw
