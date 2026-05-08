@@ -4,10 +4,10 @@
 	<a href="/readings">Readings</a>
 	<a href="/qr">QR Generator</a>
 	<a href="/qr_scanner">QR Scanner</a>
-	<a onclick="toggleExtras()" style="background-color: rgba(0, 136, 255, 0.6); user-select: none;">Extras</a>
+	<a onclick="toggleExtras()" id="extrasA">Extras</a>
 	<hr>
 	{% if session.user then %}
-		<p>Hello <span style="user-select: all;">{%& session.user %}</span>.</p>
+		<p>Hello <span style="user-select: text;">{%& session.user %}</span>.</p>
 		
 		{%= raw.link("/dog", "Dog Exhibit") %}
 
@@ -646,6 +646,23 @@
 		<script src="/static/js/barba.js"></script>
 		<script src="/static/hehe/music.js"></script>
 		<script>
+			function fixALinks(){
+				// stop the browser from redirecting when
+				// following links to the current page.
+				document.querySelectorAll("a").forEach((link) => {
+					console.log(link.hostname, window.location.hostname);
+					if(link.hostname != window.location.hostname)return;
+
+					if (link.pathname === window.location.pathname) {
+						link.classList.add("active");
+						link.style.pointerEvents = "none";
+					}else{
+						link.classList.remove("active");
+						link.style.pointerEvents = null;
+					}
+				});
+			}
+
 			barba.hooks.beforeEnter(({ current, next }) => {
 				// console.log(current, next);
 				if(current.url.href != next.url.href){
@@ -660,8 +677,11 @@
 						
 						setupSoundsFXDynamic();
 						window.scrollTo(0,0);
-					}else{
+					}else{ // first load
 						setupSoundsFX();
+
+						fixALinks();
+
 						window.firstLoad = false;
 					}
 				}
@@ -676,6 +696,8 @@
 			});
 
 			barba.hooks.after(({ current, next }) => {
+				fixALinks();
+
 				if(window.barbaAfter){
 					window.barbaAfter();
 					window.barbaAfter = null;
