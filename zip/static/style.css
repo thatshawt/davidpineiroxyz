@@ -56,10 +56,10 @@ html {
 }
 
 body{
-  background-color: #111;
-  background-image: url("/static/media/dark_exa.png");
+  background-color: black;
+  background-image: url("/static/media/404-static.gif");
   background-attachment: fixed;
-  background-size: 66px;
+  background-size: 65%;
   background-repeat: repeat;
   
   /* animation: scrollbg 100s infinite linear; */
@@ -104,10 +104,11 @@ h1 {
 }
 
 form {
-  background-color: #111;
+  background-color: #11111178;
   border: 1px solid white;
   border-radius: 5px;
   width:fit-content;
+  padding:4px;
 }
 
 input, select, option, textarea {
@@ -464,14 +465,22 @@ button {
 }
 
 div.section{
-  background-color: #321436b0;
   border: 2px solid #00e7ffd6;
   padding: 10px;
   justify-content: left;
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
+  
+  background-blend-mode: color-dodge;
+  background-color: #321436b0;
+  background-image: url("/static/media/dark_exa.png");
+  background-attachment: fixed;
+  background-size: 66px;
+  background-repeat: repeat;
+
   /* backdrop-filter: blur(1px); */
 }
+
 .inner-box{
   background-color: #321436b0;
   

@@ -17,58 +17,59 @@
 		<!-- <div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}" data-callback="turnstileEnable" data-error-callback="turnstileDisable" data-expired-callback="turnstileDisable" data-timeout-callback="turnstileDisable"></div> -->
 		<div id="turnstileDiv"></div>
 		<button type="submit" id="emailButton" disabled="true"><span>Click To Populate</span></button>
+		<ul>
+			<li>GitHub: {%= raw.link("https://github.com/thatshawt", "https://github.com/thatshawt", "unsafe") %}</li>
+			<li>Resume: {%= raw.link("https://foobar", "", "safe", "id='resume' style='display:none;'") %}</li>
+			<li>LinkedIn: {%= raw.link("https://foobar", "", "safe", "id='linkedin' style='display:none;'") %}</li>
+			<li>
+				My Email: <span class="inline" id="email"></span>
+			</li>
+		</ul>
 	</form>
-	<ul>
-		<li>GitHub: {%= raw.link("https://github.com/thatshawt", "https://github.com/thatshawt", "unsafe") %}</li>
-		<li>Resume: {%= raw.link("https://foobar", "", "safe", "id='resume' style='display:none;'") %}</li>
-		<li>LinkedIn: {%= raw.link("https://foobar", "", "safe", "id='linkedin' style='display:none;'") %}</li>
-		<li>
-			My Email: <span class="inline" id="email"></span>
-		</li>
 
-		<!-- turnstile javscript -->
-		<script>
-			function turnstileEnable(){
-				document.getElementById('emailButton').disabled = false;
-			}
 
-			function turnstileDisable(){
-				document.getElementById('emailButton').disabled = true;
-			}
+	<!-- turnstile javscript -->
+	<script>
+		function turnstileEnable(){
+			document.getElementById('emailButton').disabled = false;
+		}
 
-			turnstileDisable();
+		function turnstileDisable(){
+			document.getElementById('emailButton').disabled = true;
+		}
 
-			document.getElementById('turnstileForm').addEventListener('submit', function(event) {
-				event.preventDefault();
-				const formData = new FormData(this);
+		turnstileDisable();
 
-				fetch('/getInfo', {
-					method: 'POST',
-					body: formData
-				})
-				.then(response => response.json())
-				.then(data => {
-					console.log('Success:', data)
-					if(data.success == "true"){
-						document.getElementById("email").textContent = data.email;
+		document.getElementById('turnstileForm').addEventListener('submit', function(event) {
+			event.preventDefault();
+			const formData = new FormData(this);
 
-						document.getElementById("resume").href = data.resume;
-						document.getElementById("resume").textContent = "resume.pdf";
-						document.getElementById("resume").style = "";
+			fetch('/getInfo', {
+				method: 'POST',
+				body: formData
+			})
+			.then(response => response.json())
+			.then(data => {
+				console.log('Success:', data)
+				if(data.success == "true"){
+					document.getElementById("email").textContent = data.email;
 
-						document.getElementById("linkedin").href = data.linkedin;
-						document.getElementById("linkedin").textContent = data.linkedin;
-						document.getElementById("linkedin").style = "";
+					document.getElementById("resume").href = data.resume;
+					document.getElementById("resume").textContent = "resume.pdf";
+					document.getElementById("resume").style = "";
 
-						turnstileDisable();
-					}
-				})
-				.catch(error => console.error('Error:', error));
-			});
-		</script>
+					document.getElementById("linkedin").href = data.linkedin;
+					document.getElementById("linkedin").textContent = data.linkedin;
+					document.getElementById("linkedin").style = "";
 
-		{% block.turnstileScript("turnstileDiv", "turnstileEnable", "turnstileDisable", "turnstileDisable", "turnstileDisable") %}
-	</ul>
+					turnstileDisable();
+				}
+			})
+			.catch(error => console.error('Error:', error));
+		});
+	</script>
+
+	{% block.turnstileScript("turnstileDiv", "turnstileEnable", "turnstileDisable", "turnstileDisable", "turnstileDisable") %}
 
 	<h2>Links</h2>
 	<ul>
