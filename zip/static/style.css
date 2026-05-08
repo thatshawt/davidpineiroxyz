@@ -99,20 +99,27 @@ h1, h2, h3, h4, h5, h6 {
   white-space: collapse;
   max-width: 100%;
 
+  background-color: rgba(0, 0, 255, 0.16);
+
   &:before{
     content: "/";
+    color: blue;
   }
   &:after{
     content: "/";
+    color: blue;
   }
 }
 
 h1 {
+  background-color: rgba(255, 255, 0, 0.165);
   &:before{
     content: "~";
+    color: yellow;
   }
   &:after{
     content: "~";
+    color: yellow;
   }
 }
 
