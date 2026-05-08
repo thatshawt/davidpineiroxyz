@@ -10,7 +10,7 @@
 			{% block.InnerBoxLinkDesc(
 				"https://github.com/thatshawt/sarra"
 				,"Sarra"
-				,[[I coded a <i>Python</i> script to add modifications to the browser game %s. The modifications are written in <i>C</i>, compile to <i>Web Assembly(WASM)</i>, then get "injected" into the original game code. The original code is replaced with the modified version by %s.]]
+				,[[I created a <i>Python</i>-based modding system for the browser game %s that injects <i>C</i>-to-<i>WASM</i> modifications into the game and replaces the original code through %s.]]
 				% { raw.link("https://arras.io","arras.io"), raw.link("https://www.mitmproxy.org", "mitmproxy") }
 				,"unsafe")
 			%}
@@ -19,9 +19,9 @@
 			{% block.InnerBoxLinkDesc(
 				"https://github.com/thatshawt/ait-david/tree/main/turing2",
 				"ait-david/turing2",
-				"This project mainly served as practice programming in <i>C</i>, <i>Makefile</i>, <i>SQLite3</i>, <i>GNU's GMP</i>, <i>GNU's MPFR</i>, and <i>Nix</i>. The project is organized into multiple C source and header files to implement %s and to save the results in an SQLite database."
+				"This project was a multi-file <i>C</i> implementation of %s that used <i>Makefile</i>s, <i>SQLite3</i>, <i>GNU's GMP</i>, <i>GNU's MPFR</i>, and <i>Nix</i> to compute and store results in an SQLite database."
 				% { raw.link("https://arxiv.org/abs/1101.4795", "Hector Zenil\'s CTM Method") },
-				"unsafe")
+				"unsafe")				
 			%}
 		</li>
 	</ul>
@@ -35,9 +35,11 @@
 			{% block.InnerBoxLinkDesc(
 				"/projects/davidpineiroxyz",
 				"DavidPineiro.xyz Website",
-				"This is my website, it is coded with a <i>Lua</i>-based framework named %s, <i>HTML</i>, and <i>CSS</i>. It polls for updates from my Github every minute and deploys automatically if it changed."
+				"This is a website built with a <i>Lua</i>-based %s framework using <i>HTML</i> and <i>CSS</i> that automatically checks GitHub for updates every minute and deploys changes when detected."
 				% {raw.link('https://github.com/pkulchenko/fullmoon', 'Fullmoon')}
 				,"unsafe") %}
+
+				
 		</li>
 		<li>
 			{% block.InnerBoxLinkDesc(
