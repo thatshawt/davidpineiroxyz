@@ -10,18 +10,15 @@
 	</ul>
 
 	<h2>Summary</h2>
-	<p>
-		A machine learning model was developed for a school assignment. The live demo is extracurricular and is a simple frontend and backend in one python script. The deployment is configured as a single systemd service that restarts daily on NixOS.<br><br>
+	<p>A machine learning model was developed for a school assignment. The live demo is extracurricular and is a simple frontend and backend in one python script. The deployment is configured as a single systemd service that restarts daily on NixOS.</p>
 
-		Used the XGBoost python library to perform numerical regression of the health risk of the current weather conditions. The dataset was synthetic and had 1000 entries with various numerical and categorical features. The dataset was split into training, testing, and valuation with sklearn. The model was trained with regularlization L1, L2 and bayesian optimization was used to determine the hyperparmeters. Achieved 0.11 Root Mean Square Error(RMSE) and 0.0083 Mean Absolute Percentage Error(MAPE) which was good for the dataset.<br><br>
-		
-		Wrote a python script to perform exploratory data analysis(EDA) to find R2 correlation score of various features and other statistics of the features such as standard deviation, mean, min, and max:<br>
-		<img src="/static/aiproj1_eda.png"/><br>
+	<p>Used the XGBoost python library to perform numerical regression of the health risk of the current weather conditions. The dataset was synthetic and had 1000 entries with various numerical and categorical features. The dataset was split into training, testing, and valuation with sklearn. The model was trained with regularlization L1, L2 and bayesian optimization was used to determine the hyperparmeters. Achieved 0.11 Root Mean Square Error(RMSE) and 0.0083 Mean Absolute Percentage Error(MAPE) which was good for the dataset.</p>
 
-		Generated an explanatory bee swarm plot with shap values for the trained model:<br>
-		<img src="/static/shapley_values_beeswarm.png"/>
+	<p>Wrote a python script to perform exploratory data analysis(EDA) to find R2 correlation score of various features and other statistics of the features such as standard deviation, mean, min, and max:
+		<img src="/static/aiproj1_eda.png"/></p>
 
-	</p>
+	<p>Generated an explanatory bee swarm plot with shap values for the trained model:
+		<img src="/static/shapley_values_beeswarm.png"/></p>
 
 	<h2>Narrative Report</h2>
 	<p>

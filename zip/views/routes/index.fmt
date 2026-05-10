@@ -78,8 +78,12 @@
 
 	<h2>Cat Portal; <code class="inline" style="padding-right:9px;">ᓚᘏᗢ</code> "Meow"</h2>
 	<div class="static-bg inner-box">
-		<video src="/static/media/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
+		<video id="catvideo" src="/static/media/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
 	</div>
+
+	<script>
+		tippy('#catvideo', {content: 'cat portal ᓚᘏᗢ O.o', followCursor: true,});
+	</script>
 
 
 	<h2>My 88x31 Badges</h2>
@@ -115,7 +119,9 @@
 		{% block.makeBadge("https://squarebowl.club/", "https://squarebowl.club/images/88x31/plate.gif") %}
 		{% block.makeBadge("https://yummypillow.art/", "https://yummypillow.art/buttons/pillow.png") %}
 		{% block.makeBadge("https://magmaus3.eu.org/", "https://magmaus3.eu.org/buttons/magmaus3.gif") %}
+		{% block.makeBadge("https://arimelody.space/", "https://arimelody.space/img/buttons/ari%20melody.gif") %}
 		{% block.makeBadge("https://sepiarecord.net/", "https://sepiarecord.net/assets/imgs/sepiarecord-btn.png") %}
+		{% block.makeBadge("https://max.nekoweb.org/", "https://max.nekoweb.org/images/button.gif") %}
 		{% block.makeBadge("https://bigrat.monster/", "/static/8831/bigrat-88x31.png") %}
 		{% block.makeBadge("https://corru.observer/", "/static/8831/corru.gif") %}
 		{% block.makeBadge("https://melankorin.net/", "/static/8831/melankorin.gif") %}
@@ -140,6 +146,8 @@
 		{% block.makeBadge("https://zptr.cc/", "https://zptr.cc/88x31/webring/zeroptr.png") %}
 		{% block.makeBadge("https://hl2.sh/", "https://hl2.sh/badges/cecilia.png") %}
 		{% block.makeBadge("https://fyz.sh/", "https://api.fyz.sh/button/88x31?v=20281bd") %}
+
+		 
 
 	</div>
 {% end %}

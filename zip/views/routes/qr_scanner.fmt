@@ -242,6 +242,7 @@ openTab(event, 'webcam_tab');
         border: 3px solid white;
         width: fit-content;
         color: white;
+        display:flex;
     }
 
     /* Style the buttons that are used to open the tab content */

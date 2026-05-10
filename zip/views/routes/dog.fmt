@@ -19,7 +19,7 @@
                     <td>The Great</td>
                 </tr>
             </table>
-            <img loading='lazy' src="/static/media/android-chrome-512x512.png">
+            <img id="bigDog" loading='lazy' src="/static/media/android-chrome-512x512.png">
         </div>
         <div class="inner-box static-bg">
             <table>
@@ -31,7 +31,7 @@
                     <td>The Fortuitous</td>
                 </tr>
             </table>
-            <img src="/copyparty/memes/beagle.jpg" loading='lazy'>
+            <img id="beagle" src="/copyparty/memes/beagle.jpg" loading='lazy'>
         </div>
 
         <div class="inner-box">
@@ -44,9 +44,15 @@
                     <td>Cat</td>
                 </tr>
             </table>
-            <img src="/copyparty/memes/cat.jpg" loading='lazy'>
+            <img id="cat" src="/copyparty/memes/cat.jpg" loading='lazy'>
         </div>
     </div>
+
+    <script>
+        tippy('#beagle', {content: 'beagles are known to be very forgiving i\'ve heard', followCursor: true,});
+        tippy('#cat', {content: 'bro\'s skeptical', followCursor: true,});
+        tippy('#bigDog', {content: 'the one and only', followCursor: true,});
+    </script>
 
     
 
