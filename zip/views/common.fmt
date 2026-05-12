@@ -309,8 +309,16 @@
 						title:"Devil's Trill Sonata",
 						artist:"Ray Chen and Amsterdam Sinfonietta",
 						album:"",
-						artwork:"/static/media/android-chrome-192x192.png",
+						artwork:"/static/media/devilTrill.jpg",
 						url:"https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d1/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm.240p.vp9.webm?download",
+					});
+
+					audioObj.registerMusicTrack("brownoise1", {
+						title:"Soft Brown Noise",
+						artist:"Cosmic Scapes",
+						album:"",
+						artwork:"/static/media/brownnoise.jpg",
+						url:"/static/sounds/cosmic-scapes-soft-brown-noise-299934.ogg",
 					});
 
 					if ("mediaSession" in navigator) {

@@ -16,8 +16,8 @@
         }
 
         .track-elem img{
-            width:100px;
-            height:100px;
+            width:150px;
+            height:150px;
             max-width: 100%;
             max-height: 100%;
         }
@@ -31,7 +31,7 @@
             // populate music-container
             var container = document.getElementById('music-container');
 
-            console.log(window.audioObj);
+            // console.log(window.audioObj);
             for(let trackID in window.audioObj.tracks){
                 // console.log("doing ", trackID);
                 const trackObj = window.audioObj.tracks[trackID];
@@ -44,7 +44,7 @@
                 trackElem.appendChild(img);
 
                 const spanTitle = document.createElement('span');
-                spanTitle.textContent = `${trackObj.title} by ${trackObj.artist}`;
+                spanTitle.textContent = ` ${trackObj.title} by ${trackObj.artist}`;
                 trackElem.appendChild(spanTitle);
 
                 trackElem.onclick = () => {
