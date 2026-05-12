@@ -143,6 +143,7 @@
 		{% block.makeBadge("https://fleepy.tv/", "https://fleepy.tv/img/fleepy.png") %}
 		{% block.makeBadge("https://ghostk.id/", "/static/8831/ghostk.id.gif") %}
 		{% block.makeBadge("https://msx.horse/", "/static/8831/msx_horse.gif") %}
+		{% block.makeBadge("https://soggy.cat/", "/static/8831/ssoggycat-gameboyhorror.gif") %}
 		{% block.makeBadge("https://zvava.org/", "https://zvava.org/images/buttons/zvava.org.png") %}
 		{% block.makeBadge("https://libdb.so/", "/static/8831/libdbso.gif") %}
 		{% block.makeBadge("https://goth.zip/", "https://goth.zip/_astro/button.bccee393_ZrDNs4.webp") %}
@@ -152,6 +153,8 @@
 		{% block.makeBadge("https://zptr.cc/", "https://zptr.cc/88x31/webring/zeroptr.png") %}
 		{% block.makeBadge("https://hl2.sh/", "https://hl2.sh/badges/cecilia.png") %}
 		{% block.makeBadge("https://fyz.sh/", "https://api.fyz.sh/button/88x31?v=20281bd") %}
+
+		
 	</div>
 
 
