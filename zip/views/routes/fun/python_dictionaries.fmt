@@ -1,8 +1,13 @@
 {% function block.content() %}
 <h1><i>"Dictionary in Python"</i></h1>
 
-<p>Original: {%= raw.link("https://mail.python.org/pipermail/python-list/2000-March/048085.html", "https://mail.python.org/pipermail/python-list/2000-March/048085.html") %}</p>
+<details>
+    <summary>Lore</summary>
+    <p>Original: {%= raw.link("https://mail.python.org/pipermail/python-list/2000-March/048085.html", "https://mail.python.org/pipermail/python-list/2000-March/048085.html") %}</p>
 <p>Date: Mon Mar 13 21:02:23 EST 2000</p>
+</details>
+
+
 
 <p><h3>Alex asks:</h3>
     <code>...

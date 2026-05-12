@@ -1,15 +1,20 @@
 {% function block.navbar() %}
+	<span>General:</span>
 	<a href="/" class="nav-badge"><img src="/static/david-badge-88x31.gif" alt="david badge"></a>
 	<a href="/projects">Projects</a>
 	<a href="/readings">Readings</a>
 	<a href="/qr">QR Generator</a>
 	<a href="/qr_scanner">QR Scanner</a>
-	<a onclick="toggleExtras()" id="extrasA">Extras</a>
 	<hr>
+	<span>Other:</span>
+	<a onclick="toggleExtras()" id="extrasA">Extras</a>
+	<a href="/music">Music Library</a>
+	<hr>
+	<span>User Stuff:</span>
 	{% if session.user then %}
-		<p>Hello <span style="user-select: text;">{%& session.user %}</span>.</p>
+		<span>"Hello <span style="user-select: text;">{%& session.user %}</span>."</span>
 		
-		{%= raw.link("/dog", "Dog Exhibit") %}
+		<!-- {%= raw.link("/dog", "Dog Exhibit") %} -->
 
 		{% if session.isAdmin == true then %}
 			{%= raw.link("/admin", "Admin Page") %}
@@ -38,8 +43,8 @@
 
 {% function block.turnstileScript(turnstileDivId, callback, error_callback, expired_callback, timeout_callback) %}
 <script>
-	window.oldAfterLeave = window.barbaAfter || (() => {});
-	window.barbaAfter = () => {
+	window.oldBarbaAfterEnter = window.barbaAfterEnter || (() => {});
+	window.barbaAfterEnter = () => {
 		console.log("turnstile render");
 		turnstile.render('#{%& turnstileDivId %}', {
 			sitekey: '{%& vars.turnstile_key %}',
@@ -51,8 +56,6 @@
 			"timeout-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& timeout_callback %}()();},
 		});
 	};
-
-	if(window.firstLoad)window.barbaAfter();
 
 	window.oldAfterLeave = window.barbaAfterLeave || (() => {});
 	window.barbaAfterLeave = () => {
@@ -108,7 +111,7 @@
 		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"></script>
 	</head>
 
-	<body data-barba="wrapper" onload="onload()">
+	<body data-barba="wrapper">
 		<!-- static content -->
 		<div >
 			<script>
@@ -176,7 +179,7 @@
 
 						_updateMetadata: () => {
 							const audio = window.audioObj.musicAudioEl;
-							if(audio){
+							if(audio && isFinite(audio.duration)){
 								navigator.mediaSession.setPositionState({
 									duration: audio.duration,
 									playbackRate: audio.playbackRate,
@@ -207,11 +210,12 @@
 							var audioEl = document.getElementById(audioObj.trackAudioId);
 
 							if(audioEl){
-								document.removeChild(audioEl);
+								// parentElement
+								audioEl.parentElement.removeChild(audioEl);
 							}
 
 							const track = audioObj.tracks[name];
-							console.log("track",track);
+							// console.log("track",track);
 
 							audioEl = document.createElement('audio');
 							audioEl.id = audioObj.trackAudioId;
@@ -236,7 +240,7 @@
 								durationEl.textContent = formatTime(audio.duration);
 							};
 
-							console.log(audioEl);
+							// console.log(audioEl);
 
 							audioObj._setMetadata(track.title, track.artist, track.album, track.artwork);
 						},
@@ -305,7 +309,7 @@
 						title:"Devil's Trill Sonata",
 						artist:"Ray Chen and Amsterdam Sinfonietta",
 						album:"",
-						artwork:"/static/android-chrome-192x192.png",
+						artwork:"/static/media/android-chrome-192x192.png",
 						url:"https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d1/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm/Giuseppe_Tartini-_Devil%27s_Trill_Sonata_-_Ray_Chen_and_Amsterdam_Sinfonietta_-_Live_Concert_HD.webm.240p.vp9.webm?download",
 					});
 
@@ -460,7 +464,7 @@
 
 				function toggleExtras(){
 					const extrasEl = document.getElementById("extras-menu");
-					console.log(extrasEl, extrasEl.style);
+					// console.log(extrasEl, extrasEl.style);
 					if(extrasEl.style.display == "none")extrasEl.style = "";
 					else extrasEl.style = "display:none;";
 					playAudioBuffName("uisound_min11");
@@ -684,6 +688,8 @@
 						setupSoundsFXDynamic();
 						window.scrollTo(0,0);
 					}else{ // first load
+						onload();
+						// console.log("ONLOAD");
 						setupSoundsFX();
 
 						fixALinks();
@@ -704,15 +710,25 @@
 			barba.hooks.after(({ current, next }) => {
 				fixALinks();
 
+				// console.log('HIIIIII TTHEERREEEE');
 				if(window.barbaAfter){
 					window.barbaAfter();
 					window.barbaAfter = null;
 				}
 			});
-			
+
+			barba.hooks.afterEnter(({ data }) => {
+				// console.log('HIIIIII TTHEERREEEE');
+				if(window.barbaAfterEnter){
+					window.barbaAfterEnter();
+					window.barbaAfterEnter = null;
+				}
+			});
+
 			barba.init({
 				// ...
 			});
+
 		</script>
 	</body>
 

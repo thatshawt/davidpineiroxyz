@@ -46,12 +46,27 @@
             </table>
             <img id="cat" src="/copyparty/memes/cat.jpg" loading='lazy'>
         </div>
+
+        <div class="inner-box">
+            <table>
+                <tr>
+                    <td>First Name</td>
+                    <td>No lo</td>
+                </tr>
+                    <td>Last Name</td>
+                    <td>Digas</td>
+                </tr>
+            </table>
+            <img id="cat_lolipop" src="/copyparty/memes/cat_lolipop.jpg" loading='lazy'>
+        </div>
+
     </div>
 
     <script>
         tippy('#beagle', {content: 'beagles are known to be very forgiving i\'ve heard', followCursor: true,});
         tippy('#cat', {content: 'bro\'s skeptical', followCursor: true,});
         tippy('#bigDog', {content: 'the one and only', followCursor: true,});
+        tippy('#cat_lolipop', {content: `got this from {%= raw.link("https://spookysix.neocities.org/", "spookysix.neocities.org") %}.`, allowHTML:true, interactive:true});
     </script>
 
     

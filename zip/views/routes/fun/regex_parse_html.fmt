@@ -1,7 +1,11 @@
 {% function block.content() %}
 <h1><i>"RegEx match open tags except XHTML self-contained tags"</i></h1>
-<h2>Original at {%= raw.link("https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags","https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags") %}</h2>
-<hr>
+
+<details>
+    <summary>Lore</summary>
+    <p>Original at {%= raw.link("https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags","https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags") %}</p>
+</details>
+
 <h3><i>Jeff</i> asks:</h3>
 <div class="inner-box">
         <p>I need to match all of these opening tags:</p>

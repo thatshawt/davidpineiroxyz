@@ -428,10 +428,14 @@ common.signup.dailyGlobalSignupQuota = 200
 -- cooldowns per ip
 common.signup.dailyIpSignupsQuota = 10
 
+function common.signup.isEmailWhitelisted(db, email)
+    return db:fetchOne([[SELECT email FROM signupEmailWhitelist WHERE email=?;]], email).email ~= Nil
+end
+
 function common.signup.sendNewSignupCode(email, username, ip)
     local db <close> = common.getSqlConnection()
 
-    local whitelisted = db:fetchOne([[SELECT email FROM signupEmailWhitelist WHERE email=?;]], email).email ~= Nil
+    local whitelisted = common.signup.isEmailWhitelisted(db, email)
 
     local globalEmailSignups = 0
     local ipSignups = 0

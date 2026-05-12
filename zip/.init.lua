@@ -131,8 +131,8 @@ fm.setRoute({"/signup", method = {"POST"}},
 			local cf_response = tostring(r.params["cf-turnstile-response"]) or ""
 			local turnstileValid = common.validateTurnstileKey(cf_response).success
 			
-			if turnstileValid then
-				local db <close> = common.getSqlConnection()
+			local db <close> = common.getSqlConnection()
+			if turnstileValid or common.signup.isEmailWhitelisted(db, r.params.email) then
 				-- check if email or username exists
 				local existsAlready, msg = common.emailOrUsernameExists(db, r.params.email, r.params.username)
 

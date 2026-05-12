@@ -1,0 +1,66 @@
+{% function block.content() %}
+	<h1>Music Library</h1>
+
+    <style>
+        #music-container{
+            /* display:block; */
+
+            /* border: 1px solid white; */
+        }
+
+        .track-elem {
+            border: 1px solid white;
+            margin: 5px;
+            padding: 5px;
+            /* flex:1; */
+        }
+
+        .track-elem img{
+            width:100px;
+            height:100px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+
+    <ul id="music-container"></ul>
+
+    <script>
+        window.barbaAfterEnter = () => {
+            // console.log("CALLEDIANWDAW*DNAW(*DNAW*(ND*(AWD)))");
+            // populate music-container
+            var container = document.getElementById('music-container');
+
+            console.log(window.audioObj);
+            for(let trackID in window.audioObj.tracks){
+                // console.log("doing ", trackID);
+                const trackObj = window.audioObj.tracks[trackID];
+
+                let trackElem = document.createElement("li");
+                trackElem.classList.add("track-elem");
+                
+                const img = document.createElement("img");
+                img.src = trackObj.artwork;
+                trackElem.appendChild(img);
+
+                const spanTitle = document.createElement('span');
+                spanTitle.textContent = `${trackObj.title} by ${trackObj.artist}`;
+                trackElem.appendChild(spanTitle);
+
+                trackElem.onclick = () => {
+                    window.audioObj.loadMusicTrack(trackID);
+                };
+
+
+                container.appendChild(trackElem);
+
+                console.log(container);
+
+                // document.querySelector('div.section')[0].appendChild(container);
+            }
+        };
+
+        // audioObj.loadMusicTrack("safesurface");
+    </script>
+{% end %}
+{% render("common", {title="Music Library"}) %}

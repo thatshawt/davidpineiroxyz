@@ -26,7 +26,7 @@
 		<li>{% block.InnerBoxLinkDesc(
 				"/fun/python_dictionaries",
 				"&quot;Dictionary in Python&quot;",
-				[[We got <code class="inline">turds</code>, <code class="inline">virgins</code> and more!]]
+				[[<code class="inline">citizens</code>, <code class="inline">turds</code>, and <code class="inline">virgins</code>.]]
 				,"unsafe"
 				) %}
 		</li>

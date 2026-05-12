@@ -16,7 +16,7 @@
 	<form id="turnstileForm" action="" method="">
 		<!-- <div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}" data-callback="turnstileEnable" data-error-callback="turnstileDisable" data-expired-callback="turnstileDisable" data-timeout-callback="turnstileDisable"></div> -->
 		<div id="turnstileDiv"></div>
-		<button type="submit" id="emailButton" disabled="true"><span>Click To Populate</span></button>
+		<button type="submit" id="emailButton" disabled="true"><span>Show Socials</span></button>
 		<ul>
 			<li>GitHub: {%= raw.link("https://github.com/thatshawt", "https://github.com/thatshawt", "unsafe") %}</li>
 			<li>Resume: {%= raw.link("https://foobar", "", "safe", "id='resume' style='display:none;'") %}</li>
@@ -86,7 +86,7 @@
 	</script>
 
 
-	<h2>My 88x31 Badges</h2>
+	<h2>My Badges</h2>
 	<table>
 		<tr>
 			<td>Badge</td>
@@ -95,14 +95,20 @@
 		<tr>
 			<td><div>Animated (15.0 KiB):</div>
 			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.gif") %}</td>
-			<td><code class="badge-code">&lt;a target="_blank" rel="noopener noreferrer" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.gif&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code></td>
+			<td><code class="badge-code">{%& [[<a target="_blank" rel="noopener noreferrer" href="https://davidpineiro.xyz/"><img src="https://davidpineiro.xyz/static/david-badge-88x31.gif" alt="davidp web badge"></a>]] %}</code></td>
 		</tr>
 		<tr>
 			<td><div>Static (3.2 KiB):</div>
 			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.png") %}</td>
-			<td><code class="badge-code">&lt;a target="_blank" rel="noopener noreferrer" href=&quot;https://davidpineiro.xyz/&quot;&gt;&lt;img src=&quot;https://davidpineiro.xyz/static/david-badge-88x31.png&quot; alt=&quot;davidpineiro.xyz badge&quot;&gt;&lt;/a&gt;</code></td>
+			<td><code class="badge-code">{%& [[<a target="_blank" rel="noopener noreferrer" href="https://davidpineiro.xyz/"><img src="https://davidpineiro.xyz/static/david-badge-88x31.png" alt="davidp web badge"></a>]] %}</code></td>
+		</tr>
+		<tr>
+			<td><div>Square (139.9 KiB):</div>
+			{%= raw.link("https://davidpineiro.xyz/", [[<img src="/static/davidp-navlink.png" alt="">]], "unsafe") %}</td>
+			<td><code class="badge-code">{%& [[<a target="_blank" rel="noopener noreferrer" href="https://davidpineiro.xyz/"><img src="https://davidpineiro.xyz/static/davidp-navlink.png" alt="davidp web badge"></a>]] %}</code></td>
 		</tr>
 	</table>
+
 	<h2>Other Cool Links</h2>
 	<div>
 		{% block.makeBadge("https://jack-dawlia.neocities.org/page/shrines/portal/aperturewebring", "/static/8831/aperture-webring-blue.png") %}
@@ -146,9 +152,9 @@
 		{% block.makeBadge("https://zptr.cc/", "https://zptr.cc/88x31/webring/zeroptr.png") %}
 		{% block.makeBadge("https://hl2.sh/", "https://hl2.sh/badges/cecilia.png") %}
 		{% block.makeBadge("https://fyz.sh/", "https://api.fyz.sh/button/88x31?v=20281bd") %}
-
-		 
-
 	</div>
+
+
+	<iframe width="180" height="180" style="border:2px dashed yellow;" src="https://nvlk.dimden.dev/" name="neolink"></iframe>
 {% end %}
 {% render("common", {title="Home"}) %}
