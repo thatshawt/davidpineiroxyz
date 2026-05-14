@@ -5,5 +5,6 @@ pkgs.mkShell {
     msmtp
     getmail6
     dig
+    sqlite
   ];
 }
