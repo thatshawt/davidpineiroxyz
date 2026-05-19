@@ -12,6 +12,12 @@
     {% end %}
 
     {% if signup1 then %}
+        <p>What you get when you sign up:</p>
+        <ul>
+            <li>Send messages in the chat box.</li>
+        </ul>
+        <br>
+
         <form action="/signup" method="POST">
             <label for="email">Email</label>
             <input type="text" name="email" id="email">
