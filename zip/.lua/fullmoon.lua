@@ -1228,7 +1228,7 @@ local fm = setmetatable({ _VERSION = VERSION, _NAME = NAME, _COPYRIGHT = "Paul K
   getAsset = LoadAsset, getRequest = getRequest,
   render = render,
   -- options
-  cookieOptions = {HttpOnly = true, SameSite = "Strict"},
+  cookieOptions = {HttpOnly = true, SameSite = "Strict", Path="/"},
   sessionOptions = {name = "fullmoon_session", hash = "SHA256", secret = true, format = "lua"},
   -- serve* methods that take path can be served as a route handler (with request passed)
   -- or as a method called from a route handler (with the path passed);
@@ -1299,11 +1299,10 @@ local function getSessionOptions()
 end
 local function setSession(session)
   -- if the session hasn't been touched (read or updated), do nothing
-  if session and session[isfresh] then return end
+  if session and session[isfresh] then return true end
   local sopts = getSessionOptions()
   local cookie
-  if session and next(session) then
-
+  if session and next(session) and session._invalid ~= true then
     -- session expiration. one hour = 60 minutes = 60 * 60 seconds
     session.exp = tostring(GetDate() + (sopts.expireSeconds or 60*60))
 
@@ -1313,11 +1312,13 @@ local function setSession(session)
     cookie = msg.."."..sopts.format.."."..sopts.hash.."."..sig
   end
   local copts = fm.cookieOptions or {}
-  if cookie then
+  if cookie and session._invalid ~= true then
     SetCookie(sopts.name, cookie, copts)
+    return true
   else
     fm.logDebug("delete session cookie")
     deleteCookie(sopts.name, copts)
+    return false
   end
 end
 local function getSession()
@@ -1328,15 +1329,16 @@ local function getSession()
   if not msg then return {} end
   if not pcall(GetCryptoHash, hash, "") then
     LogWarn("invalid session crypto hash: "..hash)
-    return {}
+    return {_invalid=true}
   end
   if DecodeBase64(sig) ~= GetCryptoHash(hash, msg, sopts.secret or "") then
     LogWarn("invalid session signature: "..sig)
-    return {}
+    -- deleteCookie(sopts.name, fm.cookieOptions or {})
+    return {_invalid=true}
   end
   if format ~= "lua" then
     LogWarn("invalid session format: "..format)
-    return {}
+    return {_invalid=true}
   end
   local ok, val = loadsafe("return "..DecodeBase64(msg))
   if not ok then LogWarn("invalid session content: "..val) end
@@ -1344,7 +1346,8 @@ local function getSession()
   -- check if session expired
  if val and val.exp and tonumber(val.exp) > 0 and GetDate() > tonumber(val.exp) then
   LogWarn("session expired"..tostring(val))
-  return {}
+  -- deleteCookie(sopts.name, fm.cookieOptions or {})
+  return {_invalid=true}
  end
 
   return ok and val or {}
@@ -1468,7 +1471,14 @@ local function handleRequest(path)
   end
   setHeaders(req.headers) -- output specified headers
   setCookies(req.cookies) -- output specified cookies
-  setSession(req.session) -- add a session cookie if needed
+  local setSessionResult = setSession(req.session) -- add a session cookie if needed
+  if setSessionResult then -- if session did not delete
+    local maybeInvalidSession = getSession()
+    if maybeInvalidSession._invalid == true then -- check if we need to delete it
+      setSession(maybeInvalidSession)
+    end
+  end
+
   while co do
     coroutine.yield()
     co, res = hcall(co)

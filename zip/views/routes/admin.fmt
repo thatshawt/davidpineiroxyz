@@ -2,9 +2,33 @@
 	<h1>Admin Page</h1>
 
     {% if message then %}
-    <p>{%& message %}</p>
+    <span style="white-space: pre;">{%& message %}</span>
     {% end %}
 
+    <h2>Internals</h2>
+    <div class="flex-container">
+        <div class="inner-box">
+            <form action="/admin/listAllGlobals", method="get">
+                <button type="submit">list all globals</button>
+            </form>
+        </div>
+    </div>
+
+    <h2>Signup</h2>
+    <div class="flex-container">
+        <div class="inner-box">
+            <form action="/admin/whitelistEmailSignup", method="post">
+                <input type="text" name="email" placeholder="Email to whitelist">
+                <button type="submit">Whitelist Email For Signup!</button>
+            </form>
+        </div>
+
+        <div class="inner-box">
+            <form action="/admin/unbanSelfSignupIp" method="post"><button type="submit">unbanSelfSignupIp</button></form>
+        </div>
+    </div>
+
+    <h2>User Stuff</h2>
     <div class="flex-container">
         <div class="inner-box">
             <pre id="usercount">User Count: </pre>
@@ -18,28 +42,62 @@
         </div>
 
         <div class="inner-box">
-            <form action="/admin/unbanSelfSignupIp" method="post"><button type="submit">unbanSelfSignupIp</button></form>
+            <form action="/admin/listAllUsers", method="get">
+                <button type="submit">list all users</button>
+            </form>
+        </div>
+
+        <div class="inner-box">
+            <form action="/admin/listSingleUser", method="get">
+                <input type="text" name="username" placeholder="User to query">
+                <button type="submit">Query user</button>
+            </form>
         </div>
 
         <div class="inner-box">
             <form action="/admin/deleteUser", method="post">
-                <input type="text" name="user" placeholder="User to delete">
-                <button type="submit">Delete User!</button>
+                <input type="text" name="username" placeholder="User to delete">
+                <button type="submit">Delete User!!!!!!!!</button>
+            </form>
+        </div>
+    </div>
+
+    <h2>Chat Stuff</h2>
+    <div class="flex-container">
+        <div class="inner-box">
+            <form action="/admin/chatMessagesFromTo" method="get">
+                <input type="text" name="from" placeholder="from id">
+                <input type="text" name="to" placeholder="to id">
+                <button type="submit">get messages</button>
             </form>
         </div>
 
         <div class="inner-box">
-            <form action="/admin/whitelistEmailSignup", method="post">
-                <input type="text" name="email" placeholder="Email to whitelist">
-                <button type="submit">Whitelist Email For Signup!</button>
+            <form action="/admin/chatBanUser", method="post">
+                <input type="text" name="username" placeholder="User to chat ban">
+                <button type="submit">!!Chat ban User!!</button>
             </form>
         </div>
 
-        <!-- work on this TODO -->
         <div class="inner-box">
-            <form action="/admin/userSearch", method="get">
-                <input type="text" name="query" placeholder="user query">
-                <button type="submit">dont click this yet</button>
+            <form action="/admin/chatUnbanUser", method="post">
+                <input type="text" name="username" placeholder="User to chat UNban">
+                <button type="submit">Chat UNban User!</button>
+            </form>
+        </div>
+
+        <div class="inner-box">
+            <form action="/admin/redactUserChats", method="post">
+                <input type="text" name="username" placeholder="User to redact">
+                <button type="submit">!Redact user!</button>
+            </form>
+        </div>
+
+        <div class="inner-box">
+            <form action="/admin/redactChatsFromTo" method="post">
+                <input type="text" name="from" placeholder="from id">
+                <input type="text" name="to" placeholder="to id">
+                <button type="submit">redact messages from to</button>
             </form>
         </div>
     </div>

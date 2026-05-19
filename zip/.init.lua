@@ -23,7 +23,12 @@ do
 	local db <close> = common.getSqlConnection()
     common.sqlInit(db)
 
+	-- print("id=1 message ",db:fetchOne([[select message from chats where id=1;]]).message)
+	
 	common.replaceSaveSecretsUsers(db)
+
+	common.chat.setTestMessages(db)
+	-- print("id=1 message ",db:fetchOne([[select message from chats where id=1;]]).message)
 end
 
 fm.setTemplateVar("serverStartDate", dateString)
@@ -84,6 +89,7 @@ fm.setRoute({"/login", method = {"POST"}},
 		end
 
 		if valid == true then -- success
+			r.session.chatSession = Nil
 			r.session.user = r.params.username
 
 			if r.session.user == 'david' then
@@ -111,8 +117,7 @@ fm.setRoute({"/logout", method = {"POST"}},
 fm.setRoute({"/signup", method = {"GET"}},
 	function (r)
 		return fm.serveContent("routes/signup", {signup1 = true})
-	end
-)
+	end)
 
 fm.setRoute({"/signup", method = {"POST"}},
 	function(r)
@@ -165,6 +170,174 @@ fm.setRoute({"/signup", method = {"POST"}},
 	end
 )
 
+--TODO user reset password
+
+-- chat requestOld
+fm.setRoute({"/chat/requestOld", method = {"POST"}},
+	function (r)
+		local chatSession = r.session.chatSession
+		if chatSession ~= Nil and chatSession ~= "" then
+			local db <close> = common.getSqlConnection()
+
+			common.chat.setRequestsPast(db, chatSession, true)
+
+			return fm.serveResponse(200, Nil, "")
+		else
+			return fm.serveResponse(400, Nil, "It broke. Please refresh the page :P")
+		end
+	end
+)
+
+-- chat requestOld
+fm.setRoute({"/chat/heartbeat", method = {"POST"}},
+	function (r)
+		local chatSession = r.session.chatSession
+		if chatSession ~= Nil and chatSession ~= "" then
+			local db <close> = common.getSqlConnection()
+
+			common.chat.beatHeart(db, chatSession)
+
+			return fm.serveResponse(200, Nil, "")
+		else
+			return fm.serveResponse(400, Nil, "It broke. Please refresh the page :P")
+		end
+	end)
+
+-- TODO: add a profile page for users where they can set their bio i suppose.
+
+-- sse
+fm.setRoute("/sse",
+	function (r)
+		local db <close> = common.getSqlConnection()
+
+		-- TODO, self redact option, client can ask server to redact messages sent by user logged into client.
+		-- /chat/selfRedact
+		-- common.chat.trySelfRedact(db, username, messageChatId)
+
+		local chatSession = common.chat.createSession(db)
+		r.session.chatSession = chatSession
+
+		local msgsPerThing = 20 -- messages sent per sse event thing
+		local currentFutureId = math.max(1, common.chat.getLastId(db) - msgsPerThing) -- start behind a little so we send some to start
+		common.chat.setFutureId(db, chatSession, currentFutureId-1)
+
+		local currentPastId = math.max(1, currentFutureId)
+		common.chat.setPastId(db, chatSession, currentPastId)
+		while(true) do
+			local sessionData = common.chat.getSession(db, chatSession)
+			currentPastId = sessionData.pastid
+			currentFutureId = sessionData.futureid
+
+			-- get next latest id as far as msgsPerThing ids after current one.
+			local futureId = math.min(common.chat.getLastId(db), currentFutureId+msgsPerThing)
+			local pastId = math.max(1, currentPastId-msgsPerThing)
+
+			local data = {}
+
+			-- print("futureid %d currentid %d" % {futureId, currentMsgId})
+			-- send new messages in real time
+			if futureId ~= currentFutureId then
+				-- print("sending between %d and %d" % {currentFutureId, futureId})
+				local messages
+				if currentFutureId == 1 then
+					messages = common.chat.retrieveMessagesBetweenIds(db, currentFutureId, futureId)
+				else
+					messages = common.chat.retrieveMessagesBetweenIds(db, currentFutureId+1, futureId)
+					-- currentFutureId+1 because if not, then it will include the previous message
+				end
+	
+				currentFutureId = futureId
+				common.chat.setFutureId(db, chatSession, currentFutureId)
+	
+				data.future = messages
+			end
+
+			-- only send older messages if requested
+			-- print("chatsession", chatSession, "currentPastId", currentPastId)
+			if common.chat.requestsPast(db, chatSession) and currentPastId ~= pastId then
+				common.chat.setRequestsPast(db, chatSession, false)
+				local messages = common.chat.retrieveMessagesBetweenIds(db, pastId, currentPastId-1, true)
+
+				currentPastId = pastId
+				common.chat.setPastId(db, chatSession, currentPastId)
+
+				data.past = messages
+			end
+
+			local updatedMessages = common.chat.getSessionUpdatedMessages(db, chatSession)
+			-- print("updates:",tostring(updatedMessages), #updatedMessages)
+			-- for k,v in pairs(updatedMessages) do
+			-- 	print(tostring(k)," ",tostring(v))
+			-- end
+			if #updatedMessages > 0 then
+				print("updated messages detected!", chatSession)
+				data.updates = updatedMessages
+
+				common.chat.clearSessionUpdates(db, chatSession)
+				print("cleared session updates!", chatSession)
+			end
+
+			local sessionCount = db:fetchOne([[SELECT data FROM globals WHERE id='chatSessions';]]).data
+			data.sessionCount = sessionCount
+
+			-- send the data
+			if data ~= {} then
+				fm.streamContent("sse", {
+					data = EncodeJson(data)
+				})
+			end
+
+			-- exit if heartbeat is dead
+			if common.chat.isHeartbeatDead(db, chatSession) then
+				print("session %s heartbeat died" % {chatSession})
+				break
+			end
+
+			-- wait 1 second
+      		local remseconds, remnanos = unix.nanosleep(1)
+			if remseconds == Nil then -- interrupted
+				print("chat session interrupted")
+				break
+			end
+		end
+
+		print("removed chatsession %s" % {chatSession})
+
+		common.chat.removeSession(db, chatSession)
+
+		-- http 204 is supposed to stop sse i think...
+		return fm.serve204
+	end)
+
+-- user chat send message
+fm.setRoute({"/chat/sendMessage", method = {"POST"}},
+	function (r)
+		-- print("invalid is %s" % {tostring(r.session._invalid)})
+		-- print("user is %s" % {tostring(r.session.user)})
+
+		if r.session.user == Nil then
+			return fm.serveResponse(400, Nil, "Log in to chat!")
+		end
+
+		if r.params.message == Nil or #tostring(r.params.message) == 0 then
+			return fm.serveResponse(400, Nil, "Message required!")
+		end
+
+		local db <close> = common.getSqlConnection()
+
+		local userBanned = common.chat.isUserBanned(db, r.session.user)
+		if userBanned then
+			return fm.serveResponse(400, Nil, "You are banned ;-;")
+		end
+
+		-- TODO rate limit here
+
+		-- print("sent message %s" % {(r.params.message)})
+		common.chat.insertNewMessage(db, r.session.user, tostring(r.params.message:sub(1,90)))
+
+		return fm.serveResponse(200, Nil, "")
+	end)
+
 -- signupCodeResend
 fm.setRoute({"/signupCodeResend", method = {"POST"}},
 	function (r)
@@ -191,8 +364,7 @@ fm.setRoute({"/signupCodeResend", method = {"POST"}},
 				username=r.params.username,
 				signup2 = true})
 		end
-	end
-)
+	end)
 
 -- signupCode
 fm.setRoute({"/signupCode", method = {"POST"}},
@@ -225,8 +397,7 @@ fm.setRoute({"/signupCode", method = {"POST"}},
 				signup2 = true})
 		end
 
-	end
-)
+	end)
 
 -- signupPassword
 fm.setRoute({"/signupPassword", method = {"POST"}},
@@ -270,8 +441,7 @@ fm.setRoute({"/signupPassword", method = {"POST"}},
 				code = r.params.code,
 				signup3 = true})
 		end
-	end
-)
+	end)
 
 -- post admin routes
 fm.setRoute({"/admin/:action", method = {"POST"}},
@@ -283,51 +453,93 @@ fm.setRoute({"/admin/:action", method = {"POST"}},
 		local db <close> = common.getSqlConnection()
 
 		local actions = {
-			["unbanSelfSignupIp"] = 
-				function ()
-					db:execute([[DELETE FROM dailyIpSignups WHERE ip=?;]], FormatIp(GetRemoteAddr()))
-					return fm.serveContent("routes/admin")
-				end,
-			["deleteUser"] = 
-				function ()
-					local user = r.params.user
+			["unbanSelfSignupIp"] = function ()
+				local ip = FormatIp(GetRemoteAddr())
+				db:execute([[DELETE FROM dailyIpSignups WHERE ip=?;]], ip)
+				return fm.serveContent("routes/admin", {message="unbanned '%s'" % {ip}})
+			end,
+			["deleteUser"] = function ()
+				local username = r.params.username
 
-					if user == Nil or user == '' then
-						return fm.serveContent("routes/admin", {message="You didnt specify a user."})
-					end
+				if username == Nil or username == '' then
+					return fm.serveContent("routes/admin", {message="You didnt specify a user."})
+				end
 
-					local userExists, msg = common.usernameExists(db, user)
+				local userExists, msg = common.usernameExists(db, username)
 
-					if userExists == false then
-						return fm.serveContent("routes/admin", {message="User '%s' doesnt exist!" % {user}})
-					end
+				if userExists == false then
+					return fm.serveContent("routes/admin", {message="User '%s' doesnt exist!" % {username}})
+				end
 
-					common.deleteUser(db, user)
+				common.deleteUser(db, username)
 
-					return fm.serveContent("routes/admin", {message="Deleted user '%s'!" % {user}})
-				end,
-			["whitelistEmailSignup"] = 
-				function ()
-					local email = r.params.email
+				return fm.serveContent("routes/admin", {message="Deleted user '%s'!" % {username}})
+			end,
+			["whitelistEmailSignup"] = function ()
+				local email = r.params.email
 
-					if type(email) ~= "string" or email == '' then
-						return fm.serveContent("routes/admin", {message="you didnt put an email to whitelist :/"})
-					end
+				if type(email) ~= "string" or email == '' then
+					return fm.serveContent("routes/admin", {message="you didnt put an email to whitelist :/"})
+				end
 
-					local valid, msg = common.validate.emailValidate(email)
+				local valid, msg = common.validate.emailValidate(email)
 
-					if valid == false then
-						return fm.serveContent("routes/admin", {message=msg})
-					end
+				if valid == false then
+					return fm.serveContent("routes/admin", {message=msg})
+				end
 
-					db:execute([[INSERT OR REPLACE INTO signupEmailWhitelist (email) VALUES (?);]], email)
-					
-					return fm.serveContent("routes/admin", {message="whitelisted %s" % {email}})
-				end,
+				db:execute([[INSERT OR REPLACE INTO signupEmailWhitelist (email) VALUES (?);]], email)
+				
+				return fm.serveContent("routes/admin", {message="whitelisted %s" % {email}})
+			end,
+			["chatBanUser"] = function ()
+				local username = r.params.username
+
+				if username == Nil or username == '' then
+					return fm.serveContent("routes/admin", {message="You didnt specify a user."})
+				end
+
+				common.chat.banUser(db, username)
+
+				return fm.serveContent("routes/admin", {message="banned user from chatting if they exist"})
+			end,
+
+			["chatUnbanUser"] = function ()
+				local username = r.params.username
+
+				if username == Nil or username == '' then
+					return fm.serveContent("routes/admin", {message="You didnt specify a user."})
+				end
+
+				common.chat.unbanUser(db, username)
+
+				return fm.serveContent("routes/admin", {message="UNbanned user from chatting if they exist"})
+			end,
+			["redactUserChats"] = function ()
+				local username = r.params.username
+
+				if username == Nil or username == '' then
+					return fm.serveContent("routes/admin", {message="You didnt specify a user."})
+				end
+
+				common.chat.replaceAllUserMessages(db, username, "█REDACTED█")
+
+				return fm.serveContent("routes/admin", {message="redacted user %s chat messages!" % {username}})
+			end,
+			["redactChatsFromTo"] = function ()
+				local from = r.params.from
+				local to = r.params.to
+
+				if from == Nil or to == Nil or from == '' or to == '' then
+					return fm.serveContent("routes/admin", {message="missing 'from' or 'to'"})
+				end
+
+				common.chat.replaceMessagesFromTo(db, from, to, "█REDACTED█")
+
+				return fm.serveContent("routes/admin", {message="redacted from %s to %s" % {from, to}})
+			end,
 		}
 
-		
-		
 		local action = r.params.action
 
 		if actions[action] then
@@ -336,8 +548,7 @@ fm.setRoute({"/admin/:action", method = {"POST"}},
 			return fm.serveRedirect(302, "/")
 		end
 
-	end
-)
+	end)
 
 -- get admin routes
 fm.setRoute({"/admin/:action", method = {"GET"}},
@@ -349,9 +560,83 @@ fm.setRoute({"/admin/:action", method = {"GET"}},
 		local db <close> = common.getSqlConnection()
 
 		local actions = {
+			["listAllGlobals"] = function ()
+				local globals = db:fetchAll([[SELECT * FROM globals;]])
+
+				local message = ""
+
+				for k,v in pairs(globals) do
+					-- for k,v in pairs(v) do
+					-- 	print("%s %s" % {tostring(k),tostring(v)})
+					-- end
+					message = message.."\nid: '%s', data:'%s'" % {tostring(v.id), tostring(v.data)}
+				end
+
+				return fm.serveContent("routes/admin", {message=message})
+			end,
 			["userCount"] = function ()
 				local userCount = db:fetchOne([[SELECT count(*) FROM users;]])["count(*)"]
 				return fm.serveResponse(200, Nil, tostring(userCount))
+			end,
+			["listAllUsers"] = function ()
+				local users = db:fetchAll([[
+					SELECT
+						users.username AS userUsername,
+						users.email AS email,
+						bannedChatUsers.username AS bannedUser
+					FROM users
+					LEFT JOIN bannedChatUsers ON userUsername = bannedUser
+					;]])
+
+				local message = ""
+
+				for k,v in pairs(users) do
+					-- for k,v in pairs(v) do
+					-- 	print("%s %s" % {tostring(k),tostring(v)})
+					-- end
+					message = message.."\nuser:'%s' email:'%s' bannedFromChat:'%s'" % {tostring(v.userUsername), tostring(v.email), tostring(v.bannedUser)}
+				end
+
+				return fm.serveContent("routes/admin", {message=message})
+			end,
+			["listSingleUser"] = function ()
+				local username = r.params.username
+
+				if username == Nil or username == '' then
+					return fm.serveContent("routes/admin", {message="You didnt specify a user."})
+				end
+
+				local userInfo = db:fetchOne([[
+					SELECT
+						users.username AS userUsername,
+						users.email AS email,
+						bannedChatUsers.username AS bannedUser
+					FROM users
+					LEFT JOIN bannedChatUsers ON userUsername = bannedUser
+					WHERE userUsername=?
+					;]], username)
+
+				local message = "user:'%s' email:'%s' banned:'%s'" % {tostring(userInfo.userUsername), tostring(userInfo.email), tostring(userInfo.bannedUser)}
+
+				return fm.serveContent("routes/admin", {message=message})
+			end,
+			["chatMessagesFromTo"] = function ()
+				local from = r.params.from
+				local to = r.params.to
+
+				if from == Nil or to == Nil or from == '' or to == '' then
+					return fm.serveContent("routes/admin", {message="missing 'from' or 'to'"})
+				end
+
+				local chats = common.chat.retrieveMessagesBetweenIds(db, from, to)
+
+				local message = ""
+
+				for k,v in pairs(chats) do
+					message = message.."\n%s,%s~%s | %s" % {v.id, v.username, v.message, v.timestamp}
+				end
+
+				return fm.serveContent("routes/admin", {message=message})
 			end,
 		}
 		
@@ -363,8 +648,7 @@ fm.setRoute({"/admin/:action", method = {"GET"}},
 			return fm.serveRedirect(302, "/")
 		end
 
-	end
-)
+	end)
 
 echo = assert(unix.commandv('echo'))
 
@@ -470,24 +754,32 @@ function OnWorkerStart()
 	-- assert(unix.pledge(promises, execpromises, PLEDGE_PENALTY_RETURN_EPERM))
 end
 
-
 -- strace = assert(unix.commandv('strace'))
 function OnWorkerStop()
 end
 
-
-fm.setSchedule("15 * * * *", function()
+fm.setSchedule("0-59/15 * * * *", function()
 	local db <close> = common.getSqlConnection()
 
+	-- "refresh" email lookup cache
 	db:execute([[DELETE FROM emailLookups;]])
 end)
 
-fm.setSchedule("5 * * * *", function()
+fm.setSchedule("* * * * *", function()
 	local db <close> = common.getSqlConnection()
+
+	common.chat.deleteSuperDeadSessions(db)
 
 	common.updateGlobals(db)
 end)
 
+do
+	local db <close> = common.getSqlConnection()
+	common.chat.deleteSuperDeadSessions(db)
+	common.updateGlobals(db)
+end
+
 common.sendNtfy("davidpineiro.xyz","Ready!")
+-- print("id=1 message ",db:fetchOne([[select message from chats where id=1;]]).message)
 
 fm.run()

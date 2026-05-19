@@ -51,14 +51,28 @@
             <table>
                 <tr>
                     <td>First Name</td>
-                    <td>No lo</td>
+                    <td>Cat-Lick</td>
                 </tr>
                     <td>Last Name</td>
-                    <td>Digas</td>
+                    <td>Da'Pos'icle</td>
                 </tr>
             </table>
             <img id="cat_lolipop" src="/copyparty/memes/cat_lolipop.jpg" loading='lazy'>
         </div>
+
+        <div class="inner-box">
+            <table>
+                <tr>
+                    <td>First Name</td>
+                    <td>Chicken-Vin</td>
+                </tr>
+                    <td>Last Name</td>
+                    <td>Diesielly</td>
+                </tr>
+            </table>
+            <img id="chicken-cigarette" src="https://piclog.blue/uploads/538/1667072330487552.jpg" loading='lazy'>
+        </div>
+
 
     </div>
 
@@ -67,6 +81,7 @@
         tippy('#cat', {content: 'bro\'s skeptical', followCursor: true,});
         tippy('#bigDog', {content: 'the one and only', followCursor: true,});
         tippy('#cat_lolipop', {content: `got this from {%= raw.link("https://spookysix.neocities.org/", "spookysix.neocities.org") %}.`, allowHTML:true, interactive:true});
+        tippy('#chicken-cigarette', {content: `{%= raw.link("https://piclog.blue", "Follow if you dare") %}.`, allowHTML:true, interactive:true});
     </script>
 
     

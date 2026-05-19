@@ -14,9 +14,6 @@
 
 	<h2>Socials</h2>
 	<form id="turnstileForm" action="" method="">
-		<!-- <div class="cf-turnstile" data-sitekey="{%& vars.turnstile_key %}" data-callback="turnstileEnable" data-error-callback="turnstileDisable" data-expired-callback="turnstileDisable" data-timeout-callback="turnstileDisable"></div> -->
-		<div id="turnstileDiv"></div>
-		<button type="submit" id="emailButton" disabled="true"><span>Show Socials</span></button>
 		<ul>
 			<li>GitHub: {%= raw.link("https://github.com/thatshawt", "https://github.com/thatshawt", "unsafe") %}</li>
 			<li>Resume: {%= raw.link("https://foobar", "", "safe", "id='resume' style='display:none;'") %}</li>
@@ -25,6 +22,8 @@
 				My Email: <span class="inline" id="email"></span>
 			</li>
 		</ul>
+		<button type="submit" id="emailButton" disabled="true"><span>Show Socials</span></button>
+		<div id="turnstileDiv"></div>
 	</form>
 
 
@@ -76,7 +75,7 @@
 		<li>{%= raw.outLink("/copyparty/", "Culture Receptacle") %}</li>
 	</ul>
 
-	<h2>Cat Portal; <code class="inline" style="padding-right:9px;">ᓚᘏᗢ</code> "Meow"</h2>
+	<h2>Cats; <code class="inline" style="padding-right:9px;">ᓚᘏᗢ</code> "Meow"</h2>
 	<div class="static-bg inner-box">
 		<video id="catvideo" src="/static/media/cats3.webm" autoplay="" muted="" loop="" playsinline=""></video>
 	</div>

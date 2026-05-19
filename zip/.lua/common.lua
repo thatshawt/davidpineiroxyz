@@ -24,39 +24,122 @@ end
 
 -- local db <close> = common.getSqlConnection()
 function common.getSqlConnection()
-    return fm.makeStorage(common.databaseFile, [[PRAGMA journal_mode=WAL;PRAGMA synchronous=NORMAL;]])
+    return fm.makeStorage(common.databaseFile, [[PRAGMA foreign_keys=ON;PRAGMA journal_mode=WAL;PRAGMA synchronous=NORMAL;]])
 end
 
 function common.sqlInit(db)
-    db:exec([[CREATE TABLE users (
-        username TEXT COLLATE NOCASE PRIMARY KEY,
-        password TEXT NOT NULL,
-        email TEXT NOT NULL
+    -- user stuff
+        db:exec([[CREATE TABLE users (
+            username TEXT COLLATE NOCASE check(length(username <= 64)) PRIMARY KEY,
+            password TEXT NOT NULL,
+            email TEXT COLLATE NOCASE NOT NULL check(length(email <= 200))
         );]])
 
-    db:exec([[CREATE TABLE dailyEmailSends (email TEXT COLLATE NOCASE PRIMARY KEY, sends INTEGER DEFAULT 0);]])
-    db:exec([[CREATE TABLE monthlyEmailSends (email TEXT COLLATE NOCASE PRIMARY KEY, sends INTEGER DEFAULT 0);]])
-    db:exec([[CREATE TABLE dailyIpSignups (ip TEXT PRIMARY KEY, signups INTEGER DEFAULT 0);]])
-    db:exec([[CREATE TABLE signupEmailWhitelist (email TEXT COLLATE NOCASE PRIMARY KEY);]])
-    db:exec([[CREATE TABLE signups (
-        email TEXT COLLATE NOCASE,
-        username TEXT COLLATE NOCASE,
-        lastAttempt INTEGER DEFAULT 0,
-        code TEXT,
-        PRIMARY KEY (email,username)
+    -- chat stuff
+        db:exec([[CREATE TABLE chats (
+            id INTEGER PRIMARY KEY,
+            username TEXT COLLATE NOCASE check(length(username <= 64)),
+            timestamp INTEGER NOT NULL,
+            message TEXT NOT NULL check(length(message <= 90)),
+            FOREIGN KEY(username) REFERENCES users(username) ON DELETE SET NULL ON UPDATE CASCADE
         );]])
 
-    db:exec([[CREATE TABLE globals (id TEXT PRIMARY KEY, data TEXT NOT NULL);]])
+        db:exec([[CREATE TABLE chatSessions (
+            sessionid INTEGER PRIMARY KEY,
+            lastHeartBeat INTEGER NOT NULL,
+            futureid INTEGER,
+            pastid INTEGER,
+            FOREIGN KEY(futureid) REFERENCES chats(id) ON DELETE SET NULL,
+            FOREIGN KEY(pastid) REFERENCES chats(id) ON DELETE SET NULL
+        );]])
 
-    db:exec([[CREATE TABLE emailLookups (domain TEXT COLLATE NOCASE PRIMARY KEY, result TEXT NOT NULL);]])
+        db:exec([[CREATE TABLE chatMsgUpdates (
+            sessionid INTEGER NOT NULL,
+            id INTEGER NOT NULL,
+
+            FOREIGN KEY(sessionid) REFERENCES chatSessions(sessionid) ON DELETE CASCADE,
+            FOREIGN KEY(id) REFERENCES chats(id) ON DELETE CASCADE,
+            PRIMARY KEY (sessionid, id)
+        );]])
+
+        db:exec([[CREATE TABLE chatRequests (
+            sessionid INTEGER PRIMARY KEY,
+            FOREIGN KEY(sessionid) REFERENCES chatSessions(sessionid) ON DELETE CASCADE
+        );]])
+
+        db:exec([[CREATE TABLE bannedChatUsers (
+            username TEXT COLLATE NOCASE PRIMARY KEY,
+            FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
+        );]])
+
+    -- signup stuff
+        db:exec([[CREATE TABLE dailyEmailSends (
+            email TEXT COLLATE NOCASE NOT NULL check(length(email <= 200)) PRIMARY KEY,
+            sends INTEGER DEFAULT 0
+        );]])
+
+        db:exec([[CREATE TABLE monthlyEmailSends (
+            email TEXT COLLATE NOCASE NOT NULL check(length(email <= 200)) PRIMARY KEY,
+            sends INTEGER DEFAULT 0
+        );]])
+
+        db:exec([[CREATE TABLE dailyIpSignups (ip TEXT PRIMARY KEY, signups INTEGER DEFAULT 0);]])
+        db:exec([[CREATE TABLE signupEmailWhitelist (
+            email TEXT COLLATE NOCASE NOT NULL check(length(email <= 200)) PRIMARY KEY
+        );]])
+
+        db:exec([[CREATE TABLE signups (
+            email TEXT COLLATE NOCASE NOT NULL check(length(email <= 200)),
+            username TEXT COLLATE NOCASE check(length(username <= 64)),
+            lastAttempt INTEGER DEFAULT 0,
+            code TEXT,
+            PRIMARY KEY (email,username)
+        );]])
+
+    -- others
+        db:exec([[CREATE TABLE globals (id TEXT PRIMARY KEY, data TEXT);]])
+
+        db:exec([[CREATE TABLE emailLookups (domain TEXT COLLATE NOCASE PRIMARY KEY, result TEXT NOT NULL);]])
+end
+
+--[[
+    TODO take out all "insert or replace" with upsert...
+
+    example:
+        INSERT OR REPLACE INTO chats (id,username,timestamp,message) VALUES
+            (1,'david',1,'hi there')
+            (2,'david',1,'caca much?!')
+            ;
+    =>
+        INSERT INTO chats (id,username,timestamp,message) VALUES
+            (1,'david',1,'hi there')
+            (2,'david',1,'caca much?!')
+        ${common.onConflictUpsert('id', {'username','timestamp','message'})}
+            ;
+]]
+
+function common.onConflictUpsert(conflictColumsStr, columns)
+    local updatesStr = ""
+    for k,v in pairs(columns) do
+        updatesStr = updatesStr..[[%s = excluded.%s%s]] % {v,v, k==#columns and "" or ","}
+    end
+
+    local statement = [[ON CONFLICT(%s) DO UPDATE SET %s]]
+        % {conflictColumsStr, updatesStr}
+
+    -- print("upsert partial: '%s'" % {statement})
+
+    return statement
 end
 
 function common.userReplaceSave(db, username, cleartextPassword, email)
     local hashedPass, passSalt = common.generateHashedFromClear(cleartextPassword)
     
-    db:execute([[INSERT OR REPLACE INTO users (username, password, email) VALUES (?,?,?);]], username, hashedPass, email)
+    db:execute([[INSERT INTO users (username, password, email) VALUES (?,?,?) %s ;]]
+        % {common.onConflictUpsert("username", {"password", "email"})},
+        username, hashedPass, email)    
 
-    fm.logInfo("saved user: username '%s', password '%s'" % {username, hashedPass})
+    fm.logInfo("saved user: username '%s'" % {username})
 end
 
 function common.deleteUser(db, username)
@@ -97,6 +180,199 @@ function common.isDevmode()
         end
     end
     return false
+end
+
+common.chat = {}
+common.chat.heartbeatThresholdSeconds = 50
+common.chat.heartbeatSuperDeadSeconds = 60
+
+function common.chat.createSession(db)
+    local sessionid = db:fetchOne([[INSERT INTO chatSessions (lastHeartBeat) VALUES (?) RETURNING *;]], math.floor(GetTime())).sessionid
+    print("CREATED SESSION", sessionid)
+    return sessionid
+end
+
+function common.chat.getSession(db, sessionid)
+    local data = db:fetchOne([[SELECT * from chatSessions WHERE sessionid=?;]], sessionid)
+    return data
+end
+
+function common.chat.removeSession(db, sessionid)
+    db:execute([[DELETE FROM chatSessions WHERE sessionid=?;]], sessionid)
+    print("DELTED SESSION", sessionid)
+end
+
+function common.chat.beatHeart(db, sessionid)
+    db:execute([[UPDATE chatSessions SET lastHeartBeat=? WHERE sessionid=?;]], math.floor(GetTime()), sessionid)
+end
+
+function common.chat.getFutureId(db, sessionid)
+    return db:fetchOne([[SELECT futureid FROM chatSessions WHERE sessionid=?;]], sessionid).futureid
+end
+
+function common.chat.setFutureId(db, sessionid, futureid)
+    print("setfutureid %s" % {tostring(futureid)})
+    db:execute([[UPDATE chatSessions SET futureid=? WHERE sessionid=?;]], futureid, sessionid)
+end
+
+function common.chat.getPastId(db, sessionid)
+    return db:fetchOne([[SELECT pastid FROM chatSessions WHERE sessionid=?;]], sessionid).pastid
+end
+
+function common.chat.setPastId(db, sessionid, pastid)
+    db:execute([[UPDATE chatSessions SET pastid=? WHERE sessionid=?;]], pastid, sessionid)
+end
+
+-- function common.chat.deleteDeadSessions(db)
+--     db:execute([[DELETE FROM chatSessions WHERE (? - lastHeartBeat) > ?;]],
+--         GetTime(), common.chat.heartbeatThresholdSeconds)
+-- end
+
+function common.chat.deleteSuperDeadSessions(db)
+    db:execute([[DELETE FROM chatSessions WHERE (? - lastHeartBeat) > ?;]],
+        GetTime(), common.chat.heartbeatSuperDeadSeconds)
+    print("deleted old sessions")
+end
+
+-- DELETE FROM chatSessions WHERE (1779141866 - lastHeartBeat) > 300;
+
+function common.chat.isHeartbeatDead(db, sessionid)
+    local now = GetTime()
+    local lastHeartBeat = db:fetchOne([[SELECT lastHeartBeat FROM chatSessions WHERE sessionid=?;]], sessionid).lastHeartBeat or 0
+    return now - lastHeartBeat > common.chat.heartbeatThresholdSeconds
+end
+
+function common.chat.addSessionUpdateIdFromTo(db, sessionid, from, to)
+    db:execute([[
+        INSERT INTO chatMsgUpdates (sessionid, id)
+        SELECT ?, id FROM chats
+        INNER JOIN chatSessions ON sessionid=?
+        WHERE
+            id BETWEEN ? AND ?
+            AND c.id BETWEEN (cs.pastid-1) AND (cs.futureid+1)
+        %s
+        ;]] % {common.onConflictUpsert('sessionid', {'id'})}, sessionid, sessionid, from, to)
+end
+
+function common.chat.addAllSessionsUpdateIdFromTo(db, from, to)
+    db:execute([[
+        INSERT INTO chatMsgUpdates (sessionid, id)
+        SELECT cs.sessionid as sessionid, c.id
+        FROM chats c
+        CROSS JOIN chatSessions cs
+        WHERE c.id BETWEEN ? AND ?
+        AND c.id BETWEEN (cs.pastid-1) AND (cs.futureid+1)
+        %s
+        ;]] % {common.onConflictUpsert('sessionid', {'id'})}, from, to)
+end
+
+--[[
+INSERT OR REPLACE INTO chatMsgUpdates (sessionid, id)
+        SELECT cs.sessionid as sessionid, c.id
+        FROM chats c
+        CROSS JOIN chatSessions cs
+        WHERE c.id BETWEEN 1 AND 1
+        AND c.id BETWEEN cs.pastid AND cs.futureid
+        ;
+]]
+
+function common.chat.addAllSessionsUpdateIdFromUser(db, username)
+    db:execute([[
+        INSERT INTO chatMsgUpdates (sessionid, id)
+        SELECT cs.sessionid, c.id
+        FROM chats c
+        CROSS JOIN chatSessions cs
+        WHERE c.username = ?
+        AND c.id BETWEEN (cs.pastid-1) AND (cs.futureid+1)
+        %s
+        ;]] % {common.onConflictUpsert('sessionid', {'id'})}, username)
+end
+
+function common.chat.clearSessionUpdates(db, sessionid)
+    db:execute([[DELETE FROM chatMsgUpdates WHERE sessionid=?;]], sessionid)
+end
+
+function common.chat.getSessionUpdatedMessages(db, sessionid)
+    return db:fetchAll([[
+        SELECT chats.id AS id,username,timestamp,message FROM chats
+        INNER JOIN chatMsgUpdates ON chatMsgUpdates.sessionid = ? AND chatMsgUpdates.id=chats.id
+        ;
+        ]], sessionid)
+end
+
+function common.chat.banUser(db, username)
+    db:execute([[INSERT OR REPLACE INTO bannedChatUsers (username) VALUES (?);]], username)
+end
+
+function common.chat.unbanUser(db, username)
+    db:execute([[DELETE FROM bannedChatUsers WHERE username=?;]], username)
+end
+
+function common.chat.isUserBanned(db, username)
+    return db:fetchOne([[SELECT username FROM bannedChatUsers WHERE username=?;]],username).username ~= Nil
+end
+
+function common.chat.insertNewMessage(db, username, message)
+    db:execute([[INSERT INTO chats (username, timestamp, message) VALUES (?,?,?);]], username, math.floor(GetTime()), message)
+end
+
+function common.chat.setTestMessages(db)
+    if db:fetchOne([[SELECT id from chats WHERE id=1;]]).id == Nil then
+        print("adding test messags, chat is empty")
+        db:execute([[REPLACE INTO chats (id, username, timestamp, message) VALUES 
+            (1,'david',1337,'First of all...'),
+            (2,'david',1337,'Second of all...'),
+            (3,'david',1337,'Last but not least...')
+            ;]])
+    end
+    print("set test messages")
+end
+
+function common.chat.getLastId(db)
+    local id = math.floor(tonumber(db:fetchOne([[SELECT id FROM chats ORDER BY id DESC LIMIT 1;]]).id or 0))
+    -- print("got id %d" % {id})
+    return id
+end
+
+function common.chat.retrieveMessagesBetweenIds(db, id1, id2, reverse)
+    print("retrieve betwwen %s and %s" % {tostring(id1), tostring(id2)})
+    if reverse == true then
+        return db:fetchAll([[SELECT * FROM chats WHERE id BETWEEN ? AND ? ORDER BY id DESC;]], id1, id2)
+    else
+        return db:fetchAll([[SELECT * FROM chats WHERE id BETWEEN ? AND ? ORDER BY id ASC;]], id1, id2)
+    end
+end
+
+function common.chat.replaceAllUserMessages(db, username, message)
+    db:execute([[UPDATE chats SET message=? WHERE username=?;]], message, username)
+    common.chat.addAllSessionsUpdateIdFromUser(db, username)
+    print("replaced user messages and set updates", username)
+end
+
+function common.chat.replaceMessagesFromTo(db, from, to, message)
+    db:execute([[UPDATE chats SET message=? WHERE id BETWEEN ? and ?;]], message,from,to)
+    common.chat.addAllSessionsUpdateIdFromTo(db, from, to)
+    print("replaced fromto messages and set updates", from, to)
+
+end
+
+function common.chat.retrieveLastNMessages(db, n)
+    local lastId = common.chat.getLastId(db)
+    return common.chat.retrieveMessagesBetweenIds(db, lastId - n, lastId)
+end
+
+function common.chat.setRequestsPast(db, sessionid, val)
+    if tostring(val) == "true" then
+        db:execute([[INSERT OR REPLACE INTO chatRequests (sessionid) VALUES (?);]], sessionid)
+        print(sessionid, "requested old")
+    else
+        db:execute([[DELETE FROM chatRequests WHERE sessionid=?;]], sessionid)
+        print("delted request from", sessionid)
+    end
+end
+
+function common.chat.requestsPast(db, sessionid)
+    return (db:fetchOne([[SELECT sessionid FROM chatRequests WHERE sessionid=?;]], sessionid) or {}).sessionid ~= Nil
 end
 
 local python3 = assert(unix.commandv('python3'))
@@ -235,6 +511,10 @@ function common.validate.emailValidate(email)
         return false, "Server error: email is not a string"
     end
 
+    if #email > 200 then
+        return false, "Email too long! Has to be shorter than 200 characters."
+    end
+
     -- rule 1: no leading dot
     if email:match("^%.") then
         return false, "Email is invalid (starts with dot)"
@@ -311,10 +591,14 @@ function common.getGlobal(db, id)
 end
 
 function common.setGlobal(db, id, val)
-    db:execute([[INSERT OR REPLACE INTO globals (id, data) VALUES (?,?);]], id, val)
+    db:execute([[INSERT INTO globals (id, data) VALUES (?,?) %s ;]] % {common.onConflictUpsert('id', {'data'})}, id, val)
 end
 
 function common.updateGlobals(db)
+    print('updating globals...')
+
+    -- time-related things
+
     local mday = tostring(common.mday())
     local globalMday = common.getGlobal(db, "mday")
     if mday ~= globalMday then
@@ -332,6 +616,10 @@ function common.updateGlobals(db)
         common.setGlobal(db, "mon", mon)
         db:execute([[DELETE FROM monthlyEmailSends;]])
     end
+
+    -- chat things
+    local chatSessionsCount = db:fetchOne([[SELECT count(*) FROM chatSessions;]])["count(*)"] or 0
+    common.setGlobal(db, "chatSessions", chatSessionsCount)
     
 end
 
@@ -499,10 +787,10 @@ Signup details
 ]]
         emailBody = emailBody:gsub("\\","\\\\"):gsub("\n", "\\n"):format(code, secrets.email, email, username, ip)
 
-        -- print("TODO SEND EMAIL CODE email %s username %s send code %s" % {email, username, code})
         local emailSent, msg =
-            -- true, "DEBUG"
-            common.unsafe.sendEmail(email, "Account Code", emailBody)
+            -- common.unsafe.sendEmail(email, "Account Code", emailBody)
+            true, "DEBUG"
+        print("SEND EMAIL CODE email %s username %s send code %s" % {email, username, code})
 
         if emailSent then
             -- increment email sends

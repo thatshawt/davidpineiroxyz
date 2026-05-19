@@ -1,12 +1,12 @@
 {% function block.content() %}
 	<h1>DavidPineiro.xyz Website</h1>
 
-	<p>tags: <i>Linux, NixOS, SystemD, Subdomain, Cloudflare, DNS, SSL, Nginx, Continuous Deployment</i></p>
+	<p>tags: <i>Linux, NixOS, SystemD, Subdomain, Cloudflare, DNS, SSL, Nginx, Github, Continuous Deployment, Single Page Application, HTML/CSS, SQLite</i></p>
 
 	<h2>Project Links</h2>
 	<ul>
 		<li>{%= raw.link("https://davidpineiro.xyz","Live Deployment") %}</li>
-		<li>{%= raw.link("https://github.com/thatshawt/davidpineiroxyz", "Source Code") %}</li>
+		<li>{%= raw.link("https://github.com/thatshawt/davidpineiroxyz", "Github Source Code") %}</li>
 	</ul>
 
 	<h2>Summary</h2>
