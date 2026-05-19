@@ -892,7 +892,10 @@
 							chatStatusMsgEl.textContent = "";
 						}
 
-						if(openedChatEl.style.display != "none" && chatLogsEl.scrollTop < 2){
+						if(chatLogsEl.scrollHeight > chatLogsEl.clientHeight && 
+							openedChatEl.style.display != "none" && 
+							chatLogsEl.scrollTop < 2
+						){
 							chatLogsEl.scrollTop = 3;
 							requestOldChat();
 						}

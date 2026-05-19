@@ -788,9 +788,9 @@ Signup details
         emailBody = emailBody:gsub("\\","\\\\"):gsub("\n", "\\n"):format(code, secrets.email, email, username, ip)
 
         local emailSent, msg =
-            -- common.unsafe.sendEmail(email, "Account Code", emailBody)
-            true, "DEBUG"
-        print("SEND EMAIL CODE email %s username %s send code %s" % {email, username, code})
+            common.unsafe.sendEmail(email, "Account Code", emailBody)
+        --     true, "DEBUG"
+        -- print("SEND EMAIL CODE email %s username %s send code %s" % {email, username, code})
 
         if emailSent then
             -- increment email sends

@@ -219,7 +219,7 @@ fm.setRoute("/sse",
 
 		local msgsPerThing = 20 -- messages sent per sse event thing
 		local currentFutureId = math.max(1, common.chat.getLastId(db) - msgsPerThing) -- start behind a little so we send some to start
-		common.chat.setFutureId(db, chatSession, currentFutureId-1)
+		common.chat.setFutureId(db, chatSession, currentFutureId)
 
 		local currentPastId = math.max(1, currentFutureId)
 		common.chat.setPastId(db, chatSession, currentPastId)
