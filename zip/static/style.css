@@ -76,7 +76,7 @@ body{
 
   margin:0 auto;
 
-  display:grid;
+  /* display:grid; */
 }
 
 body, button, span{
