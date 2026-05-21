@@ -129,6 +129,9 @@ h1, h2, h3, h4, h5, h6 {
   white-space: collapse;
   max-width: 100%;
 
+  width: fit-content;
+  padding-right: 5px;
+
   background-color: rgba(0, 0, 255, 0.16);
 
   &:before{
@@ -143,6 +146,8 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
   background-color: rgba(255, 255, 0, 0.165);
+  /* text-align: center; */
+  width: unset;
   &:before{
     content: "~";
     color: yellow;
