@@ -45,34 +45,23 @@
 
 {% function block.turnstileScript(turnstileDivId, callback, error_callback, expired_callback, timeout_callback) %}
 <script>
-	window.oldBarbaAfter = window.barbaAfter || (() => {});
-	window.barbaAfter = () => {
-		window.oldBarbaAfter();
-		// console.log("turnstile render");
+	registerAfterHook((current,next) => {
 		turnstile.remove('#{%& turnstileDivId %}');
 		// setTimeout(() => {
-			turnstile.render('#{%& turnstileDivId %}', {
-				sitekey: '{%& vars.turnstile_key %}',
-				// appearance: 'interaction-only',
-				theme: 'dark',
-				callback: function(token) {{%& callback %}(token);},
-				"error-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& error_callback %}();},
-				"expired-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& expired_callback %}();},
-				"timeout-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& timeout_callback %}()();},
-			});
+		turnstile.render('#{%& turnstileDivId %}', {
+			sitekey: '{%& vars.turnstile_key %}',
+			// appearance: 'interaction-only',
+			theme: 'dark',
+			callback: function(token) {{%& callback %}(token);},
+			"error-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& error_callback %}();},
+			"expired-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& expired_callback %}();},
+			"timeout-callback": function(errorCode){turnstile.reset('#{%& turnstileDivId %}');{%& timeout_callback %}()();},
+		});
+	});
 
-		// }, 1000);
-		window.oldBarbaAfter = null;
-	};
-
-	window.oldAfterLeave = window.barbaAfterLeave || (() => {});
-	window.barbaAfterLeave = () => {
-		window.oldAfterLeave();
+	registerAfterLeaveHook((current,next) => {
 		turnstile.remove('#{%& turnstileDivId %}');
-		// console.log("removed widget");
-		window.oldAfterLeave = null;
-	};
-	
+	});
 </script>
 {% end %}
 
@@ -519,17 +508,55 @@
 					newScripts.forEach((script) => {
 						const newScript = document.createElement('script');
 
+						var appendQuery = null;
+						var replaceQuery = null;
+
 						// Copy attributes (like src, type, etc.)
 						for (let attr of script.attributes) {
+							if(attr.name == "script-append"){
+								appendQuery = attr.value;
+							}else if(attr.name == "script-replace"){
+								replaceQuery = attr.value;
+							}
 							newScript.setAttribute(attr.name, attr.value);
 						}
 
 						// Copy inline content
 						newScript.textContent = script.textContent;
 
-						oldScriptsDiv.appendChild(newScript);
+						if(appendQuery){
+							const hookEl = document.querySelector(appendQuery);
+
+							if(hookEl)
+								hookEl.appendChild(newScript);
+							else oldScriptsDiv.appendChild(newScript);
+						}else if(replaceQuery){
+							const hookEl = document.querySelector(replaceQuery);
+
+							if(hookEl)
+								hookEl.replaceWith(newScript);
+							else oldScriptsDiv.appendChild(newScript);
+						}else{
+							oldScriptsDiv.appendChild(newScript);
+						}
 						// console.log("script added", newScript);
 					});
+				}
+
+				function registerAfterHook(theFunction){
+					const oldBarbaAfter = window.barbaAfter || ((current,next) => {});
+					window.barbaAfter = (current,next) => {
+						oldBarbaAfter(current,next);
+						theFunction(current,next);
+					};
+				}
+
+				function registerAfterLeaveHook(theFunction){
+					const oldBarbaAfterLeave = window.barbaAfterLeave || ((current,next) => {});
+					window.barbaAfterLeave = (current,next) => {
+						oldBarbaAfterLeave(current,next);
+						theFunction(current,next);
+					};
 				}
 			</script>
 
@@ -666,7 +693,7 @@
 					right: max(0px, calc((100vw - 1224px) / 2));
 					width:fit-content;
 					justify-self: right;
-					margin-right: 10px;
+					margin-right: 2px;
 					display:grid;
 					/* scroll-behavior: ; */
 				}
@@ -1045,7 +1072,7 @@
 
 			barba.hooks.afterLeave(({ current, next }) => {
 				if(window.barbaAfterLeave){
-					window.barbaAfterLeave();
+					window.barbaAfterLeave(current, next);
 
 					window.barbaAfterLeave = null;
 				}
@@ -1056,7 +1083,7 @@
 
 				// console.log('HIIIIII TTHEERREEEE');
 				if(window.barbaAfter){
-					window.barbaAfter();
+					window.barbaAfter(current, next);
 					window.barbaAfter = null;
 				}
 			});
@@ -1064,7 +1091,7 @@
 			barba.hooks.afterEnter(({ data }) => {
 				// console.log('HIIIIII TTHEERREEEE');
 				if(window.barbaAfterEnter){
-					window.barbaAfterEnter();
+					window.barbaAfterEnter(data);
 					window.barbaAfterEnter = null;
 				}
 			});

@@ -2,7 +2,7 @@
 	<h1>Admin Page</h1>
 
     {% if message then %}
-    <span style="white-space: pre;">{%& message %}</span>
+    <span style="white-space: pre;word-break: break-all;">{%& message %}</span>
     {% end %}
 
     <h2>Internals</h2>
@@ -33,9 +33,9 @@
         <div class="inner-box">
             <pre id="usercount">User Count: </pre>
             <script>
-                fetch("/admin/userCount").then((r) => {
-                    return r.text();
-                }).then((text) => {
+                fetch("/admin/userCount")
+                .then((r) => r.text())
+                .then((text) => {
                     document.getElementById("usercount").textContent = `User Count: ${text}`;
                 });
             </script>
