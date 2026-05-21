@@ -109,6 +109,8 @@ fm.setRoute({"/forgotPassword", method = {"GET"}},
 		return fm.serveContent("routes/forgotPassword", {stage1 = true})
 	end)
 
+-- TODO implement forgotPassword POST for stage1->stage2, try to send email.
+
 -- logout
 fm.setRoute({"/logout", method = {"POST"}},
 	function (r)
@@ -770,6 +772,7 @@ fm.setSchedule("0-59/15 * * * *", function()
 	db:execute([[DELETE FROM emailLookups;]])
 end)
 
+-- TODO change this because it suckks?
 fm.setSchedule("* * * * *", function()
 	local db <close> = common.getSqlConnection()
 

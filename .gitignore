@@ -12,3 +12,6 @@ widevideo
 
 # we need to supply this ourselves in prod
 prod/mailer
+
+
+node_modules
