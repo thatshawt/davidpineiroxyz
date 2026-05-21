@@ -46,6 +46,8 @@ function common.sqlInit(db)
 
         db:exec([[CREATE TABLE chatSessions (
             sessionid INTEGER PRIMARY KEY,
+            clientIp TEXT NOT NULL,
+            user TEXT COLLATE NOCASE,
             lastHeartBeat INTEGER NOT NULL,
             futureid INTEGER,
             pastid INTEGER,
@@ -72,15 +74,25 @@ function common.sqlInit(db)
             FOREIGN KEY(username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
         );]])
 
-    -- signup stuff
-        db:exec([[CREATE TABLE dailyEmailSends (
+    -- forgot password
+        db:exec([[CREATE TABLE forgotPasswordEmailSends (
             email TEXT COLLATE NOCASE NOT NULL check(length(email <= 200)) PRIMARY KEY,
-            sends INTEGER DEFAULT 0
+            dailySends INTEGER DEFAULT 0,
+            monthlySends INTEGER DEFAULT 0
         );]])
 
-        db:exec([[CREATE TABLE monthlyEmailSends (
+        db:exec([[CREATE TABLE forgotPasswordCodes (
+            email TEXT COLLATE NOCASE NOT NULL check(length(email <= 200)),
+            code TEXT NOT NULL,
+            timestamp INTEGER NOT NULL,
+            PRIMARY KEY (email, code)
+        );]])
+
+    -- signup stuff
+        db:exec([[CREATE TABLE signupEmailSends (
             email TEXT COLLATE NOCASE NOT NULL check(length(email <= 200)) PRIMARY KEY,
-            sends INTEGER DEFAULT 0
+            dailySends INTEGER DEFAULT 0,
+            monthlySends INTEGER DEFAULT 0
         );]])
 
         db:exec([[CREATE TABLE dailyIpSignups (ip TEXT PRIMARY KEY, signups INTEGER DEFAULT 0);]])
@@ -186,8 +198,8 @@ common.chat = {}
 common.chat.heartbeatThresholdSeconds = 50
 common.chat.heartbeatSuperDeadSeconds = 60
 
-function common.chat.createSession(db)
-    local sessionid = db:fetchOne([[INSERT INTO chatSessions (lastHeartBeat) VALUES (?) RETURNING *;]], math.floor(GetTime())).sessionid
+function common.chat.createSession(db, ip, user)
+    local sessionid = db:fetchOne([[INSERT INTO chatSessions (user,clientip,lastHeartBeat) VALUES (?,?,?) RETURNING *;]], user, ip, math.floor(GetTime())).sessionid
     print("CREATED SESSION", sessionid)
     return sessionid
 end
@@ -234,7 +246,6 @@ function common.chat.deleteSuperDeadSessions(db)
     print("deleted old sessions")
 end
 
--- DELETE FROM chatSessions WHERE (1779141866 - lastHeartBeat) > 300;
 
 function common.chat.isHeartbeatDead(db, sessionid)
     local now = GetTime()
@@ -265,16 +276,6 @@ function common.chat.addAllSessionsUpdateIdFromTo(db, from, to)
         %s
         ;]] % {common.onConflictUpsert('sessionid', {'id'})}, from, to)
 end
-
---[[
-INSERT OR REPLACE INTO chatMsgUpdates (sessionid, id)
-        SELECT cs.sessionid as sessionid, c.id
-        FROM chats c
-        CROSS JOIN chatSessions cs
-        WHERE c.id BETWEEN 1 AND 1
-        AND c.id BETWEEN cs.pastid AND cs.futureid
-        ;
-]]
 
 function common.chat.addAllSessionsUpdateIdFromUser(db, username)
     db:execute([[
@@ -594,35 +595,6 @@ function common.setGlobal(db, id, val)
     db:execute([[INSERT INTO globals (id, data) VALUES (?,?) %s ;]] % {common.onConflictUpsert('id', {'data'})}, id, val)
 end
 
-function common.updateGlobals(db)
-    print('updating globals...')
-
-    -- time-related things
-
-    local mday = tostring(common.mday())
-    local globalMday = common.getGlobal(db, "mday")
-    if mday ~= globalMday then
-        common.setGlobal(db, "mday", mday)
-        db:execute([[DELETE FROM dailyEmailSends;]])
-        db:execute([[DELETE FROM signups;]])
-        db:execute([[DELETE FROM dailyIpSignups;]])
-
-        common.setGlobal(db, "dailyGlobalSignups", 0)
-    end
-
-    local mon = tostring(common.month())
-    local globalMon = common.getGlobal(db, "mon")
-    if mon ~= globalMon then
-        common.setGlobal(db, "mon", mon)
-        db:execute([[DELETE FROM monthlyEmailSends;]])
-    end
-
-    -- chat things
-    local chatSessionsCount = db:fetchOne([[SELECT count(*) FROM chatSessions;]])["count(*)"] or 0
-    common.setGlobal(db, "chatSessions", chatSessionsCount)
-    
-end
-
 local dig = assert(unix.commandv('dig'))
 function common.unsafe.mxLookup(domain)
     local db <close> = common.getSqlConnection()
@@ -669,7 +641,7 @@ function common.unsafe.sendEmail(recipient, subject, body)
         valid, msg = common.unsafe.mxLookup(domain)
 
         if valid then
-            local emailText = "Subject: %s\\n\\n%s" % {subject, body}
+            local emailText = "Subject: %s\\n\\n%s" % {subject, body:gsub("\\","\\\\"):gsub("\n", "\\n")}
             local bashCommand = "cd mailer; %s '%s' | %s -C ./.msmtprc %s" % {printf, emailText, msmtp, recipient}
         
             print("ran bash command '%s'" % {bashCommand})
@@ -691,7 +663,109 @@ function common.unsafe.sendEmail(recipient, subject, body)
     end
 end
 
+-- TODO test forgot password flows...
+common.forgotPassword = {}
+
+-- forgotPasswordEmailSends
+common.forgotPassword.dailyEmailQuota = 5
+common.forgotPassword.monthlyEmailQuota = 10
+
+-- forgotPasswordCodes
+common.forgotPassword.codeLifetimeSeconds = 60*10 -- 10 minutes
+
+function common.forgotPassword.getEmailSends(db, email)
+    print("get email forgotPassword sends")
+    local results = db:fetchOne([[SELECT dailySends,monthlySends FROM forgotPasswordEmailSends WHERE email=?;]], email)
+
+    if results ~= Nil and results.dailySends ~= Nil then
+        return results.dailySends, results.monthlySends
+    else
+        return 0,0
+    end
+end
+
+function common.forgotPassword.incrementEmailSends(db, email)
+    local dailySends,monthlySends = common.forgotPassword.getEmailSends(db, email)
+    
+    db:execute([[INSERT INTO forgotPasswordEmailSends (email,dailySends,monthlySends) VALUES (?,?,?) %s;]] % {common.onConflictUpsert("email", {"dailySends","monthlySends"})}, email, dailySends+1,monthlySends+1)
+    print("incremented forgotPassword email sends")
+end
+
+function common.forgotPassword.resetDailySends(db)
+    db:execute([[UPDATE forgotPasswordEmailSends SET dailySends=0;]])
+end
+
+function common.forgotPassword.resetMonthlySends(db)
+    db:execute([[UPDATE forgotPasswordEmailSends SET monthlySends=0;]])
+end
+
+function common.forgotPassword.clearAllEmailSends(db)
+    db:execute([[DELETE FROM forgotPasswordEmailSends;]])
+end
+
+function common.forgotPassword.checkEmailSendsQuota(db, email)
+    local dailySends,monthlySends = common.forgotPassword.getEmailSends(db, email)
+
+    if dailySends > common.forgotPassword.dailyEmailQuota then
+        return false, "Hit maximum email sends for the day!"
+    elseif monthlySends > common.forgotPassword.monthlyEmailQuota then
+        return false, "Hit maximum email sends for the month!"
+    else
+        return true, "forgotPassword email send quotas are OK."
+    end
+end
+
+
+--[[
+CREATE TABLE forgotPasswordCodes (
+email TEXT COLLATE NOCASE NOT NULL check(length(email <= 200)),
+code TEXT NOT NULL,
+timestamp INTEGER NOT NULL,
+PRIMARY KEY (email, code)
+]]
+--TODO try these out
+function common.forgotPassword.set(db, email, code)
+    db:execute([[INSERT INTO forgotPasswordCodes (email, code, timestamp) VALUES (?,?,?) %s;]]
+        % {common.onConflictUpsert("email, code"), {'timestamp'}}, email, code, GetTime())
+end
+
+function common.forgotPassword.exists(db, email, code)
+    return db:fetchOne([[SELECT email FROM forgotPasswordCodes WHERE email=? AND code=?;]], email, code).email ~= Nil
+end
+
+function common.forgotPassword.delete(db, email, code)
+    db:execute([[DELETE FROM forgotPasswordCodes WHERE email=? AND code=?;]], email, code)
+end
+
+function common.forgotPassword.deleteAllExpired(db)
+    db:execute([[DELETE FROM forgotPasswordCodes WHERE ?-timestamp > ?;]],
+        GetTime(),common.forgotPassword.codeLifetimeSeconds)
+end
+
+function common.forgotPassword.sendNewCode(db, email)
+    local code = tostring(math.abs(Rand64()) % 999999)
+
+    local valid, msg = common.forgotPassword.checkEmailSendsQuota(db, email)
+
+    if valid == false then
+        return false, msg
+    else
+
+    end
+end
+
 common.signup = {}
+
+-- cooldowns per email
+common.signup.cooldownSeconds = 30
+common.signup.dailyEmailQuota = 5
+common.signup.monthlyEmailQuota = 20
+
+-- cooldowns for global signups
+common.signup.dailyGlobalSignupQuota = 200
+
+-- cooldowns per ip
+common.signup.dailyIpSignupsQuota = 10
 
 function common.signup.fromEmailUsername(db, email, username)
     local result = db:fetchOne([[SELECT email, username, lastAttempt, code FROM signups WHERE email=? AND username=?;]],
@@ -705,16 +779,47 @@ function common.signup.setSignup(db, email, username, lastAttempt, code)
     email, username, lastAttempt, code)
 end
 
--- cooldowns per email
-common.signup.cooldownSeconds = 30
-common.signup.dailyEmailQuota = 5
-common.signup.monthlyEmailQuota = 20
+function common.signup.getEmailSends(db, email)
+    print("get email signup sends")
+    local results = db:fetchOne([[SELECT dailySends,monthlySends FROM signupEmailSends WHERE email=?;]], email)
 
--- cooldowns for global signups
-common.signup.dailyGlobalSignupQuota = 200
+    if results ~= Nil and results.dailySends ~= Nil then
+        return results.dailySends, results.monthlySends
+    else
+        return 0,0
+    end
+end
 
--- cooldowns per ip
-common.signup.dailyIpSignupsQuota = 10
+function common.signup.incrementEmailSends(db, email)
+    local dailySends,monthlySends = common.signup.getEmailSends(db, email)
+    
+    db:execute([[INSERT INTO signupEmailSends (email,dailySends,monthlySends) VALUES (?,?,?) %s;]] % {common.onConflictUpsert("email", {"dailySends","monthlySends"})}, email, dailySends+1,monthlySends+1)
+    print("incremented signup email sends")
+end
+
+function common.signup.resetDailySends(db)
+    db:execute([[UPDATE signupEmailSends SET dailySends=0;]])
+end
+
+function common.signup.resetMonthlySends(db)
+    db:execute([[UPDATE signupEmailSends SET monthlySends=0;]])
+end
+
+function common.signup.clearAllEmailSends(db)
+    db:execute([[DELETE FROM signupEmailSends;]])
+end
+
+function common.signup.checkEmailSendsQuota(db, email)
+    local dailySends,monthlySends = common.signup.getEmailSends(db, email)
+
+    if dailySends > common.signup.dailyEmailQuota then
+        return false, "Hit maximum email sends for the day!"
+    elseif monthlySends > common.signup.monthlyEmailQuota then
+        return false, "Hit maximum email sends for the month!"
+    else
+        return true, "Signup email send quotas are OK."
+    end
+end
 
 function common.signup.isEmailWhitelisted(db, email)
     return db:fetchOne([[SELECT email FROM signupEmailWhitelist WHERE email=?;]], email).email ~= Nil
@@ -727,8 +832,6 @@ function common.signup.sendNewSignupCode(email, username, ip)
 
     local globalEmailSignups = 0
     local ipSignups = 0
-    local dailyEmailSends = 0
-    local monthlyEmailSends = 0
 
     if whitelisted == false then
         globalEmailSignups = tonumber(common.getGlobal(db, "dailyGlobalSignups") or 0)
@@ -741,14 +844,9 @@ function common.signup.sendNewSignupCode(email, username, ip)
             return false, "Hit maximum daily signup codes for your ip!. You can try again when the clock hits 12 PM!!"
         end
 
-        dailyEmailSends = tonumber(db:fetchOne([[SELECT sends FROM dailyEmailSends WHERE email=?;]], email).sends or 0)
-        if dailyEmailSends > common.signup.dailyEmailQuota then
-            return false, "Hit maximum email sends for the day!"
-        end
-
-        monthlyEmailSends = tonumber(db:fetchOne([[SELECT sends FROM monthlyEmailSends WHERE email=?;]], email).sends or 0)
-        if monthlyEmailSends > common.signup.monthlyEmailQuota then
-            return false, "Hit maximum email sends for the whole MONTH!!!!!! Try again next month."
+        local emailSendsCheck, msg = common.signup.checkEmailSendsQuota(db, email)
+        if emailSendsCheck == false then
+            return false, msg
         end
     end
 
@@ -784,8 +882,7 @@ Signup details
     email: %s
     username: %s
     ip: %s
-]]
-        emailBody = emailBody:gsub("\\","\\\\"):gsub("\n", "\\n"):format(code, secrets.email, email, username, ip)
+]] % {code, secrets.email, email, username, ip}
 
         local emailSent, msg =
             common.unsafe.sendEmail(email, "Account Code", emailBody)
@@ -794,17 +891,16 @@ Signup details
 
         if emailSent then
             -- increment email sends
-            db:execute([[INSERT OR REPLACE INTO dailyEmailSends (email, sends) VALUES (?,?);]],
-                email, math.floor((dailyEmailSends)+1))
-
-            db:execute([[INSERT OR REPLACE INTO monthlyEmailSends (email, sends) VALUES (?,?);]],
-                email, math.floor((monthlyEmailSends)+1))
+            common.signup.incrementEmailSends(db, email)
 
             db:execute([[INSERT OR REPLACE INTO dailyIpSignups (ip, signups) VALUES (?,?);]],
                 ip, math.floor((ipSignups)+1))
 
+            common.sendNtfy("davidpineiro.xyz Signup Email Sent","email'%s'\nusername'%s'\nip'%s'." % {email,username,ip})
+
             return true, "Sent email code."
         else
+            common.sendNtfy("davidpineiro.xyz Signup Email Failed","error'%s'\nemail'%s'\nusername'%s'\nip'%s'." % {msg,email,username,ip})
             return false, "Email might not have been sent. Error message: '%s'" % {msg}
         end
 
@@ -1092,6 +1188,58 @@ function common.serveReverseProxy(BACKEND, requestBody)
         Log(kLogError, "proxy failed %s, url %s" % {err, url})
         ServeError(503)
     end
+end
+
+function common.globalMinutelyTick(db)
+    print('global minutely tick...')
+
+    -- time-related things
+    local mday = tostring(common.mday())
+    local globalMday = common.getGlobal(db, "mday")
+
+    if mday ~= globalMday then
+        common.setGlobal(db, "mday", mday)
+        
+        --signup daily
+        common.signup.resetDailySends(db)
+        db:execute([[DELETE FROM signups;]])
+        db:execute([[DELETE FROM dailyIpSignups;]])
+
+        --forgotpassword daily
+        common.forgotPassword.resetDailySends(db)
+        common.forgotPassword.deleteAllExpired(db)
+
+        common.setGlobal(db, "dailyGlobalSignups", 0)
+
+    end
+
+    local mon = tostring(common.month())
+    local globalMon = common.getGlobal(db, "mon")
+
+    if mon ~= globalMon then
+        common.setGlobal(db, "mon", mon)
+
+        --signup monthly
+        common.signup.clearAllEmailSends(db)
+
+        --forgotpassword monthly
+        common.forgotPassword.clearAllEmailSends(db)
+    end
+
+    -- chat things
+    common.chat.deleteSuperDeadSessions(db)
+    
+    -- local chatSessionsCount = (db:fetchOne([[select count(distinct concat(clientip, user)) as caca from chatSessions;]]) or {})["caca"] or 0
+    local chatSessionsCount = db:fetchOne([[select count(*) as count from (select distinct clientip,user from chatSessions);]]).count or 0
+
+    -- select distinct clientip||user as count from chatSessions;
+    -- select count(*) as count from (select distinct clientip,user from chatSessions);
+
+    -- for k,v in pairs(chatSessionsCount) do
+    --     print(k,v)
+    -- end
+
+    common.setGlobal(db, "chatSessions", chatSessionsCount)
 end
 
 return common

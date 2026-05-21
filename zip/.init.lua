@@ -103,6 +103,12 @@ fm.setRoute({"/login", method = {"POST"}},
 	end
 )
 
+-- forgotPassword
+fm.setRoute({"/forgotPassword", method = {"GET"}},
+	function (r)
+		return fm.serveContent("routes/forgotPassword", {stage1 = true})
+	end)
+
 -- logout
 fm.setRoute({"/logout", method = {"POST"}},
 	function (r)
@@ -197,6 +203,8 @@ fm.setRoute({"/chat/heartbeat", method = {"POST"}},
 
 			common.chat.beatHeart(db, chatSession)
 
+			common.globalMinutelyTick(db)
+
 			return fm.serveResponse(200, Nil, "")
 		else
 			return fm.serveResponse(400, Nil, "It broke. Please refresh the page :P")
@@ -204,6 +212,8 @@ fm.setRoute({"/chat/heartbeat", method = {"POST"}},
 	end)
 
 -- TODO: add a profile page for users where they can set their bio i suppose.
+
+-- TODO migrate the database instead of replacing it in prod
 
 -- sse
 fm.setRoute("/sse",
@@ -214,7 +224,7 @@ fm.setRoute("/sse",
 		-- /chat/selfRedact
 		-- common.chat.trySelfRedact(db, username, messageChatId)
 
-		local chatSession = common.chat.createSession(db)
+		local chatSession = common.chat.createSession(db, FormatIp(GetRemoteAddr()), r.session.user)
 		r.session.chatSession = chatSession
 
 		local msgsPerThing = 20 -- messages sent per sse event thing
@@ -652,11 +662,6 @@ fm.setRoute({"/admin/:action", method = {"GET"}},
 
 echo = assert(unix.commandv('echo'))
 
--- start copyparty
-local copyPartyPort = "8082"
-common.forkCopyParty(copyPartyPort)
--- common.sendNtfy("copyparty", "started!")
-
 -- /copyparty -> /copyparty/*
 fm.setRoute("/copyparty", "/copyparty/")
 -- /copyparty/* |rvrs-proxy> http://internalcopyparty/
@@ -768,18 +773,20 @@ end)
 fm.setSchedule("* * * * *", function()
 	local db <close> = common.getSqlConnection()
 
-	common.chat.deleteSuperDeadSessions(db)
-
-	common.updateGlobals(db)
+	common.globalMinutelyTick(db)
 end)
 
 do
 	local db <close> = common.getSqlConnection()
-	common.chat.deleteSuperDeadSessions(db)
-	common.updateGlobals(db)
+	common.globalMinutelyTick(db)
 end
 
 common.sendNtfy("davidpineiro.xyz","Ready!")
 -- print("id=1 message ",db:fetchOne([[select message from chats where id=1;]]).message)
+
+-- start copyparty
+local copyPartyPort = "8082"
+common.forkCopyParty(copyPartyPort)
+-- common.sendNtfy("copyparty", "started!")
 
 fm.run()
