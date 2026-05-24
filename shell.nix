@@ -6,5 +6,8 @@ pkgs.mkShell {
     getmail6
     dig
     sqlite
+
+    nodejs
+    corepack
   ];
 }

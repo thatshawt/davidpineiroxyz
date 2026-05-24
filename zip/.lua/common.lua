@@ -443,7 +443,7 @@ if secrets == Nil then secrets = {
         email="test@test.test",
         linkedin="https://linkedin.com/david",
         resume="/caca/resume.caca",
-        turnstile_key="1x0000000000000000000000000000000AA",
+        turnstile_key="1x00000000000000000000AA",
         users = {
             test = "123123123",
             david = "123123123"

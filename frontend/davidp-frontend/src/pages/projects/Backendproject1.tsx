@@ -1,0 +1,40 @@
+import Link from "../../components/Link";
+import { Page } from "../../components/Page";
+
+export default function ExcursionCheckoutBackendPage(){
+	return (
+<Page title="Excursion Checkout Website Backend">
+	<h1>Excursion Checkout Website Backend</h1>
+
+	<p>tags: <i>Java, Spring Boot, Linux, NixOS, Systemd, Nginx, REST, MariaDB, UML Diagrams</i></p>
+
+	<h2>Project Links</h2>
+	<ul>
+		<li><Link href="https://backendproject1.davidpineiro.xyz">Live Demo</Link></li>
+	</ul>
+
+	<h2>Summary</h2>
+	<p>The full application (frontend+backend+database) is a <i>vacation excursion checkout website</i>. A user can choose which place to go and then add excursions. When they are done they can checkout and add everything to their cart.</p>
+	<p>Developed a Spring Boot REST API to support an existing Angular frontend, designing endpoints and DTOs by analyzing the frontend codebase.</p>
+	<p>Deployed the application using Nginx as a reverse proxy with SSL, and managed the database, frontend, and backend as systemd services on NixOS.</p>
+
+	<h2>Backend Details</h2>
+	<p>The frontend was not changed at all and only the backend was developed to support the frontend. The backend is a single Java program using the Spring Boot framework.</p>
+	<p>There are a few entity classes along with repository classes whose details were gathered from UML diagrams, ER diagrams, and the frontend codebase. The entity classes had approximately a dozen of parameters each. There were a few entity relationships such as one-to-many, many-to-one, one-to-one. Some entites, for example, were User, Cart, and Order.</p>
+	<p>There are a few DTO classes to pass data in JSON for the frontend that have various parameters. There is a purchase DTO with a customer cart and a set of cart items. There is a purchase response DTO that contains an order tracking number.</p>
+	<p>The checkout logic is built into a single service class and is exposed via a REST controller. Design of the checkout service and REST controller was done by reading the UML diagrams and the frontend code. The REST controller exposes an API for the frontend to place orders, select excursions, and delete excursions.</p>
+	<p>There are a couple validation functions to validate the data objects that travel between the frontend and backend.</p>
+
+	<h2>Deployment Details</h2>
+	<p>The deployment was handled solely by me and was an extracurricular activity. The frontend and backend are deployed on the cloud on the same virtual private server (VPS). The frontend, backend, and database are configured as systemd services running on the server.</p>
+	<p>The backend is configured as a single systemd service that runs an executable jar file using java. I tried to reduce the memory usage by changing the parameters of the application such as web server threads and java garbage collection arguments which did save a couple hundred megabytes of RAM. Below are the arguments I used:
+<code>-Dserver.tomcat.max-threads=1
+-XX:MaxRAM=1000m
+-Xss512k
+-XX:+UseSerialGC</code>
+
+		The frontend is static html, javscript, css, and images compiled using the frontend framework Angular JS. None of the logic of the frontend was modified and only a few links had to be changed to point to the correct domain name. The files are served using Nginx at the "backendproject1" subdomain.</p>
+	<p>The database is MariaDB and is managed by me on the same VPS cloud server. The database is managed with various systemd services for resetting the database once a day, populating the database with dummy data, and starting the database. I did try to reduce memory usage for the database as well but I am not sure yet if it is worth it. Anyhow I used the following command line arguments when I call <code className="inline">mysqld</code>:
+		<code>--performance_schema=0</code></p>
+</Page>)}
+

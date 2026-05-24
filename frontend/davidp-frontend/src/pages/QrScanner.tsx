@@ -1,0 +1,274 @@
+import { useContext, useEffect } from "react";
+import { SessionContext, type Session } from "../components/SessionContext";
+import { Page } from "../components/Page";
+
+import "./QrScanner.css";
+
+import QrScanner from "../../public/static/qr_scan/qr-scanner.min.js";
+import Link from "../components/Link.js";
+import { HTMLComment } from "../App.js";
+
+export default function QrScannerPage(){
+
+    function onload(){
+        const video = document.getElementById('qr-video');
+        const videoContainer = document.getElementById('video-container');
+        const camHasCamera = document.getElementById('cam-has-camera');
+        const camList = document.getElementById('cam-list');
+        const camHasFlash = document.getElementById('cam-has-flash');
+        const flashToggle = document.getElementById('flash-toggle');
+        const flashState = document.getElementById('flash-state');
+        const camQrResult = document.getElementById('cam-qr-result');
+        const camQrResultTimestamp = document.getElementById('cam-qr-result-timestamp');
+        const fileSelector = document.getElementById('file-selector');
+        const fileQrResult = document.getElementById('file-qr-result');
+
+        function setResult(label, result) {
+            console.log(result.data);
+            label.textContent = result.data;
+            camQrResultTimestamp.textContent = new Date().toString();
+            label.style.color = 'teal';
+            clearTimeout(label.highlightTimeout);
+            label.highlightTimeout = setTimeout(() => label.style.color = 'inherit', 100);
+        }
+
+        // ####### Web Cam Scanning #######
+
+        const scanner = new QrScanner(video, result => setResult(camQrResult, result), {
+            onDecodeError: error => {
+                camQrResult.textContent = error;
+                camQrResult.style.color = 'inherit';
+            },
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+        });
+
+        const updateFlashAvailability = () => {
+            scanner.hasFlash().then(hasFlash => {
+                camHasFlash.textContent = hasFlash;
+                flashToggle.style.display = hasFlash ? 'inline-block' : 'none';
+            });
+        };
+
+        scanner.start().then(() => {
+            updateFlashAvailability();
+            // List cameras after the scanner started to avoid listCamera's stream and the scanner's stream being requested
+            // at the same time which can result in listCamera's unconstrained stream also being offered to the scanner.
+            // Note that we can also start the scanner after listCameras, we just have it this way around in the demo to
+            // start the scanner earlier.
+            QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
+                const option = document.createElement('option');
+                option.value = camera.id;
+                option.text = camera.label;
+                camList.add(option);
+            }));
+        });
+
+        QrScanner.hasCamera().then(hasCamera => camHasCamera.textContent = hasCamera);
+
+        // for debugging
+        window.scanner = scanner;
+
+        document.getElementById('scan-region-highlight-style-select').addEventListener('change', (e) => {
+            videoContainer.className = e.target.value;
+            scanner._updateOverlay(); // reposition the highlight because style 2 sets position: relative
+        });
+
+        document.getElementById('show-scan-region').addEventListener('change', (e) => {
+            const input = e.target;
+            const label = input.parentNode;
+            label.parentNode.insertBefore(scanner.$canvas, label.nextSibling);
+            scanner.$canvas.style.display = input.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('inversion-mode-select').addEventListener('change', event => {
+            scanner.setInversionMode(event.target.value);
+        });
+
+        camList.addEventListener('change', event => {
+            scanner.setCamera(event.target.value).then(updateFlashAvailability);
+        });
+
+        flashToggle.addEventListener('click', () => {
+            scanner.toggleFlash().then(() => flashState.textContent = scanner.isFlashOn() ? 'on' : 'off');
+        });
+
+        document.getElementById('start-button').addEventListener('click', () => {
+            scanner.start();
+        });
+
+        document.getElementById('stop-button').addEventListener('click', () => {
+            scanner.stop();
+        });
+
+        // ####### File Scanning #######
+
+        fileSelector.addEventListener('change', event => {
+            const file = fileSelector.files[0];
+            if (!file) {
+                return;
+            }
+            QrScanner.scanImage(file, { returnDetailedScanResult: true })
+                .then(result => setResult(fileQrResult, result))
+                .catch(e => setResult(fileQrResult, { data: e || 'No QR code found.' }));
+        });
+
+    }
+
+    function openTab(evt, tabname) {
+        // Declare all variables
+        var i, tabcontent, tablinks;
+
+        // Get all elements with className="tabcontent" and hide them
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+
+        // Get all elements with className="tablinks" and remove the class "active"
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(tabname).style.display = "block";
+        if(evt != null)evt.currentTarget.className += " active";
+    }
+    // openTab(event, 'webcam_tab');
+
+    useEffect(()=>{
+        onload();
+        openTab(event, 'webcam_tab');
+    },[]);
+
+    return (
+    <Page title="QR Code Scanner">
+        <HTMLComment text={`<!-- MIT License
+
+        Copyright (c) 2017 Nimiq, danimoh
+
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.`}/>
+
+        <h1>QR Code Scanner</h1>
+        {/* <!-- Tab content --> */}
+        <div id="webcam_tab" className="tabcontent">
+            {/* <!-- Tab links --> */}
+            <div className="tab">
+                <button className="tablinks" disabled>Scan From Webcam</button><button className="tablinks"
+                onClick={(event)=>openTab(event, 'file_tab')}>Scan From A File</button>
+            </div>
+            <div className="">
+                <div>
+                    <b>Preferred camera:</b>
+                    <select id="cam-list">
+                        <option value="environment" selected>Environment Facing (default)</option>
+                        <option value="user">User Facing</option>
+                    </select>
+                </div>
+                <button id="start-button">Start</button>
+                <button id="stop-button">Stop</button>
+                <b>Detected QR code: </b>
+                <code id="cam-qr-result"></code>
+                <div id="video-container">
+                    <video id="qr-video"></video>
+                </div>
+            </div>
+            <h2>Settings</h2>
+            <div>
+                <label>
+                    Highlight Style
+                    <select id="scan-region-highlight-style-select">
+                        <option value="default-style">Default style</option>
+                        <option value="example-style-1">Example custom style 1</option>
+                        <option value="example-style-2">Example custom style 2</option>
+                    </select>
+                </label>
+                <br/>
+                <label>
+                    <input id="show-scan-region" type="checkbox"/>
+                    Show scan region canvas
+                </label>
+            </div>
+            <div>
+                <label>
+                    Scan mode
+                    <select id="inversion-mode-select">
+                        <option value="original">Scan original (dark QR code on bright background)</option>
+                        <option value="invert">Scan with inverted colors (bright QR code on dark background)</option>
+                        <option value="both">Scan both</option>
+                    </select>
+                </label>
+                <br/>
+            </div>
+            <h2>Info</h2>
+            <b>Last detected at: </b>
+            <span id="cam-qr-result-timestamp"></span>
+            <br/>
+            <b>Camera has flash: </b>
+            <span id="cam-has-flash"></span>
+            <div>
+                <button id="flash-toggle">📸 Flash: <span id="flash-state">off</span></button>
+            </div>
+            <b>Device has camera: </b>
+            <span id="cam-has-camera"></span>
+        </div>
+
+        <div id="file_tab" className="tabcontent">
+            {/* <!-- Tab links --> */}
+            <div className="tab">
+                <button className="tablinks" onClick={(event)=>openTab(event, 'webcam_tab')}>Scan From Webcam</button><button className="tablinks" disabled>Scan From A File</button>
+            </div>
+            <div className="">
+                {/* <!-- <h1>Scan QR Code from File:</h1> --> */}
+                <input type="file" id="file-selector"/>
+                <br/>
+                <b>Detected QR code: </b>
+                <code id="file-qr-result">None</code>
+            </div>
+        </div>
+
+        <br/>
+        <hr/>
+        <br/>
+
+        <p>Scan QR codes. Yoinked and modified slightly from <Link href="https://nimiq.github.io/qr-scanner/demo/">https://nimiq.github.io/qr-scanner/demo/</Link>.</p>
+
+        <code>{`MIT License
+Copyright (c) 2017 Nimiq, danimoh
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`}</code>
+    </Page>);
+}

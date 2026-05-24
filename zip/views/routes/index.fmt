@@ -1,8 +1,4 @@
 {% function block.content() %}
-	<!-- <script
-		src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
-		defer
-	></script> -->
 	<h1>DavidPineiro.xyz</h1>
 
 	<p>This is David Pineiro's website and portfolio.</p>
@@ -25,7 +21,6 @@
 		<button type="submit" id="emailButton" disabled="true"><span>Show Socials</span></button>
 		<div id="turnstileDiv"></div>
 	</form>
-
 
 	<!-- turnstile javscript -->
 	<script>
@@ -92,14 +87,14 @@
 			<td>HTML Code</td>
 		</tr>
 		<tr>
-			<td><div>Animated (15.0 KiB):</div>
-			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.gif") %}</td>
-			<td><code class="badge-code">{%& [[<a target="_blank" rel="noopener noreferrer" href="https://davidpineiro.xyz/"><img src="https://davidpineiro.xyz/static/david-badge-88x31.gif" alt="davidp web badge"></a>]] %}</code></td>
-		</tr>
-		<tr>
 			<td><div>Static (3.2 KiB):</div>
 			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.png") %}</td>
 			<td><code class="badge-code">{%& [[<a target="_blank" rel="noopener noreferrer" href="https://davidpineiro.xyz/"><img src="https://davidpineiro.xyz/static/david-badge-88x31.png" alt="davidp web badge"></a>]] %}</code></td>
+		</tr>
+		<tr>
+			<td><div>Animated (15.0 KiB):</div>
+			{% block.makeBadge("https://davidpineiro.xyz/", "/static/david-badge-88x31.gif") %}</td>
+			<td><code class="badge-code">{%& [[<a target="_blank" rel="noopener noreferrer" href="https://davidpineiro.xyz/"><img src="https://davidpineiro.xyz/static/david-badge-88x31.gif" alt="davidp web badge"></a>]] %}</code></td>
 		</tr>
 		<tr>
 			<td><div>Square (139.9 KiB):</div>
@@ -152,8 +147,6 @@
 		{% block.makeBadge("https://zptr.cc/", "https://zptr.cc/88x31/webring/zeroptr.png") %}
 		{% block.makeBadge("https://hl2.sh/", "https://hl2.sh/badges/cecilia.png") %}
 		{% block.makeBadge("https://fyz.sh/", "https://api.fyz.sh/button/88x31?v=20281bd") %}
-
-		
 	</div>
 
 

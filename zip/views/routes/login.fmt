@@ -1,6 +1,8 @@
 {% function block.content() %}
 	<h1>Login</h1>
 
+    <p>{%= raw.link("/signup", "Click to create an account.") %}</p>
+
     {% if message and type(message) == 'string' then %}
         <p>{%& message %}</p>
     {% elseif message and type(message) == 'table' then %}
@@ -23,6 +25,8 @@
         <button id="loginBtn" type="submit">Log in</button>
         <div id="turnstileDiv"></div>
     </form>
+
+    <p>{%= raw.link("/forgotPassword", "Click if you forgot your password.") %}</p>
 
     <script>
         function turnstileEnable(){

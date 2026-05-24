@@ -1,0 +1,24 @@
+import Link from "../../components/Link";
+import { Page } from "../../components/Page";
+
+export default function StudentPassFailPage(){
+	return (
+<Page title="Student Pass/Fail Classifier">
+	<h1>Student Pass/Fail Classifier</h1>
+
+	<p>tags: <i>Python, Sklearn, XGBoost, Machine Learning, Dataset Cleaning, Exploratory Data Analysis, Regularlization, Hyperparameter Optimization, Linux, Nginx, NixOS</i></p>
+
+	<h2>Project Links</h2>
+	<ul>
+		<li><Link href="https://studentpassfail.davidpineiro.xyz">Live Demo</Link></li>
+		<li><Link href="/static/student_performance_interactions.csv" forceOut={true}>dataset.csv</Link></li>
+	</ul>
+
+	<h2>Summary</h2>
+	<p>This project focuses on building a machine learning model to predict whether a student will pass or fail a class using a dataset sourced from Kaggle. An XGBoost classifier was trained and evaluated, achieving an AUC-ROC score of 0.84 and an F1 score of 0.98.</p>
+	<p>The dataset was preprocessed using Scikit-learn pipelines, including encoding categorical variables and scaling numerical features based on the training data. To ensure robust evaluation and minimize bias, the data was split into training, validation, and test sets using Stratified K-Fold cross-validation.</p>
+	<p>Model performance was further improved through the application of L1 and L2 regularization, along with Bayesian optimization for hyperparameter tuning.</p>
+	<p>In addition to model development, exploratory data analysis (EDA) was conducted through a custom Python script to better understand feature distributions and relationships within the dataset.<img src="/static/studentpassfail_eda.png"/></p>
+	<p>As an extension to the core assignment, a live demo was developed as a standalone Python application. This script serves both a backend and frontend interface for interacting with the trained model. It is deployed on a cloud-based NixOS system, managed as a systemd service, and exposed an Nginx reverse proxy.</p>
+</Page>)}
+

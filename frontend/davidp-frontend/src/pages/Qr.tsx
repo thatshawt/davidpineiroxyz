@@ -1,0 +1,144 @@
+// import '../qr/qrcodegen'
+// import '../qr/qrcodegen-input-demo'
+
+import Link from "../components/Link"
+
+import { useEffect } from "react";
+import { Page } from "../components/Page";
+import { useScript } from "../App";
+
+declare global{
+	interface Window{
+		app:any;
+	}
+}
+
+export default function QrPage(){
+	useScript("/static/qr/qrcodegen.js");
+	useScript("/static/qr/qrcode_demo.js");
+
+	return (
+	<Page title="QR Generator">
+		<form onSubmit={(event)=>event.preventDefault()}>
+			<div id="loading" hidden={true}></div>
+			<div id="loaded"></div>
+			<h1>QR Code Generator</h1>
+			<div className="">
+				<table className="layout" style={{}}>
+					<tbody>
+						<tr>
+							<td><label htmlFor="text-input"><strong>Text string:</strong></label></td>
+							<td style={{}}><textarea placeholder="Enter your text to be put into the QR Code" id="text-input" style={{width:"100%", maxWidth:"100%", height:"5em"}}></textarea></td>
+						</tr>
+						<tr>
+							<td><strong>QR Code:</strong><br/><a id="download" download="qr-code.png" href="">(download)</a></td>
+							<td>
+								<canvas id="qrcode-canvas" width={168} height={168} style={{maxWidth: "100%"}}></canvas>
+								<svg xmlns="http://www.w3.org/2000/svg" id="qrcode-svg" style={{width:'100%', height:'100%', display:'none'}} stroke="none">
+									<rect width="100%" height="100%" fill="#FFFFFF"></rect>
+									<path d="" fill="#000000"></path>
+								</svg>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<h2>Settings</h2>
+			<table className="layout" style={{width:"fit-content"}}>
+				<tbody>
+					<tr>
+						<td><strong>Error correction:</strong></td>
+						<td>
+							<label><input type="radio" name="errcorlvl" id="errcorlvl-low"/>Low</label>
+							<label><input type="radio" name="errcorlvl" id="errcorlvl-medium"/>Medium</label>
+							<label><input type="radio" name="errcorlvl" id="errcorlvl-quartile"/>Quartile</label>
+							<label><input type="radio" name="errcorlvl" id="errcorlvl-high"/>High</label>
+						</td>
+					</tr>
+					<tr>
+						<td>Output format:</td>
+						<td>
+							<label><input type="radio" name="output-format" id="output-format-bitmap"/>Bitmap</label>
+							<label><input type="radio" name="output-format" id="output-format-vector"/>Vector</label>
+						</td>
+					</tr>
+					<tr>
+						<td><label htmlFor="border-input">Border:</label></td>
+						<td><input type="number" min="0" max="100" step="1" defaultValue="4" id="border-input" style={{width:"4em"}}/> modules</td>
+					</tr>
+					<tr id="scale-row">
+						<td><label htmlFor="scale-input">Scale:</label></td>
+						<td><input type="number" min="1" max="30" step="1" defaultValue="8" id="scale-input" style={{width:"4em"}}/> pixels per module</td>
+					</tr>
+					<tr>
+						<td>Colors:</td>
+						<td>
+							Light = <input type="text" defaultValue="#FFFFFF" id="light-color-input" style={{width:"6em"}}/>,
+							dark = <input type="text" defaultValue="#000000" id="dark-color-input" style={{width:"6em"}}/>
+						</td>
+					</tr>
+					<tr>
+						<td>Version range:</td>
+						<td>
+							Minimum = <input type="number" min="1" max="40" step="1" defaultValue="1" id="version-min-input" style={{width:"4em"}} onInput={()=>window.app.handleVersionMinMax('min')}/>,
+							maximum = <input type="number" min="1" max="40" step="1" defaultValue="40" id="version-max-input" style={{width:"4em"}} onInput={()=>window.app.handleVersionMinMax('max')}/>
+						</td>
+					</tr>
+					<tr>
+						<td><label htmlFor="mask-input">Mask pattern:</label></td>
+						<td><input type="number" min="-1" max="7" step="1" defaultValue="-1" id="mask-input" style={{width:"4em"}}/> (-1 for automatic, 0 to 7 for manual)</td>
+					</tr>
+					<tr>
+						<td>Boost ECC:</td>
+						<td><label><input type="checkbox" id="boost-ecc-input"/>Increase <abbr title="error correction code">ECC</abbr> level within same version</label></td>
+					</tr>
+					
+				</tbody>
+			</table>
+
+			<h2>Info</h2>
+			<table>
+				<tbody>
+					<tr>
+						<td>Statistics:</td>
+						<td id="statistics-output">QR Code version = 1, mask pattern = 6, character count = 0, encoding mode = none, error correction = level H, data bits = 0.</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+
+		
+
+		<br/>
+		<hr/>
+		<br/>
+		
+		<p>I copied this from <Link href="https://www.nayuki.io/page/qr-code-generator-library">https://www.nayuki.io/page/qr-code-generator-library</Link>. I put it here so I can preserve it and style it.</p>
+
+		<code>QR Code generator input demo (compiled from TypeScript)
+
+		Copyright (c) Project Nayuki. (MIT License)
+		https://www.nayuki.io/page/qr-code-generator-library
+
+		Permission is hereby granted, free of charge, to any person obtaining a copy of
+		this software and associated documentation files (the "Software"), to deal in
+		the Software without restriction, including without limitation the rights to
+		use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+		the Software, and to permit persons to whom the Software is furnished to do so,
+		subject to the following conditions:
+		- The above copyright notice and this permission notice shall be included in
+		all copies or substantial portions of the Software.
+		- The Software is provided "as is", without warranty of any kind, express or
+		implied, including but not limited to the warranties of merchantability,
+		fitness for a particular purpose and noninfringement. In no event shall the
+		authors or copyright holders be liable for any claim, damages or other
+		liability, whether in an action of contract, tort or otherwise, arising from,
+		out of or in connection with the Software or the use or other dealings in the
+		Software.
+		</code>
+
+		<div className="inner-box lean">
+			<Link href="/cali_leaning">california leaning</Link>
+		</div>
+	</Page>);
+}
