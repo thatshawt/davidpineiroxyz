@@ -3,7 +3,6 @@
 
 import Link from "../components/Link"
 
-import { useEffect } from "react";
 import { Page } from "../components/Page";
 import { useScript } from "../App";
 
@@ -14,8 +13,8 @@ declare global{
 }
 
 export default function QrPage(){
-	useScript("/static/qr/qrcodegen.js");
-	useScript("/static/qr/qrcode_demo.js");
+	useScript("/static/qr/qrcodegen.js", "");
+	useScript("/static/qr/qrcode_demo.js", "");
 
 	return (
 	<Page title="QR Generator">

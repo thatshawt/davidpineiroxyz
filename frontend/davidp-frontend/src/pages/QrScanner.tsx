@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useContext, useEffect } from "react";
 import { SessionContext, type Session } from "../components/SessionContext";
 import { Page } from "../components/Page";
@@ -7,6 +8,12 @@ import "./QrScanner.css";
 import QrScanner from "../../public/static/qr_scan/qr-scanner.min.js";
 import Link from "../components/Link.js";
 import { HTMLComment } from "../App.js";
+
+declare global{
+    interface Window{
+        scanner:any;
+    }
+}
 
 export default function QrScannerPage(){
 
@@ -36,6 +43,7 @@ export default function QrScannerPage(){
 
         const scanner = new QrScanner(video, result => setResult(camQrResult, result), {
             onDecodeError: error => {
+                if(error.includes("No QR code found"))return;
                 camQrResult.textContent = error;
                 camQrResult.style.color = 'inherit';
             },
@@ -109,7 +117,10 @@ export default function QrScannerPage(){
                 return;
             }
             QrScanner.scanImage(file, { returnDetailedScanResult: true })
-                .then(result => setResult(fileQrResult, result))
+                .then(result => {
+                    // console.log(result);
+                    setResult(fileQrResult, result)
+                })
                 .catch(e => setResult(fileQrResult, { data: e || 'No QR code found.' }));
         });
 
@@ -140,6 +151,10 @@ export default function QrScannerPage(){
     useEffect(()=>{
         onload();
         openTab(event, 'webcam_tab');
+
+        return ()=>{
+            if(window.scanner)window.scanner.destroy();
+        };
     },[]);
 
     return (
@@ -184,6 +199,7 @@ export default function QrScannerPage(){
                 </div>
                 <button id="start-button">Start</button>
                 <button id="stop-button">Stop</button>
+                <br/>
                 <b>Detected QR code: </b>
                 <code id="cam-qr-result"></code>
                 <div id="video-container">

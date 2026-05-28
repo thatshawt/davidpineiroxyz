@@ -1,14 +1,18 @@
+// @ts-nocheck
 import { useContext, useEffect } from "react";
 import {Page} from "../components/Page";
 import {type RoutablePage, type RoutablePageProps} from "../components/PageRouter";
 import { SessionContext, type Session } from "../components/SessionContext";
+import { BACKEND } from "../App";
 
 export default function AdminPage() {
 
-    const session:Session = useContext(SessionContext);
+    const session:Session = (useContext(SessionContext) as any) as Session;
+    if(session == undefined)return <>not yet brooo</>;
+    // const message = session != undefined && session.message ? <span>{session.message}</span> : <></>;
 
     useEffect(()=>{
-        fetch("/admin/userCount")
+        fetch(BACKEND+"/admin/userCount")
         .then((r) => r.text())
         .then((text) => {
             document.getElementById("usercount").textContent = `User Count: ${text}`;
@@ -26,6 +30,12 @@ export default function AdminPage() {
             <div className="inner-box">
                 <form action="/admin/listAllGlobals" method="get">
                     <button type="submit">list all globals</button>
+                </form>
+            </div>
+
+            <div className="inner-box">
+                <form action={BACKEND+"/admin/resetAllCooldowns"} method="post">
+                    <button type="submit">reset all cooldowns</button>
                 </form>
             </div>
         </div>

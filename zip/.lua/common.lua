@@ -168,6 +168,28 @@ function common.userVerify(db, username, cleartextPass)
     return common.verifyClearWithHashed(hashed, cleartextPass)
 end
 
+common.user = {}
+
+function common.user.getAccountFromEmail(db, email)
+    return db:fetchOne([[SELECT * FROM users WHERE email=?;]], email)
+end
+
+function common.user.tryChangePassword(db, email, username, newPasswordClear)
+    local account = common.user.getAccountFromEmail(db, email)
+
+    if account == Nil or account.email == Nil then
+        return false, "Given account does not exist!"
+    end
+
+    if account.username:lower() == username:lower() then
+        common.userReplaceSave(db, username, newPasswordClear, email)
+
+        return true, "Success. Changed password!"
+    else
+        return false, "Account with that email does not match the given username!"
+    end
+end
+
 function common.starts_with(str, start)
    return str:sub(1, #start) == start
 end
@@ -376,6 +398,8 @@ function common.chat.requestsPast(db, sessionid)
     return (db:fetchOne([[SELECT sessionid FROM chatRequests WHERE sessionid=?;]], sessionid) or {}).sessionid ~= Nil
 end
 
+-- common.session = {}
+
 local python3 = assert(unix.commandv('python3'))
 -- capsh = assert(unix.commandv('capsh'))
 
@@ -443,7 +467,7 @@ if secrets == Nil then secrets = {
         email="test@test.test",
         linkedin="https://linkedin.com/david",
         resume="/caca/resume.caca",
-        turnstile_key="1x00000000000000000000AA",
+        turnstile_key="1x0000000000000000000000000000000AA",
         users = {
             test = "123123123",
             david = "123123123"
@@ -477,6 +501,16 @@ function common.sendNtfy(title, body)
 end
 
 common.validate = {}
+
+function common.validate.stringifyError(error)
+    if type(error) == 'table' then
+        newError = ""
+        for k,v in pairs(error) do
+            newError = newError .. tostring(v).."\n"
+        end
+    end
+    return error
+end
 
 function common.validate.passwordValidator(password)
     local valid, error = fm.makeValidator({
@@ -549,6 +583,7 @@ function common.validate.emailUsernameValidate(email, username)
 end
 
 function common.validate.usernamePasswordValidator(params)
+    if params.username==Nil or params.password==Nil then return false, "missing username or password!" end
     local valid, error = fm.makeValidator({
         {"username", minlen = 1, maxlen = 64, msg = "Username must be between 1 and 64 length."},
         {"username", test = function(user) return user:match("^%w+$") end, msg = "Username must only contain numbers and/or letters."},
@@ -627,6 +662,8 @@ function common.unsafe.mxLookup(domain)
     end
 end
 
+local EMAIL_DEBUG_PRINT_ONLY = false
+
 -- NOTE: we need 'getmail6', 'msmtp', 'dig' from nixpkgs in path
 local msmtp = assert(unix.commandv('msmtp'))
 local printf = assert(unix.commandv('printf'))
@@ -636,12 +673,19 @@ function common.unsafe.sendEmail(recipient, subject, body)
     local valid, msg = common.validate.emailValidate(recipient)
 
     if valid then
+        local emailText = "Subject: %s\\n\\n%s" % {subject, body:gsub("\\","\\\\"):gsub("\n", "\\n")}
+
+        if EMAIL_DEBUG_PRINT_ONLY then
+            print(recipient,subject,emailText)
+
+            return true,"DEBUG PRINTED EMAIL"
+        end
+
         -- check domain to see if it has an mx record
         local domain = string.match(recipient, "@(%w+%.%w+)")
         valid, msg = common.unsafe.mxLookup(domain)
 
         if valid then
-            local emailText = "Subject: %s\\n\\n%s" % {subject, body:gsub("\\","\\\\"):gsub("\n", "\\n")}
             local bashCommand = "cd mailer; %s '%s' | %s -C ./.msmtprc %s" % {printf, emailText, msmtp, recipient}
         
             print("ran bash command '%s'" % {bashCommand})
@@ -671,7 +715,7 @@ common.forgotPassword.dailyEmailQuota = 5
 common.forgotPassword.monthlyEmailQuota = 10
 
 -- forgotPasswordCodes
-common.forgotPassword.codeLifetimeSeconds = 60*10 -- 10 minutes
+common.forgotPassword.codeLifetimeMinutes = 10 -- 10 minutes
 
 function common.forgotPassword.getEmailSends(db, email)
     print("get email forgotPassword sends")
@@ -726,11 +770,32 @@ PRIMARY KEY (email, code)
 --TODO try these out
 function common.forgotPassword.set(db, email, code)
     db:execute([[INSERT INTO forgotPasswordCodes (email, code, timestamp) VALUES (?,?,?) %s;]]
-        % {common.onConflictUpsert("email, code"), {'timestamp'}}, email, code, GetTime())
+        % {common.onConflictUpsert("email, code", {'timestamp'})}, email, code, GetTime())
 end
 
 function common.forgotPassword.exists(db, email, code)
     return db:fetchOne([[SELECT email FROM forgotPasswordCodes WHERE email=? AND code=?;]], email, code).email ~= Nil
+end
+
+function common.forgotPassword.validateUsernameEmailCode(db, username, email, code)
+    local valid, error = common.validate.emailUsernameValidate(email, username)
+
+    if valid == false then
+        return false, error
+    end
+
+    common.forgotPassword.deleteAllExpired(db)
+
+    local emailCodeValid = common.forgotPassword.exists(db, email, code)
+
+    local account = common.user.getAccountFromEmail(db, email)
+
+    if account.username:lower() == username:lower() and emailCodeValid then
+        return true, "Username, Email, and Code are valid!"
+    else
+        return false, "Invalid Username, Email, or Code!"
+    end
+
 end
 
 function common.forgotPassword.delete(db, email, code)
@@ -739,18 +804,48 @@ end
 
 function common.forgotPassword.deleteAllExpired(db)
     db:execute([[DELETE FROM forgotPasswordCodes WHERE ?-timestamp > ?;]],
-        GetTime(),common.forgotPassword.codeLifetimeSeconds)
+        GetTime(),common.forgotPassword.codeLifetimeMinutes*60)
 end
 
-function common.forgotPassword.sendNewCode(db, email)
-    local code = tostring(math.abs(Rand64()) % 999999)
+function common.forgotPassword.sendNewCode(db, frontendHost, email)
+    local code = tostring(math.abs(Rand64()) % 9999999999)
 
     local valid, msg = common.forgotPassword.checkEmailSendsQuota(db, email)
 
     if valid == false then
         return false, msg
     else
+        -- verify if email is associated with an account
+        local account = common.user.getAccountFromEmail(db, email)
+        if account ~= Nil and account.username then
+            local resetPasswordLink = frontendHost.."/forgotPasswordRedirect?user="..account.username.."&email="..email.."&code="..code
 
+            local emailBody = [[Hi,
+This is an automated message.
+
+Follow this url to reset your password on DavidPineiro.xyz:
+ %s 
+
+This link is valid for %s minutes.
+
+If you didn't request to reset your password you can ignore this message.
+
+Cheers,
+DavidPineiro.xyz
+            ]] % {resetPasswordLink, common.forgotPassword.codeLifetimeMinutes}
+            valid, msg = common.unsafe.sendEmail(email, "Account Password Reset", emailBody)
+
+            if valid then
+                common.forgotPassword.set(db, email, code)
+                common.forgotPassword.incrementEmailSends(db, email)
+
+                return true, "If %s has an account, an email has been sent to reset the password." % {email}
+            else
+                return false, "Failed to send email! Error: \n'%s'." % {msg}
+            end
+        else
+            return false, "If %s has an account, an email has been sent to reset the password." % {email}
+        end
     end
 end
 
@@ -870,7 +965,7 @@ function common.signup.sendNewSignupCode(email, username, ip)
 [[Hi,
 This is an automated message.
 
-The code for your account is: %s.
+The code for your account is: %s .
 
 Thanks,
 DavidPineiro.xyz.
@@ -886,8 +981,6 @@ Signup details
 
         local emailSent, msg =
             common.unsafe.sendEmail(email, "Account Code", emailBody)
-        --     true, "DEBUG"
-        -- print("SEND EMAIL CODE email %s username %s send code %s" % {email, username, code})
 
         if emailSent then
             -- increment email sends
@@ -949,6 +1042,27 @@ function common.signup.tryCreateAccount(email, username, password)
             
             db:execute([[DELETE FROM signupEmailWhitelist WHERE email=?;]], email)
             db:execute([[DELETE FROM signups WHERE email=?;]], email)
+
+            local emailBody = [[Hi,
+This is an automated message.
+
+Here is your new account:
+    Username: %s
+    Email: %s
+
+With an account you can:
+* You can truthfully say "i signed up to davidpineiro.xyz!!"
+* That is all for now.
+
+(I am going to add a real-time chat feature soon users can have their own name when they chat in it.)
+
+Splendacious,
+DavidPineiro.xyz]] % {username, email}
+
+-- * Chat with other users in the website chat box (near the bottom right).
+
+            local emailSent, msg =
+                common.unsafe.sendEmail(email, "Account Created! :)", emailBody)
 
             return true, "Created Account"
         else

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useId } from "react";
 
 export default function CFTurnstile({callback, error_callback, expired_callback, timeout_callback}) {

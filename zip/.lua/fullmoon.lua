@@ -1228,8 +1228,36 @@ local fm = setmetatable({ _VERSION = VERSION, _NAME = NAME, _COPYRIGHT = "Paul K
   getAsset = LoadAsset, getRequest = getRequest,
   render = render,
   -- options
-  cookieOptions = {HttpOnly = true, SameSite = "Strict", Path="/"},
-  sessionOptions = {name = "fullmoon_session", hash = "SHA256", secret = true, format = "lua"},
+  cookieOptions = {
+    HttpOnly = true,
+    SameSite = "Lax",
+    -- Secure=true,
+    Path="/",
+    -- Domain="http://127.0.0.1",
+  },
+  -- cookieOptions = {
+  --   HttpOnly = true,
+  --   SameSite = "Lax",
+  --   Secure=false,
+  --   Path="/",
+  --   Domain="http://localhost:5173",
+  --   -- ["Access-Control-Allow-Origin"]="http://localhost:5173",
+  --   -- ["AccessControlAllowOrigin"]="http://localhost:5173",
+  --   -- ["Access-Control-Allow-Credentials"]="true",
+  --   -- ["AccessControlAllowCredentials"]="true",
+  -- },
+  sessionOptions = {
+    name = "fullmoon_session",
+    hash = "SHA256",
+    secret = true,
+    format = "lua",
+
+    -- accessTokenName = "fullmoon_access_token",
+    -- refreshTokenName = "fullmoon_refresh_token",
+
+    -- accessTokenLifetimeSeconds = 60*60, -- one hour
+    -- refreshTokenLifetimeSeconds = 60*60*24*10, -- ten days
+  },
   -- serve* methods that take path can be served as a route handler (with request passed)
   -- or as a method called from a route handler (with the path passed);
   -- serve index.lua or index.html if available; continue if not
@@ -1283,6 +1311,7 @@ local function deleteCookie(name, copts)
   SetCookie(name, "", copts)
   copts.maxage, copts.MaxAge = maxage, MaxAge
 end
+
 local function getSessionOptions()
   local sopts = fm.sessionOptions or {}
   if not sopts.name then error("missing session name") end
@@ -1297,19 +1326,25 @@ local function getSessionOptions()
   end
   return sopts
 end
+
 local function setSession(session)
   -- if the session hasn't been touched (read or updated), do nothing
   if session and session[isfresh] then return true end
   local sopts = getSessionOptions()
+  
+  local function createSignedCookie(data)
+    local msg = EncodeBase64(EncodeLua(data))
+    local sig = EncodeBase64(
+      GetCryptoHash(sopts.hash, msg, sopts.secret or ""))
+    return msg.."."..sopts.format.."."..sopts.hash.."."..sig
+  end
+  
   local cookie
   if session and next(session) and session._invalid ~= true then
     -- session expiration. one hour = 60 minutes = 60 * 60 seconds
     session.exp = tostring(GetDate() + (sopts.expireSeconds or 60*60))
 
-    local msg = EncodeBase64(EncodeLua(session))
-    local sig = EncodeBase64(
-      GetCryptoHash(sopts.hash, msg, sopts.secret or ""))
-    cookie = msg.."."..sopts.format.."."..sopts.hash.."."..sig
+    cookie = createSignedCookie(session)
   end
   local copts = fm.cookieOptions or {}
   if cookie and session._invalid ~= true then
@@ -1321,38 +1356,49 @@ local function setSession(session)
     return false
   end
 end
+
 local function getSession()
   local sopts = getSessionOptions()
-  local session = GetCookie(sopts.name)
-  if not session then return {} end
-  local msg, format, hash, sig = session:match("(.-)%.(.-)%.(.-)%.(.+)")
-  if not msg then return {} end
-  if not pcall(GetCryptoHash, hash, "") then
-    LogWarn("invalid session crypto hash: "..hash)
-    return {_invalid=true}
-  end
-  if DecodeBase64(sig) ~= GetCryptoHash(hash, msg, sopts.secret or "") then
-    LogWarn("invalid session signature: "..sig)
+
+  local function decodeSignedCookie(cookie)
+    local msg, format, hash, sig = cookie:match("(.-)%.(.-)%.(.-)%.(.+)")
+    if not msg then return {} end
+    if not pcall(GetCryptoHash, hash, "") then
+      LogWarn("invalid cookie crypto hash: "..hash)
+      return {_invalid=true}
+    end
+    if DecodeBase64(sig) ~= GetCryptoHash(hash, msg, sopts.secret or "") then
+      LogWarn("invalid cookie signature: "..sig)
+      -- deleteCookie(sopts.name, fm.cookieOptions or {})
+      return {_invalid=true}
+    end
+    if format ~= "lua" then
+      LogWarn("invalid cookie format: "..format)
+      return {_invalid=true}
+    end
+    local ok, val = loadsafe("return "..DecodeBase64(msg))
+    if not ok then LogWarn("invalid cookie content: "..val) end
+  
+    -- check if cookie expired
+   if val and val.exp and tonumber(val.exp) > 0 and GetDate() > tonumber(val.exp) then
+    LogWarn("cookie expired"..tostring(val))
     -- deleteCookie(sopts.name, fm.cookieOptions or {})
     return {_invalid=true}
+   end
+  
+    return ok and val or {}
   end
-  if format ~= "lua" then
-    LogWarn("invalid session format: "..format)
-    return {_invalid=true}
-  end
-  local ok, val = loadsafe("return "..DecodeBase64(msg))
-  if not ok then LogWarn("invalid session content: "..val) end
 
-  -- check if session expired
- if val and val.exp and tonumber(val.exp) > 0 and GetDate() > tonumber(val.exp) then
-  LogWarn("session expired"..tostring(val))
-  -- deleteCookie(sopts.name, fm.cookieOptions or {})
-  return {_invalid=true}
- end
+  local session = GetCookie(sopts.name)
+  if not session then return {} end
 
-  return ok and val or {}
+  return decodeSignedCookie(session)
+
 end
+
 local function setHeaders(headers)
+  -- SetHeader("Access-Control-Allow-Origin", "http://localhost:5173")
+	-- SetHeader("Access-Control-Allow-Credentials", "true")
   for name, value in pairs(headers or {}) do
     local val = tostring(value)
     if type(value) ~= "string" and type(value) ~= "number" then
@@ -1580,7 +1626,18 @@ fm.setTemplate("fmt", {
   })
 fm.setTemplate("500", default500) -- register default 500 status template
 fm.setTemplate("json", {ContentType = "application/json",
-    function(val) return EncodeJson(val, {useoutput = true}) end})
+    function(val)
+      local strippedval = {}
+      for k,v in pairs(val) do
+        if type(k) == 'string' then
+          strippedval[k] = v
+          -- print("added", tostring(k),tostring(v))
+        else
+          -- print("skipped", tostring(k),tostring(v))
+        end
+      end
+      return EncodeJson(strippedval, {useoutput = true})
+    end})
 fm.setTemplate("sse", function(val)
     argerror(type(val) == "table", 1, "(table expected)")
     if #val == 0 then val = {val} end

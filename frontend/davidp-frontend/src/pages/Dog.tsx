@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { Page } from "../components/Page";
-import Link from "../components/Link";
 
 export default function DogPage(){
 
@@ -14,7 +13,7 @@ export default function DogPage(){
 
     return (
 <Page title="D.O.G.S">
-    <h2>D.O.G.S (Dogs Or Gorilla Sisters)</h2>
+    <h2>D.O.G.S (Dogs Or Gorilla System)</h2>
     <p>Email me some photos I could add to the exhibit.</p>
 
     <style>{

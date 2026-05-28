@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { Page } from "../components/Page";
 import CFTurnstile from "../components/CFTurnstile";
 import { SessionContext, type Session } from "../components/SessionContext";
+import { BACKEND } from "../App";
 
 function Stage1(){
     const [disabled, setDisabled] = useState(true);
@@ -17,11 +18,13 @@ function Stage1(){
     return (<>
         <p>What you get when you sign up:</p>
         <ul>
-            <li>Send messages in the chat box.</li>
+            <li>You can truthfully say "i signed up to davidpineiro.xyz!!"</li>
+            {/* <li>Send messages in the chat box.</li> */}
+            <li>That is all.</li>
         </ul>
         <br/>
 
-        <form action="/signup" method="POST">
+        <form action={BACKEND+"/signup"} method="POST">
             <label htmlFor="email">Email</label>
             <input type="text" name="email" id="email"/>
             <br/>
@@ -37,10 +40,12 @@ function Stage1(){
 }
 
 function Stage2(){
-    const session:Session = useContext(SessionContext);
+    const session:Session = useContext(SessionContext) || {};
+
+    if(session.signup == undefined || session.signup.stage2 == undefined)return <>ERROR BRO</>
 
     return (<>
-    <form action="/signupCode" method="POST">
+    <form action={BACKEND+"/signupCode"} method="POST">
         <p>
             Email: <code className="inline">{session.signup.stage2.email}</code>
             <br/>
@@ -57,7 +62,7 @@ function Stage2(){
     </form>
 
     <p>If you didnt get the code we can send it again.</p>
-    <form action="/signupCodeResend" method="POST">
+    <form action={BACKEND+"/signupCodeResend"} method="POST">
         <input type="hidden" value={session.signup.stage2.email} name="email"/>
         <input type="hidden" value={session.signup.stage2.username} name="username"/>
 
@@ -67,7 +72,9 @@ function Stage2(){
 }
 
 function Stage3(){
-    const session:Session = useContext(SessionContext);
+    const session:Session = useContext(SessionContext) || {};
+
+    if(session.signup == undefined || session.signup.stage3 == undefined)return <>ERROR BRO</>
 
     return (<>
         <p>
@@ -75,7 +82,7 @@ function Stage3(){
             <br/>
             Username: <code className="inline">{session.signup.stage3.username}</code>
         </p>
-        <form action="/signupPassword" method="POST">
+        <form action={BACKEND+"/signupPassword"} method="POST">
             <input type="hidden" value={session.signup.stage3.email} name="email"/>
             <input type="hidden" value={session.signup.stage3.username} name="username"/>
             <input type="hidden" value={session.signup.stage3.code} name="code"/>
@@ -94,16 +101,27 @@ function Stage3(){
 }
 
 export default function SignupPage(){
-    const session:Session = useContext(SessionContext);
+    const session:Session = useContext(SessionContext) || {};
 
-    return (
-    <Page title="Signup">
+    const message = session != undefined && session.message ? <span>{session.message}</span> : <></>;
+
+    var inside = <Stage1/>;
+
+    if(session == undefined || session.signup == undefined){
+        inside = <Stage1/>;
+    }else if(session.signup.stage3){
+        inside = <Stage3/>;
+    }else if(session.signup.stage2){
+        inside = <Stage2/>;
+    }else{
+        inside = <Stage1/>;
+    }
+
+    return <Page title="Signup">
         <h1>Signup</h1>
 
-        {session.message && <span>{session.message}</span>}
+        {message}
 
-        {(!session.signup || (!session.signup.stage2 && !session.signup.stage3)) && <Stage1/>}
-        {(session.signup && session.signup.stage2 && !session.signup.stage3) && <Stage2/>}
-        {(session.signup && session.signup.stage3) && <Stage3/>}
-    </Page>);
+        {inside}
+    </Page>;
 }

@@ -1,5 +1,7 @@
 # REDBEAN=redbean-3.0.0-original.com
 REDBEAN=redbean-debug.com
+# TOPLVL=/home/davidp/IdeaProjects/davidpineiroxyz
+TOPDIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 all: clean package run
 
@@ -8,7 +10,8 @@ clean:
 	rm -rf prod/copyparty/stuff/.hist
 
 package: clean prod/davidpineiroxyz.com
-	cd zip; zip -r ../prod/davidpineiroxyz.com .
+	cd zip; zip -r ${TOPDIR}/prod/davidpineiroxyz.com .
+	cd frontend/davidp-frontend/dist; zip -r ${TOPDIR}/prod/davidpineiroxyz.com .
 
 run: package
 	chmod +x prod/davidpineiroxyz.com

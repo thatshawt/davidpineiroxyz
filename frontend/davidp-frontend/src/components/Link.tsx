@@ -1,4 +1,4 @@
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 
 type Props = {
@@ -10,6 +10,8 @@ type Props = {
 
 export default function Link({ to, href, children, forceOut, ...props }:Props) {
   const url = to || href;
+  if(url == undefined)return <span>{children}</span>;
+
   var isExternal = url.startsWith('http://') || url.startsWith('https://');
 
   if (forceOut || isExternal) {
@@ -26,8 +28,13 @@ export default function Link({ to, href, children, forceOut, ...props }:Props) {
     );
   }
 
+  const location = useLocation();
+
   return (
-    <RouterLink to={url} {...props}>
+    <RouterLink to={{
+      pathname:url,
+      search: "?from="+location.pathname
+    }} {...props}>
       {children}
     </RouterLink>
   );

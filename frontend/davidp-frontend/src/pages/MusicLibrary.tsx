@@ -4,9 +4,11 @@ import { useContext } from 'react';
 import { AudioSystemContext, type AudioObj } from '../components/AudioSystem';
 
 export default function MusicLibraryPage(){
-    const audioObj:AudioObj = useContext(AudioSystemContext);
+    const audioObj:AudioObj = (useContext(AudioSystemContext) as unknown) as AudioObj;
 
     // console.log(audioObj);
+
+    if(audioObj.tracks == undefined)return <>NOT YET I SUPPOSE</>
     
     return (
     <Page title="Music Library">
@@ -17,7 +19,7 @@ export default function MusicLibraryPage(){
                 {[...audioObj.tracks.entries()].map(([trackid, track]) => (
                 <li key={trackid}
                     className={styles.trackElem}
-                    onClick={(e)=>{
+                    onClick={()=>{
                         audioObj.loadMusicTrack(trackid);
                         audioObj.playAudioBuffName("uisound_min9");
                     }}

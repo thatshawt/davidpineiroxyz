@@ -1,14 +1,23 @@
-import { type ReactNode, useEffect } from "react";
+// @ts-nocheck
+import { type ReactNode, useContext, useEffect } from "react";
 
 import { setupSoundsFXDynamic } from "../components/AudioSystem";
+import { type Session, SessionContext, clearMessageAndUpdate } from "./SessionContext";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 type Props = {
   title: string;
-  children: ReactNode;
+  children?: ReactNode;
   extraClasses?:string;
 };
 
 export function Page({ title, children, extraClasses, ...props}: Props) {
+
+    const session:Session = (useContext(SessionContext) as any) as Session;
+    if(session == undefined)return <>not yet brooo</>;
+
+    const location = useLocation();
+    const [search] = useSearchParams();
 
     useEffect(() => {
         window.scrollTo(0,0);
@@ -17,6 +26,14 @@ export function Page({ title, children, extraClasses, ...props}: Props) {
         setupSoundsFXDynamic();
 
         document.querySelector("head title").textContent = `DavidP | ${title}`;
+
+        if(search.get('from') != location.pathname){
+            // console.log(location.pathname+location.search);
+            clearMessageAndUpdate(session);
+        }else if(session.refreshSession){
+            // console.log("from page");
+            session.refreshSession();
+        }
     }, []);
 
     return (

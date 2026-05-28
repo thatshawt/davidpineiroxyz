@@ -10,12 +10,16 @@ dateString = dateString:sub(1, #dateString - 1) -- remove last char
 
 Log(kLogInfo, "got date string '%s'" % {dateString})
 
+local frontendHost
+
 devMode = common.isDevmode()
 Log(kLogInfo, "devmode '%s'" % {tostring(devMode)})
 if devMode then
 	fm.setTemplateVar("turnstile_key", "1x00000000000000000000AA")
+	frontendHost = "http://localhost:8080"
 else
 	fm.setTemplateVar("turnstile_key", "0x4AAAAAACwAfT1Q_QwaUX-3")
+	frontendHost = "http://davidpineiro.xyz"
 end
 
 -- load users from secrets and init sql
@@ -33,24 +37,24 @@ end
 
 fm.setTemplateVar("serverStartDate", dateString)
 
--- .fmt files loaded from /views/ folder
-local thing = fm.setTemplate({"/views/", fmt = "fmt"})
-
--- add all the routes .fmt templates from the /views/routes folder
-for k,v in pairs(thing) do
-	-- fm.logInfo(k.." = "..tostring(v))
-	if common.starts_with(k, "routes/") then
-		local routePath = "/"..k:sub(- (#k - #"routes/"))
-		-- fm.logInfo("adding route: "..routePath.." -> "..k)
-		fm.setRoute({routePath, method = {"GET"}}, fm.serveContent(k))
-    end
+local frontendRoutes = {
+	"/", "/webThingies",
+	"/admin",
+	"/qr", "/qr_scanner",
+	"/music",
+	"/signup", "/login", "/logout",
+	"/forgotPassword", "/forgotPasswordRedirect",
+	"/cali_leaning", "/dog",
+	"/readings", "/fun/*",
+	"/projects", "/projects/*"
+}
+for k,v in pairs(frontendRoutes) do
+	-- all of them can point to index.html cus the frontend handles the "routing"
+	fm.setRoute({v, method='GET'}, fm.servePath('/index.html'))
 end
 
-fm.setRoute({"/", method = {"GET"}}, fm.serveContent("routes/index"))
-fm.setRoute({"/index.html", method = {"GET"}}, fm.serveContent("routes/index"))
-
 -- static files like css and fonts
-fm.setRoute("/static/*", fm.serveAsset)
+fm.setRoute({"/static/*", "/assets/*", "/favicon.ico", "/index.html"}, fm.serveAsset)
 
 -- validate the email cloudlflare turnstile
 fm.setRoute({"/getInfo", method = {"POST"}},
@@ -63,12 +67,35 @@ fm.setRoute({"/getInfo", method = {"POST"}},
 	return postResponse
 end)
 
+fm.setRoute({"/selfSession", method = {"GET"}},
+  function(r)
+	local data = r.session["nothin"]
+	for k,v in pairs(r.session) do
+		-- print(tostring(k),tostring(v), type(k)=='table' and #k or "")
+		data = v
+		-- for k2,v2 in pairs(v) do
+		-- 	print("\t",tostring(k2),tostring(v2))
+		-- end
+	end
+	-- SetHeader("Access-Control-Allow-Origin", "http://localhost:5173")
+	-- SetHeader("Access-Control-Allow-Credentials", "true")
+	return fm.serveContent("json", data)
+end)
+
+fm.setRoute({"/clearMessage", method = {"POST"}},
+  function(r)
+	r.session.message = Nil
+	return fm.serveResponse(200)
+end)
+
 -- login
 fm.setRoute({"/login", method = {"POST"}},
 	function(r)
 		-- if already logged in
 		if r.session and r.session.user then
-			return fm.serveContent("routes/login", {message = "You are already logged in with '%s'. Log out if you want to login to another account." % {r.session.user}})
+			r.session.message = "You are already logged in with '%s'. Log out if you want to login to another account." % {r.session.user}
+			return fm.serveResponse(303, {Location=frontendHost..'/'})
+			-- return fm.serveContent("routes/login", {message = "You are already logged in with '%s'. Log out if you want to login to another account." % {r.session.user}})
 		end
 
 		-- make sure username and password are alphanumeric and stuff
@@ -90,26 +117,123 @@ fm.setRoute({"/login", method = {"POST"}},
 
 		if valid == true then -- success
 			r.session.chatSession = Nil
+			r.session.message = Nil
 			r.session.user = r.params.username
 
 			if r.session.user == 'david' then
 				r.session.isAdmin = true
 			end
 
-			return fm.serveRedirect(302, "/") 
+			return fm.serveResponse(303, {Location=frontendHost.."/"})
 		else -- fail
-			return fm.serveContent("routes/login", {message = error})
+			r.session.message = common.validate.stringifyError(error)
+			-- print(r.session.message)
+			-- return fm.serveResponse(200, "SKIBIDI")
+			return fm.serveResponse(303, {Location=frontendHost.."/login"})
+			-- return fm.serveContent("routes/login", {message = error})
 		end
 	end
 )
 
 -- forgotPassword
-fm.setRoute({"/forgotPassword", method = {"GET"}},
+fm.setRoute({"/forgotPassword", method = {"POST"}},
 	function (r)
-		return fm.serveContent("routes/forgotPassword", {stage1 = true})
+		r.params.email = common.trim(r.params.email:lower())
+
+		local valid, error = common.validate.emailValidate(r.params.email)
+
+		if valid then
+			local db <close> = common.getSqlConnection()
+			valid, error = common.forgotPassword.sendNewCode(db, frontendHost, r.params.email)
+			
+			r.session.message = common.validate.stringifyError(error)
+
+			return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+		else
+			r.session.message = common.validate.stringifyError(error)
+			return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+		end
+
 	end)
 
--- TODO implement forgotPassword POST for stage1->stage2, try to send email.
+fm.setRoute({"/forgotPasswordRedirect", method = {"POST"}},
+	function (r)
+		r.params.email = common.trim(r.params.email:lower())
+
+		local valid, error = common.validate.emailValidate(r.params.email)
+
+		if valid then
+			local db <close> = common.getSqlConnection()
+
+			valid, error = common.forgotPassword.validateUsernameEmailCode(db, r.params.user, r.params.email, r.params.code)
+
+			if valid then
+				r.session.forgotpass = {
+					stage2 = {
+						email=r.params.email,
+						username=r.params.user,
+						code=r.params.code,
+					}
+				}
+
+				r.session.message = "Success! Type your new password below."
+
+				return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+			else
+				r.session.forgotpass = Nil
+				r.session.message = common.validate.stringifyError(error)
+				return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+			end
+
+		else
+			r.session.forgotpass = Nil
+			r.session.message = common.validate.stringifyError(error)
+			return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+		end
+
+	end)
+
+fm.setRoute({"/resetPassword", method = {"POST"}},
+	function(r)
+		if
+			r.session.forgotpass == Nil
+			or (r.session.forgotpass ~= Nil and r.session.forgotpass.stage2 == Nil)
+			-- or (r.session.forgotpass ~= Nil and #r.session.forgotpass.stage2 < 3)
+			or (r.params.username ~= r.session.forgotpass.stage2.username)
+			or (r.params.email ~= r.session.forgotpass.stage2.email)
+			or (r.params.code ~= r.session.forgotpass.stage2.code)
+		then
+			r.session.forgotpass = Nil
+			r.session.message = Nil
+			return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+		end
+
+		local db <close> = common.getSqlConnection()
+
+		r.params.email = common.trim(r.params.email:lower())
+		r.params.username = common.trim(r.params.username:lower())
+
+		local valid, msg = common.forgotPassword.validateUsernameEmailCode(db, r.params.username, r.params.email, r.params.code)
+
+		if valid then
+			valid, msg = common.signup.validatePasswords(r.params.password1, r.params.password2)
+
+			if valid then
+				valid, msg = common.user.tryChangePassword(db, r.params.email, r.params.username, r.params.password1)
+
+				if valid then
+					r.session.user = Nil
+					r.session.forgotpass = Nil
+					r.session.message = "Successfully reset password! Now you can try logging in with the new password."
+					return fm.serveResponse(303, {Location=frontendHost.."/login"})
+				end
+			end
+		end
+
+		r.session.message = common.validate.stringifyError(msg)
+		return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+	end
+)
 
 -- logout
 fm.setRoute({"/logout", method = {"POST"}},
@@ -117,21 +241,22 @@ fm.setRoute({"/logout", method = {"POST"}},
 		-- r.session.user = {}
 		r.session = {}
 
-		return fm.serveRedirect(302, "/") 
+		return fm.serveRedirect(302, frontendHost.."/") 
 	end
 )
 
 -- signup
-fm.setRoute({"/signup", method = {"GET"}},
-	function (r)
-		return fm.serveContent("routes/signup", {signup1 = true})
-	end)
+-- fm.setRoute({"/signup", method = {"GET"}},
+-- 	function (r)
+-- 		return fm.serveContent("routes/signup")
+-- 	end)
 
 fm.setRoute({"/signup", method = {"POST"}},
 	function(r)
 		-- if already logged in
 		if r.session and r.session.user then
-			return fm.serveContent("routes/logout", {message = "You are already logged in with '%s'. Log out!!! NOWWWWWW!!!!! ROOOOOOAAAARRRRRRRRR O.o YYYYYEEEEAAAAAAHHHHHH" % {r.session.user}})
+			r.session.message = "You are already logged in with '%s'. Log out!!! NOWWWWWW!!!!! ROOOOOOAAAARRRRRRRRR O.o YYYYYEEEEAAAAAAHHHHHH" % {r.session.user}
+			return fm.serveResponse(303, {Location=frontendHost.."/logout"})
 		end
 
 		r.params.email = common.trim(r.params.email:lower())
@@ -166,19 +291,118 @@ fm.setRoute({"/signup", method = {"POST"}},
 
 		if valid == true then -- success
 			r.session.signupStage = "code"
-			return fm.serveContent("routes/signup", {
-				message = "Check your email for the code and paste it below.",
-				email = r.params.email,
-				username = r.params.username,
-				signup2 = true
-			})
+			r.session.message = "Check your email for the code and paste it below."
+			r.session.signup = {
+				stage2= {
+					email = r.params.email,
+					username = r.params.username,
+				}
+			}
+			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
 		else -- fail
-			return fm.serveContent("routes/signup", {message = error, signup1 = true})
+			r.session.message = common.validate.stringifyError(error)
+			r.session.signup = Nil
+
+			-- return fm.serveContent("routes/signup", {signup1 = true})
+			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
 		end
 	end
 )
 
---TODO user reset password
+-- signupCodeResend
+fm.setRoute({"/signupCodeResend", method = {"POST"}},
+	function (r)
+		if r.session.signupStage ~= "code" then
+			r.session.signup = Nil
+			r.session.message = Nil
+			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+		end
+
+		r.params.email = common.trim(r.params.email:lower())
+
+		-- sendNewSignupCode can fail cus the cooldown
+		valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username, FormatIp(GetRemoteAddr()))
+
+		if valid == true then
+			r.session.message = "Sent email again. It might take a few minutes to send, also dont forget to check spam folder just incase."
+			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+		else
+			r.session.message = common.validate.stringifyError(error)
+			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+		end
+	end)
+
+-- signupCode
+fm.setRoute({"/signupCode", method = {"POST"}},
+	function (r)
+		if r.session.signupStage ~= "code" then
+			r.session.message = Nil
+			r.session.signup = Nil
+			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+		end
+
+		r.params.email = common.trim(r.params.email:lower())
+
+		-- try to validate the code
+		valid, error = common.signup.validateCode(r.params.email, r.params.username, r.params.code)
+
+		-- if valid code send them to next step
+		if valid == true then
+			r.session.signupStage = "pass"
+			r.session.message = "Code is valid! Now type your password to create your account." % {r.params.username}
+			r.session.signup = {
+				stage3 = {
+					email = r.params.email,
+					username = r.params.username,
+					code = r.params.code,
+				}
+			}
+			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+		else -- otherwise show the error
+			r.session.message = common.validate.stringifyError(error)
+			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+		end
+
+	end)
+
+-- signupPassword
+fm.setRoute({"/signupPassword", method = {"POST"}},
+	function (r)
+		if r.session.signupStage ~= "pass" then
+			r.session.message = Nil
+			r.session.signup = Nil
+			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+		end
+
+		r.params.email = common.trim(r.params.email:lower())
+
+		-- validate passwords
+		valid, error = common.signup.validatePasswords(r.params.password1, r.params.password2)
+
+		-- print("we got", tostring(valid), tostring(error))
+
+		-- serve error
+		if valid == false then
+			r.session.message = common.validate.stringifyError(error)
+			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+		end
+
+		-- try to create account
+		valid, error = common.signup.tryCreateAccount(r.params.email, r.params.username, r.params.password1)
+
+		-- if account created, log them in
+		if valid then
+			r.session.user = r.params.username
+			r.session.signupStage = Nil
+			r.session.signup = Nil
+			r.session.message = Nil
+
+			return fm.serveResponse(303, {Location=frontendHost.."/"})
+		else -- otherwise show the error
+			r.session.message = common.validate.stringifyError(error)
+			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+		end
+	end)
 
 -- chat requestOld
 fm.setRoute({"/chat/requestOld", method = {"POST"}},
@@ -350,110 +574,6 @@ fm.setRoute({"/chat/sendMessage", method = {"POST"}},
 		return fm.serveResponse(200, Nil, "")
 	end)
 
--- signupCodeResend
-fm.setRoute({"/signupCodeResend", method = {"POST"}},
-	function (r)
-		if r.session.signupStage ~= "code" then
-			return fm.serveContent("routes/signup", {
-				signup1 = true})
-		end
-
-		r.params.email = common.trim(r.params.email:lower())
-
-		-- sendNewSignupCode can fail cus the cooldown
-		valid, error = common.signup.sendNewSignupCode(r.params.email, r.params.username, FormatIp(GetRemoteAddr()))
-
-		if valid == true then
-			return fm.serveContent("routes/signup", {
-				message = "Sent email again. It might take a few minutes to send, also dont forget to check spam folder just incase.",
-				email=r.params.email,
-				username=r.params.username,
-				signup2 = true})
-		else
-			return fm.serveContent("routes/signup", {
-				message = error,
-				email=r.params.email,
-				username=r.params.username,
-				signup2 = true})
-		end
-	end)
-
--- signupCode
-fm.setRoute({"/signupCode", method = {"POST"}},
-	function (r)
-		if r.session.signupStage ~= "code" then
-			return fm.serveContent("routes/signup", {
-				signup1 = true})
-		end
-
-		r.params.email = common.trim(r.params.email:lower())
-
-		-- try to validate the code
-		valid, error = common.signup.validateCode(r.params.email, r.params.username, r.params.code)
-
-		-- if valid code send them to next step
-		if valid == true then
-			r.session.signupStage = "pass"
-			return fm.serveContent("routes/signup", {
-				message = "Code is valid! Now type your password to create your account." % {r.params.username},
-				email = r.params.email,
-				username = r.params.username,
-				code = r.params.code,
-				signup3 = true
-			})
-		else -- otherwise show the error
-			return fm.serveContent("routes/signup", {
-				message = error,
-				email = r.params.email,
-				username = r.params.username,
-				signup2 = true})
-		end
-
-	end)
-
--- signupPassword
-fm.setRoute({"/signupPassword", method = {"POST"}},
-	function (r)
-		if r.session.signupStage ~= "pass" then
-			return fm.serveContent("routes/signup", {
-				signup1 = true})
-		end
-
-		r.params.email = common.trim(r.params.email:lower())
-
-		-- validate passwords
-		valid, error = common.signup.validatePasswords(r.params.password1, r.params.password2)
-
-		-- print("we got", tostring(valid), tostring(error))
-
-		-- serve error
-		if valid == false then
-			return fm.serveContent("routes/signup", {
-				message = error,
-				email = r.params.email,
-				username = r.params.username,
-				code = r.params.code,
-				signup3 = true})
-		end
-
-		-- try to create account
-		valid, error = common.signup.tryCreateAccount(r.params.email, r.params.username, r.params.password1)
-
-		-- if account created, log them in
-		if valid then
-			r.session.user = r.params.username
-			r.session.signupStage = Nil
-
-			return fm.serveRedirect(302, "/")
-		else -- otherwise show the error
-			return fm.serveContent("routes/signup", {
-				message = error,
-				email = r.params.email,
-				username = r.params.username,
-				code = r.params.code,
-				signup3 = true})
-		end
-	end)
 
 -- post admin routes
 fm.setRoute({"/admin/:action", method = {"POST"}},
@@ -468,96 +588,116 @@ fm.setRoute({"/admin/:action", method = {"POST"}},
 			["unbanSelfSignupIp"] = function ()
 				local ip = FormatIp(GetRemoteAddr())
 				db:execute([[DELETE FROM dailyIpSignups WHERE ip=?;]], ip)
-				return fm.serveContent("routes/admin", {message="unbanned '%s'" % {ip}})
+				r.session.message="unbanned '%s'" % {ip}
 			end,
 			["deleteUser"] = function ()
 				local username = r.params.username
 
 				if username == Nil or username == '' then
-					return fm.serveContent("routes/admin", {message="You didnt specify a user."})
+					r.session.message="You didnt specify a user."
+					return
 				end
 
 				local userExists, msg = common.usernameExists(db, username)
 
 				if userExists == false then
-					return fm.serveContent("routes/admin", {message="User '%s' doesnt exist!" % {username}})
+					r.session.message="User '%s' doesnt exist!" % {username}
+					return
 				end
 
 				common.deleteUser(db, username)
 
-				return fm.serveContent("routes/admin", {message="Deleted user '%s'!" % {username}})
+				r.session.message="Deleted user '%s'!" % {username}
 			end,
 			["whitelistEmailSignup"] = function ()
 				local email = r.params.email
 
 				if type(email) ~= "string" or email == '' then
-					return fm.serveContent("routes/admin", {message="you didnt put an email to whitelist :/"})
+					r.session.message="you didnt put an email to whitelist :/"
+					return
 				end
 
 				local valid, msg = common.validate.emailValidate(email)
 
 				if valid == false then
-					return fm.serveContent("routes/admin", {message=msg})
+					r.session.message = msg
+					return
 				end
 
 				db:execute([[INSERT OR REPLACE INTO signupEmailWhitelist (email) VALUES (?);]], email)
 				
-				return fm.serveContent("routes/admin", {message="whitelisted %s" % {email}})
+				r.session.message="whitelisted %s" % {email}
 			end,
 			["chatBanUser"] = function ()
 				local username = r.params.username
 
 				if username == Nil or username == '' then
-					return fm.serveContent("routes/admin", {message="You didnt specify a user."})
+					r.session.message="You didnt specify a user."
+					return
 				end
 
 				common.chat.banUser(db, username)
 
-				return fm.serveContent("routes/admin", {message="banned user from chatting if they exist"})
+				r.session.message = "banned user from chatting if they exist"
 			end,
-
 			["chatUnbanUser"] = function ()
 				local username = r.params.username
 
 				if username == Nil or username == '' then
-					return fm.serveContent("routes/admin", {message="You didnt specify a user."})
+					r.session.message="You didnt specify a user."
+					return
 				end
 
 				common.chat.unbanUser(db, username)
 
-				return fm.serveContent("routes/admin", {message="UNbanned user from chatting if they exist"})
+				r.session.message="UNbanned user from chatting if they exist"
 			end,
 			["redactUserChats"] = function ()
 				local username = r.params.username
 
 				if username == Nil or username == '' then
-					return fm.serveContent("routes/admin", {message="You didnt specify a user."})
+					r.session.message = "You didnt specify a user."
+					return
 				end
 
 				common.chat.replaceAllUserMessages(db, username, "█REDACTED█")
 
-				return fm.serveContent("routes/admin", {message="redacted user %s chat messages!" % {username}})
+				r.session.message="redacted user %s chat messages!" % {username}
 			end,
 			["redactChatsFromTo"] = function ()
 				local from = r.params.from
 				local to = r.params.to
 
 				if from == Nil or to == Nil or from == '' or to == '' then
-					return fm.serveContent("routes/admin", {message="missing 'from' or 'to'"})
+					r.session.message="missing 'from' or 'to'"
+					return
 				end
 
 				common.chat.replaceMessagesFromTo(db, from, to, "█REDACTED█")
 
-				return fm.serveContent("routes/admin", {message="redacted from %s to %s" % {from, to}})
+				r.session.message = "redacted from %s to %s" % {from, to}
+			end,
+			["resetAllCooldowns"] = function ()
+				local db <close> = common.getSqlConnection()
+
+				common.signup.clearAllEmailSends(db)
+				common.forgotPassword.clearAllEmailSends(db)
+
+				r.session.message = "reset all cooldowns"
 			end,
 		}
 
 		local action = r.params.action
 
-		if actions[action] then
-			return actions[action]()
+		local actionHandler = actions[action]
+		if actionHandler then
+			local result = actionHandler()
+			if result then return result else
+				return fm.serveResponse(303, {Location=frontendHost.."/admin"})
+			end
 		else
-			return fm.serveRedirect(302, "/")
+			r.session.message = "admin action '%s' doesnt exist?" % {action}
+			return fm.serveResponse(303, {Location=frontendHost.."/admin"})
 		end
 
 	end)
@@ -581,10 +721,10 @@ fm.setRoute({"/admin/:action", method = {"GET"}},
 					-- for k,v in pairs(v) do
 					-- 	print("%s %s" % {tostring(k),tostring(v)})
 					-- end
-					message = message.."\nid: '%s', data:'%s'" % {tostring(v.id), tostring(v.data)}
+					message = message.."\n%s=%s" % {tostring(v.id), tostring(v.data)}
 				end
 
-				return fm.serveContent("routes/admin", {message=message})
+				r.session.message=message
 			end,
 			["userCount"] = function ()
 				local userCount = db:fetchOne([[SELECT count(*) FROM users;]])["count(*)"]
@@ -609,13 +749,14 @@ fm.setRoute({"/admin/:action", method = {"GET"}},
 					message = message.."\nuser:'%s' email:'%s' bannedFromChat:'%s'" % {tostring(v.userUsername), tostring(v.email), tostring(v.bannedUser)}
 				end
 
-				return fm.serveContent("routes/admin", {message=message})
+				r.session.message=message
 			end,
 			["listSingleUser"] = function ()
 				local username = r.params.username
 
 				if username == Nil or username == '' then
-					return fm.serveContent("routes/admin", {message="You didnt specify a user."})
+					r.session.message="You didnt specify a user."
+					return
 				end
 
 				local userInfo = db:fetchOne([[
@@ -630,14 +771,15 @@ fm.setRoute({"/admin/:action", method = {"GET"}},
 
 				local message = "user:'%s' email:'%s' banned:'%s'" % {tostring(userInfo.userUsername), tostring(userInfo.email), tostring(userInfo.bannedUser)}
 
-				return fm.serveContent("routes/admin", {message=message})
+				r.session.message=message
 			end,
 			["chatMessagesFromTo"] = function ()
 				local from = r.params.from
 				local to = r.params.to
 
 				if from == Nil or to == Nil or from == '' or to == '' then
-					return fm.serveContent("routes/admin", {message="missing 'from' or 'to'"})
+					r.session.message="missing 'from' or 'to'"
+					return
 				end
 
 				local chats = common.chat.retrieveMessagesBetweenIds(db, from, to)
@@ -648,22 +790,28 @@ fm.setRoute({"/admin/:action", method = {"GET"}},
 					message = message.."\n%s,%s~%s | %s" % {v.id, v.username, v.message, v.timestamp}
 				end
 
-				return fm.serveContent("routes/admin", {message=message})
+				r.session.message=message
 			end,
 		}
 		
 		local action = r.params.action
 
-		if actions[action] then
-			return actions[action]()
+		local actionHandler = actions[action]
+		if actionHandler then
+			local result = actionHandler()
+			if result then return result else
+				return fm.serveResponse(303, {Location=frontendHost.."/admin"})
+			end
 		else
-			return fm.serveRedirect(302, "/")
+			r.session.message = "admin action '%s' doesnt exist?" % {action}
+			return fm.serveResponse(303, {Location=frontendHost.."/admin"})
 		end
 
 	end)
 
 echo = assert(unix.commandv('echo'))
 
+local copyPartyPort = "8082"
 -- /copyparty -> /copyparty/*
 fm.setRoute("/copyparty", "/copyparty/")
 -- /copyparty/* |rvrs-proxy> http://internalcopyparty/
@@ -788,7 +936,6 @@ common.sendNtfy("davidpineiro.xyz","Ready!")
 -- print("id=1 message ",db:fetchOne([[select message from chats where id=1;]]).message)
 
 -- start copyparty
-local copyPartyPort = "8082"
 common.forkCopyParty(copyPartyPort)
 -- common.sendNtfy("copyparty", "started!")
 

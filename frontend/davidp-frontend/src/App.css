@@ -74,7 +74,7 @@ body, button, span{
   border: 1px solid black;
 }
 
-h1, h2, h3, h4, h5, p, li, tr, summary, input, textarea{
+h1, h2, h3, h4, h5, p, li, tr, summary, input, textarea, fieldset span{
   transition: background-color 0.1s;
 
   &:hover {
@@ -151,6 +151,11 @@ form {
   padding:4px;
 }
 
+fieldset legend *{
+  margin-bottom:0px;
+  /* padding-bottom:0px; */
+}
+
 input, select, option, textarea {
   font-family: Jersey25;
   font-size: 25px;
@@ -194,43 +199,14 @@ input[type="range"] {
   100% { transform: translate(1px, -2px) rotate(-1deg); }
 }
 
-.web-badge{
-  /* scale: 500%; */
-  width: 176px;
-  height: 62px;
-  image-rendering: pixelated;
-
-  padding: 0px;
-
-  &:hover {
-    /* animation: shake 0.5s;
-    animation-iteration-count: infinite; */
-
-    /* margin: -1px; */
-    border: 5px dashed black;
-    background-color: #eeeeee81;
-    /* transform: translate(-2px, -2px); */
-    /* box-shadow: 1px 1px 0 #eee, 2px 2px 0 #eee; */
-  }
-}
-
-@media screen and (max-width: 450px) {
-  .web-badge{
-    width: 145px;
-    height: 51.0795px;
-  }
-}
-
-
-
 div.footer{
   color: #c3b0b0;
 }
 
-
 .flex-container{
   display:flex;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .nav-badge img{
@@ -389,42 +365,6 @@ div.sukuna-navbar p {
   }
 }
 
-.extras-menu {
-  position: fixed;
-  /* height: 100%; */
-  width: 100%;
-  max-height: 60vh;
-  max-width: 1224px;
-  overflow-y: scroll;
-
-  border: 2px solid #ff5401db;
-  border-top-right-radius: 6px;
-  border-top-left-radius: 6px;
-
-  background-color: #5a2e135e;
-  /* background-blend-mode: color-dodge; */
-  background-image: linear-gradient(#5a2e135e, #5a2e135e), url("/static/media/dark_exa.png");
-  /* background-attachment: scroll; */
-  background-size: 66px;
-  background-repeat: repeat;
-  
-  /* animation: scrollbg 10s infinite linear; */
-
-  padding: 10px;
-
-  /* display: grid; */
-  justify-content: left;
-
-  /* min-width: 15%; */
-
-  bottom: 0;
-  /* right:0; */
-  /* left:0; */
-  z-index: 102;
-
-  /* user-select: none; */
-}
-
 .musicplayer {
   /* position: fixed; */
   /* bottom: 0; */
@@ -560,6 +500,19 @@ div.section{
   padding: 10px;
   display: block;
   justify-content: left;
+  width: fit-content;
+  height: fit-content;
+}
+
+.white-box{
+  background-color: #c9bebe0f;
+  
+  border: 2px solid #a4a4a4f2;
+  border-radius: 6px;
+
+  margin: 10px;
+  padding: 10px;
+
   width: fit-content;
   height: fit-content;
 }

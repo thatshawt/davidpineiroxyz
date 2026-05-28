@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createContext, useState, useEffect } from "react";
 
 export type MusicTrack = {
@@ -340,14 +341,14 @@ export function AudioSystem({children}){
   useEffect(()=>{
     if(!window._audioLoaded)initialLoad();
 
-  });
+  },[]);
 
   return <AudioSystemContext.Provider value={audioObj}>
       {<audio
         id={audioObj.trackAudioId}
         loop={true}
         crossOrigin='anonymous'
-        src={(audioObj && audioObj.currentTrack) ? (audioObj.currentTrack.url) : null}
+        src={(audioObj && audioObj.currentTrack) ? (audioObj.currentTrack.url) : undefined}
         onTimeUpdate={(e) => {
           // const audio = audioObj.musicAudioEl;
           const audio = e.currentTarget;

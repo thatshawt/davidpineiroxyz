@@ -1,0 +1,30 @@
+.webBadge{
+  /* scale: 500%; */
+  width: 176px;
+  height: 62px;
+  image-rendering: pixelated;
+
+  padding: 0px;
+
+  &:hover {
+    /* animation: shake 0.5s;
+    animation-iteration-count: infinite; */
+
+    /* margin: -1px; */
+    border: 5px dashed black;
+    background-color: #eeeeee81;
+    /* transform: translate(-2px, -2px); */
+    /* box-shadow: 1px 1px 0 #eee, 2px 2px 0 #eee; */
+  }
+}
+.removeLinkAfter:after{
+  content:unset !important;
+  user-select: unset !important;
+}
+
+@media screen and (max-width: 450px) {
+  .webBadge{
+    width: 145px;
+    height: 51.0795px;
+  }
+}
