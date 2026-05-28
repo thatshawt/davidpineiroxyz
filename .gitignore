@@ -1,5 +1,5 @@
 .idea
-davidpineiroxyz.com
+# davidpineiroxyz.com
 database.*
 prod/copyparty/*.db*
 prod/copyparty/**/*.hist
