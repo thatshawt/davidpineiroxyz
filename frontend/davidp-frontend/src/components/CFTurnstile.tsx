@@ -3,7 +3,7 @@ import { useEffect, useId } from "react";
 
 export default function CFTurnstile({callback, error_callback, expired_callback, timeout_callback}) {
   const componentId = useId();
-  const sitekey = "1x00000000000000000000AA";
+  const sitekey = import.meta.env.DEV ? "1x00000000000000000000AA" : "0x4AAAAAACwAfT1Q_QwaUX-3";
 
   useEffect(()=>{
       const idQuery = `#${componentId}`;
