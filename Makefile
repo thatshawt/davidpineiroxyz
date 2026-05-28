@@ -1,7 +1,8 @@
 # REDBEAN=redbean-3.0.0-original.com
 REDBEAN=redbean-debug.com
 # TOPLVL=/home/davidp/IdeaProjects/davidpineiroxyz
-TOPDIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+# TOPDIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+TOPDIR := $(shell pwd)
 
 all: clean package run
 
