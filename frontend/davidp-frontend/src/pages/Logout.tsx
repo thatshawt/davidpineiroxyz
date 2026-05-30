@@ -1,11 +1,10 @@
-import { useContext } from "react";
-import { SessionContext, type Session } from "../components/SessionContext";
+import { useSession } from "../components/SessionContext";
 import { Page } from "../components/Page";
 import { BACKEND } from "../App";
 
 export default function LogoutPage(){
-    const session:Session = (useContext(SessionContext) as any) as Session;
-    if(session == undefined)return <>not yet brooo</>
+    const session = useSession();
+
     const message = session.message ? <span>{session.message}</span> : <></>;
 
     return (<Page title="Logout">

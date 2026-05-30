@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createContext, useEffect, useState, type ReactNode } from "react";
+import { useContext, createContext, useEffect, useState, type ReactNode } from "react";
 
 export type Session = {
     setSession?: React.Dispatch<React.SetStateAction<Session>>;
@@ -56,6 +56,12 @@ function sessionEquals(session1:Session, session2:Session){
 }
 
 export const SessionContext = createContext(undefined);
+
+export function useSession(): Session{
+    const session:Session = (useContext(SessionContext) as any) as Session;
+    if(session == undefined)return {};
+    return session;
+}
 
 type Props = {
     defaultValue:Session;

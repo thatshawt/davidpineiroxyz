@@ -137,7 +137,7 @@ export default function QrPage(){
 		</code>
 
 		<div className="inner-box lean">
-			<Link href="/cali_leaning">california leaning</Link>
+			<Link href="/page/cali_leaning">california leaning</Link>
 		</div>
 	</Page>);
 }

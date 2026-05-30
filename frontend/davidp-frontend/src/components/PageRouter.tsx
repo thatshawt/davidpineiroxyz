@@ -7,14 +7,15 @@ export type RoutablePageProps = {
 };
 
 type Props = {
+    pathPrefix:string;
     routes: Array<{path:string, page:JSX.Element}>;
 };
 
-export function PageRouter({routes}:Props){
+export function PageRouter({pathPrefix,routes}:Props){
     return (
     <Routes>
         {routes.map((route)=>
-            <Route path={route.path} element={route.page}/>
+            <Route path={pathPrefix+route.path} element={route.page}/>
         )}
     </Routes>
     );

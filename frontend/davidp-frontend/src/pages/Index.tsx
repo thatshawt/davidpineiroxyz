@@ -27,7 +27,7 @@ export default function IndexPage() {
         <fieldset className='white-box'>
           <legend><h1>DavidPineiro.xyz</h1></legend>
 
-          <p>This is David Pineiro's website and <Link href="/projects">portfolio</Link>.</p>
+          <p>This is David Pineiro's website and <Link href="/page/projects">portfolio</Link>.</p>
         </fieldset>
         
         <fieldset className='white-box'>
@@ -85,9 +85,9 @@ export default function IndexPage() {
         <fieldset className='white-box'>
           <legend><h2>Links</h2></legend>
           <ul>
-            <li><Link to="/projects">Projects</Link></li>
-            <li><Link to="/readings">Readings</Link></li>
-            <li><Link href={"/webThingies"}>Badges, Webrings, etc.</Link></li>
+            <li><Link to="/page/projects">Projects</Link></li>
+            <li><Link to="/page/readings">Readings</Link></li>
+            <li><Link href={"/page/webThingies"}>Badges, Webrings, etc.</Link></li>
             <li><Link href={"/copyparty/"} forceOut={true}>Culture Receptacle</Link></li>
           </ul>
         </fieldset>
@@ -103,8 +103,11 @@ export default function IndexPage() {
         </fieldset>
 
       <fieldset className='white-box'>
-        <legend><h2>Latest Update (5/27/2026)</h2></legend>
-        <p>I migrated the website to use React because I want to be employed.</p>
+        <legend><h2>Latest Updates</h2></legend>
+        <ul>
+          <li>5/29/2026: Made some touch-ups on the frontend.</li>
+          <li>5/27/2026: I migrated the website to use React because I want to be employed.</li>
+        </ul>
       </fieldset>
         
     </Page>

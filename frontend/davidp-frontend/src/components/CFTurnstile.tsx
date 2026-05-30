@@ -1,9 +1,10 @@
 // @ts-nocheck
 import { useEffect, useId } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 export default function CFTurnstile({callback, error_callback, expired_callback, timeout_callback}) {
   const componentId = useId();
-  const sitekey = import.meta.env.DEV ? "1x00000000000000000000AA" : "0x4AAAAAACwAfT1Q_QwaUX-3";
+  const sitekey = (import.meta.env.DEV || window.location.hostname.includes("localhost")) ? "1x00000000000000000000AA" : "0x4AAAAAACwAfT1Q_QwaUX-3";
 
   useEffect(()=>{
       const idQuery = `#${componentId}`;

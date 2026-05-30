@@ -14,13 +14,13 @@ export default function ProjectsPage(){
 
 		<ul>
 			<li>
-				<InnerBoxLinkDesc href="/projects/davidpineiroxyz" urlText="DavidPineiro.xyz Website"><span>This is a website built with a <i>Lua</i>-based <Link to="https://github.com/pkulchenko/fullmoon">Fullmoon</Link> framework using <i>HTML</i> and <i>CSS</i> that automatically checks GitHub for updates every minute and deploys changes when detected.</span></InnerBoxLinkDesc>
+				<InnerBoxLinkDesc href="/page/projects/davidpineiroxyz" urlText="DavidPineiro.xyz Website"><span>This is a website built with a <i>Lua</i>-based <Link to="https://github.com/pkulchenko/fullmoon">Fullmoon</Link> framework using <i>HTML</i> and <i>CSS</i> that automatically checks GitHub for updates every minute and deploys changes when detected.</span></InnerBoxLinkDesc>
 			</li>
 			<li>
-				<InnerBoxLinkDesc href="/projects/backendproject1" urlText="Excursion Checkout Website Backend"><span>I developed a <i>Spring Boot</i> backend for an <i>AngularJS</i> frontend. I host the frontend, backend, and <i>MariaDB</i> database.</span></InnerBoxLinkDesc>
+				<InnerBoxLinkDesc href="/page/projects/backendproject1" urlText="Excursion Checkout Website Backend"><span>I developed a <i>Spring Boot</i> backend for an <i>AngularJS</i> frontend. I host the frontend, backend, and <i>MariaDB</i> database.</span></InnerBoxLinkDesc>
 			</li>
 			<li>
-				<InnerBoxLinkDesc href="/projects/storeproject1" urlText="Shop Website Modification"><span>Modified a <i>Spring Boot</i> website to add various functionality such as a "buy now" button, new fields to a form, server-side validation for the fields, unit tests, and an about page.</span></InnerBoxLinkDesc>
+				<InnerBoxLinkDesc href="/page/projects/storeproject1" urlText="Shop Website Modification"><span>Modified a <i>Spring Boot</i> website to add various functionality such as a "buy now" button, new fields to a form, server-side validation for the fields, unit tests, and an about page.</span></InnerBoxLinkDesc>
 			</li>
 		</ul>
 
@@ -30,12 +30,12 @@ export default function ProjectsPage(){
 
 		<ul>
 			<li>
-				<InnerBoxLinkDesc href="/projects/weatherai1" urlText="Weather Health Risk Numerical Regression">
+				<InnerBoxLinkDesc href="/page/projects/weatherai1" urlText="Weather Health Risk Numerical Regression">
 					<span>Developed and trained an <Link to="https://xgboosting.com/about/">XGBoost</Link> model to predict the health risk of weather conditions. A very simple frontend and backend was developed to prove it works. Evaluated performance using <i>RMSE</i> and <i>MAPE</i>.</span>
 				</InnerBoxLinkDesc>
 			</li>
 			<li>
-				<InnerBoxLinkDesc href="/projects/studentpassfail" urlText="Student Pass/Fail Classifier">
+				<InnerBoxLinkDesc href="/page/projects/studentpassfail" urlText="Student Pass/Fail Classifier">
 					<span>Developed and trained an <Link to="https://xgboosting.com/about/">XGBoost</Link> model to predict if a student will pass or fail a class. A very simple frontend and backend was developed to prove it works. Evaluated performance using <i>AUC-ROC</i> and <i>F1 score</i>.</span>
 				</InnerBoxLinkDesc>
 			</li>

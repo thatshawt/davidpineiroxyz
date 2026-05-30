@@ -17,6 +17,6 @@ export default function CalileaningPage(){
         </video>
         <br/>
         <br/>
-        <div className="inner-box"><Link href="/dog">Dog Exhibit</Link></div>
+        <div className="inner-box"><Link href="/page/dog">Dog Exhibit</Link></div>
     </Page>);
 }

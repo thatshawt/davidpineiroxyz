@@ -4,19 +4,15 @@ local fm = require "fullmoon"
 local unix = require 'unix'
 
 date = assert(unix.commandv('date'))
-local dateString = common.exec(date)
-dateString = dateString:sub(1, #dateString - 1) -- remove last char
 
-
-Log(kLogInfo, "got date string '%s'" % {dateString})
+local viteDevMode = false
 
 local frontendHost
-
 devMode = common.isDevmode()
 Log(kLogInfo, "devmode '%s'" % {tostring(devMode)})
 if devMode then
 	fm.setTemplateVar("turnstile_key", "1x00000000000000000000AA")
-	frontendHost = "http://localhost:8080"
+	frontendHost = viteDevMode and "http://localhost:5173" or "http://localhost:8080"
 else
 	fm.setTemplateVar("turnstile_key", "0x4AAAAAACwAfT1Q_QwaUX-3")
 	frontendHost = "http://davidpineiro.xyz"
@@ -35,23 +31,19 @@ do
 	-- print("id=1 message ",db:fetchOne([[select message from chats where id=1;]]).message)
 end
 
-fm.setTemplateVar("serverStartDate", dateString)
 
 local frontendRoutes = {
-	"/", "/webThingies",
-	"/admin",
-	"/qr", "/qr_scanner",
-	"/music",
-	"/signup", "/login", "/logout",
-	"/forgotPassword", "/forgotPasswordRedirect",
-	"/cali_leaning", "/dog",
-	"/readings", "/fun/*",
-	"/projects", "/projects/*"
+	"/page/*"
 }
+
 for k,v in pairs(frontendRoutes) do
 	-- all of them can point to index.html cus the frontend handles the "routing"
 	fm.setRoute({v, method='GET'}, fm.servePath('/index.html'))
 end
+
+fm.setRoute({"/", method='GET'}, fm.serveRedirect(302, frontendHost.."/page/") )
+fm.setRoute({"/index.html", method='GET'}, fm.serveRedirect(302, frontendHost.."/page/") )
+fm.setRoute({"/index.htm", method='GET'}, fm.serveRedirect(302, frontendHost.."/page/") )
 
 -- static files like css and fonts
 fm.setRoute({"/static/*", "/assets/*", "/favicon.ico", "/index.html"}, fm.serveAsset)
@@ -65,6 +57,11 @@ fm.setRoute({"/getInfo", method = {"POST"}},
 	
 	-- fm.logInfo("returned '%s'" % {postResponse})
 	return postResponse
+end)
+
+local serverStartedSecondsStr = tostring(GetTime())
+fm.setRoute({"/lastUpdated", method="GET"}, function (r)
+	return fm.serveResponse(200, Nil, serverStartedSecondsStr)
 end)
 
 fm.setRoute({"/selfSession", method = {"GET"}},
@@ -129,7 +126,7 @@ fm.setRoute({"/login", method = {"POST"}},
 			r.session.message = common.validate.stringifyError(error)
 			-- print(r.session.message)
 			-- return fm.serveResponse(200, "SKIBIDI")
-			return fm.serveResponse(303, {Location=frontendHost.."/login"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/login"})
 			-- return fm.serveContent("routes/login", {message = error})
 		end
 	end
@@ -148,10 +145,10 @@ fm.setRoute({"/forgotPassword", method = {"POST"}},
 			
 			r.session.message = common.validate.stringifyError(error)
 
-			return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/forgotPassword"})
 		else
 			r.session.message = common.validate.stringifyError(error)
-			return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/forgotPassword"})
 		end
 
 	end)
@@ -178,17 +175,17 @@ fm.setRoute({"/forgotPasswordRedirect", method = {"POST"}},
 
 				r.session.message = "Success! Type your new password below."
 
-				return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+				return fm.serveResponse(303, {Location=frontendHost.."/page/forgotPassword"})
 			else
 				r.session.forgotpass = Nil
 				r.session.message = common.validate.stringifyError(error)
-				return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+				return fm.serveResponse(303, {Location=frontendHost.."/page/forgotPassword"})
 			end
 
 		else
 			r.session.forgotpass = Nil
 			r.session.message = common.validate.stringifyError(error)
-			return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/forgotPassword"})
 		end
 
 	end)
@@ -205,7 +202,7 @@ fm.setRoute({"/resetPassword", method = {"POST"}},
 		then
 			r.session.forgotpass = Nil
 			r.session.message = Nil
-			return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/forgotPassword"})
 		end
 
 		local db <close> = common.getSqlConnection()
@@ -225,13 +222,13 @@ fm.setRoute({"/resetPassword", method = {"POST"}},
 					r.session.user = Nil
 					r.session.forgotpass = Nil
 					r.session.message = "Successfully reset password! Now you can try logging in with the new password."
-					return fm.serveResponse(303, {Location=frontendHost.."/login"})
+					return fm.serveResponse(303, {Location=frontendHost.."/page/login"})
 				end
 			end
 		end
 
 		r.session.message = common.validate.stringifyError(msg)
-		return fm.serveResponse(303, {Location=frontendHost.."/forgotPassword"})
+		return fm.serveResponse(303, {Location=frontendHost.."/page/forgotPassword"})
 	end
 )
 
@@ -256,7 +253,7 @@ fm.setRoute({"/signup", method = {"POST"}},
 		-- if already logged in
 		if r.session and r.session.user then
 			r.session.message = "You are already logged in with '%s'. Log out!!! NOWWWWWW!!!!! ROOOOOOAAAARRRRRRRRR O.o YYYYYEEEEAAAAAAHHHHHH" % {r.session.user}
-			return fm.serveResponse(303, {Location=frontendHost.."/logout"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/logout"})
 		end
 
 		r.params.email = common.trim(r.params.email:lower())
@@ -298,13 +295,13 @@ fm.setRoute({"/signup", method = {"POST"}},
 					username = r.params.username,
 				}
 			}
-			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/signup"})
 		else -- fail
 			r.session.message = common.validate.stringifyError(error)
 			r.session.signup = Nil
 
 			-- return fm.serveContent("routes/signup", {signup1 = true})
-			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/signup"})
 		end
 	end
 )
@@ -315,7 +312,7 @@ fm.setRoute({"/signupCodeResend", method = {"POST"}},
 		if r.session.signupStage ~= "code" then
 			r.session.signup = Nil
 			r.session.message = Nil
-			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/signup"})
 		end
 
 		r.params.email = common.trim(r.params.email:lower())
@@ -325,10 +322,10 @@ fm.setRoute({"/signupCodeResend", method = {"POST"}},
 
 		if valid == true then
 			r.session.message = "Sent email again. It might take a few minutes to send, also dont forget to check spam folder just incase."
-			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/signup"})
 		else
 			r.session.message = common.validate.stringifyError(error)
-			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/signup"})
 		end
 	end)
 
@@ -338,7 +335,7 @@ fm.setRoute({"/signupCode", method = {"POST"}},
 		if r.session.signupStage ~= "code" then
 			r.session.message = Nil
 			r.session.signup = Nil
-			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/signup"})
 		end
 
 		r.params.email = common.trim(r.params.email:lower())
@@ -357,10 +354,10 @@ fm.setRoute({"/signupCode", method = {"POST"}},
 					code = r.params.code,
 				}
 			}
-			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/signup"})
 		else -- otherwise show the error
 			r.session.message = common.validate.stringifyError(error)
-			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/signup"})
 		end
 
 	end)
@@ -371,7 +368,7 @@ fm.setRoute({"/signupPassword", method = {"POST"}},
 		if r.session.signupStage ~= "pass" then
 			r.session.message = Nil
 			r.session.signup = Nil
-			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/signup"})
 		end
 
 		r.params.email = common.trim(r.params.email:lower())
@@ -384,7 +381,7 @@ fm.setRoute({"/signupPassword", method = {"POST"}},
 		-- serve error
 		if valid == false then
 			r.session.message = common.validate.stringifyError(error)
-			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/signup"})
 		end
 
 		-- try to create account
@@ -400,7 +397,7 @@ fm.setRoute({"/signupPassword", method = {"POST"}},
 			return fm.serveResponse(303, {Location=frontendHost.."/"})
 		else -- otherwise show the error
 			r.session.message = common.validate.stringifyError(error)
-			return fm.serveResponse(303, {Location=frontendHost.."/signup"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/signup"})
 		end
 	end)
 
@@ -420,7 +417,7 @@ fm.setRoute({"/chat/requestOld", method = {"POST"}},
 	end
 )
 
--- chat requestOld
+-- chat heartbeat
 fm.setRoute({"/chat/heartbeat", method = {"POST"}},
 	function (r)
 		local chatSession = r.session.chatSession
@@ -693,11 +690,11 @@ fm.setRoute({"/admin/:action", method = {"POST"}},
 		if actionHandler then
 			local result = actionHandler()
 			if result then return result else
-				return fm.serveResponse(303, {Location=frontendHost.."/admin"})
+				return fm.serveResponse(303, {Location=frontendHost.."/page/admin"})
 			end
 		else
 			r.session.message = "admin action '%s' doesnt exist?" % {action}
-			return fm.serveResponse(303, {Location=frontendHost.."/admin"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/admin"})
 		end
 
 	end)
@@ -800,11 +797,11 @@ fm.setRoute({"/admin/:action", method = {"GET"}},
 		if actionHandler then
 			local result = actionHandler()
 			if result then return result else
-				return fm.serveResponse(303, {Location=frontendHost.."/admin"})
+				return fm.serveResponse(303, {Location=frontendHost.."/page/admin"})
 			end
 		else
 			r.session.message = "admin action '%s' doesnt exist?" % {action}
-			return fm.serveResponse(303, {Location=frontendHost.."/admin"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/admin"})
 		end
 
 	end)
@@ -933,10 +930,8 @@ do
 end
 
 common.sendNtfy("davidpineiro.xyz","Ready!")
--- print("id=1 message ",db:fetchOne([[select message from chats where id=1;]]).message)
 
 -- start copyparty
 common.forkCopyParty(copyPartyPort)
--- common.sendNtfy("copyparty", "started!")
 
 fm.run()

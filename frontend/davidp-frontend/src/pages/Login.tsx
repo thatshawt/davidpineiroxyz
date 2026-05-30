@@ -1,5 +1,5 @@
-import { useContext, useState } from "react";
-import { SessionContext, type Session } from "../components/SessionContext";
+import { useState } from "react";
+import { useSession } from "../components/SessionContext";
 import Link from "../components/Link";
 import { Page } from "../components/Page";
 import CFTurnstile from "../components/CFTurnstile";
@@ -16,14 +16,14 @@ export default function LoginPage(){
         setDisabled(true);
     }
 
-    const session:Session = (useContext(SessionContext) as any) as Session;
-    if(session == undefined)return <>not yet brooo</>
+    const session = useSession();
+    
     const message = session.message ? <span>{session.message}</span> : <></>;
 
     return (<Page title="Login">
         <h1>Login</h1>
 
-        <p><Link href="/signup">Click to create an account.</Link></p>
+        <p><Link href="/page/signup">Click to create an account.</Link></p>
 
         {message}
 
@@ -40,6 +40,6 @@ export default function LoginPage(){
             <CFTurnstile callback={turnstileEnable} error_callback={turnstileDisable} expired_callback={turnstileDisable} timeout_callback={turnstileDisable}/>
         </form>
 
-        <p><Link href="/forgotPassword">Click if you forgot your password.</Link></p>
+        <p><Link href="/page/forgotPassword">Click if you forgot your password.</Link></p>
     </Page>)
 }

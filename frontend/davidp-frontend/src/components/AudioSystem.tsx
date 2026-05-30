@@ -265,6 +265,7 @@ export function AudioSystem({children}){
 
     updateAudioObjState();
 
+    //TODO make this re-register when playing music
     if ("mediaSession" in navigator) {
       navigator.mediaSession.setActionHandler("play", () => {
         const audio = audioObj.musicAudioEl;
@@ -330,7 +331,7 @@ export function AudioSystem({children}){
     setInterval(() => {
       audioObj._updateMetadata();
       // updatePlayPauseButton();
-    }, 1000);
+    }, 3000);
 
     audioObj.loadMusicTrack("dog");
 

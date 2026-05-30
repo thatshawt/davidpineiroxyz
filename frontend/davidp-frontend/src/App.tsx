@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import './App.css'
 
 import { PageRouter } from './components/PageRouter'
 
-import { SessionContext, SessionContextProvider, type Session } from './components/SessionContext'
+import { SessionContextProvider, useSession } from './components/SessionContext'
 
 import IndexPage from './pages/Index'
 import AdminPage from './pages/Admin'
@@ -59,48 +59,46 @@ export const HTMLComment = ({ text }) => {
   return <div dangerouslySetInnerHTML={{ __html: `<!-- ${text} -->` }}/>
 }
 
-// @ts-ignore
-function NavbarInner({toggleExtras}) {
-  const session:Session = (useContext(SessionContext) as any) as Session;
-  if(session == undefined)return <>not yet brooo</>
+type ToggleExtras = () => void;
+
+function NavbarInner(props:{toggleExtras:ToggleExtras}) {
+  const session = useSession();
 
   return (<>
     <u>General:</u>
-    <Link to="/" className="nav-badge"><img src="/static/david-badge-88x31.gif" alt="david badge" /></Link>
-    <Link to="/qr">QR Generator</Link>
-    <Link to="/qr_scanner">QR Scanner</Link>
+    <Link to="/page/" className="nav-badge"><img src="/static/david-badge-88x31.gif" alt="david badge" /></Link>
+    <Link to="/page/qr">QR Generator</Link>
+    <Link to="/page/qr_scanner">QR Scanner</Link>
     <br />
     <u>Other:</u>
-    <a onClick={toggleExtras} id="extrasA">Music</a>
-    <Link to="/music">Music Library</Link>
+    <a onClick={props.toggleExtras} id="extrasA">Music</a>
+    <Link to="/page/music">Music Library</Link>
     <br />
     <u>User Stuff:</u>
     {session.user && <>
       <span>Hello "<span style={{userSelect: "text"}}>{session.user}</span>".</span>
       {session.isAdmin &&
-        <Link to="/admin">Admin Page</Link>}
-      <Link to="/logout">Logout</Link>
+        <Link to="/page/admin">Admin Page</Link>}
+      <Link to="/page/logout">Logout</Link>
     </>}
 
     {!session.user && <>
-      <Link to="/login">Login</Link>
-      <Link to="/signup">Signup</Link>
+      <Link to="/page/login">Login</Link>
+      <Link to="/page/signup">Signup</Link>
     </>}
   </>)
 }
 
-// @ts-ignore
-function NavbarStatic({toggleExtras}){
+function NavbarStatic(props:{toggleExtras:ToggleExtras}){
   return (<>
     <div className="navbar" id="static-navbar">
         {/* <!-- <span id="static-navbar-backtext">lotta text</span> --> */}
-        <NavbarInner toggleExtras={toggleExtras}/>
+        <NavbarInner toggleExtras={props.toggleExtras}/>
       </div>
   </>);
 }
 
-// @ts-ignore
-function NavbarMenu({toggleExtras}){
+function NavbarMenu(props:{toggleExtras:ToggleExtras}){
 
   const [open, setOpen] = useState(false);
 
@@ -109,7 +107,7 @@ function NavbarMenu({toggleExtras}){
     {open && <div className="sukuna-navbar" id="sukuna-navbar">
       <a style={{fontSize: "40px", color:"rgb(255, 255, 255)", justifyContent: "center", display: "grid", userSelect: "none"}}onClick={()=>{setOpen(false);window.audioObj.playAudioBuffName("uisound_min11");}}>menu</a>
 
-      <NavbarInner toggleExtras={toggleExtras}/>
+      <NavbarInner toggleExtras={props.toggleExtras}/>
     </div>}
 
     {/* <!-- fixed close button navbar --> */}
@@ -133,9 +131,18 @@ export function App() {
     onload();
 
     setupSoundsFX();
+
+    fetch("/lastUpdated").then((r)=>r.text()).then((text)=>{
+      const dateObj = new Date(parseInt(text, 10) * 1000);
+      const timeString = dateObj.toLocaleString();
+      setLastUpdated(timeString);
+    });
+
   },[]);
 
   const [extrasToggleState, setExtrasToggleState] = useState(false);
+
+  const [lastUpdated, setLastUpdated] = useState("who knows...");
 
   const toggleExtras = () => {
     setExtrasToggleState(!extrasToggleState);
@@ -144,11 +151,7 @@ export function App() {
 
   return (
     <SessionContextProvider
-      defaultValue={{
-        user:"fortniteballer",
-        isAdmin:true,
-        message:"poo poo pee pee"
-      }}>
+      defaultValue={{}}>
 
       <AudioSystem>
         <NavbarMenu toggleExtras={toggleExtras}/>
@@ -158,8 +161,13 @@ export function App() {
         />
         <NavbarStatic toggleExtras={toggleExtras}/>
 
+{/*
+TODO fix all the internal links somehow so they point to '/page/*' and not '/*'
+*/}
         {/* maybe change this so its not an array, it just has children of PageRoute's...? does that make it redraw less? */}
-        <PageRouter routes={[
+        <PageRouter
+          pathPrefix='/page'
+          routes={[
             {path:"/", page:<IndexPage/>},
             {path:"/webThingies", page:<WebthingiesPage/>},
 
@@ -196,7 +204,7 @@ export function App() {
         />
 
       <div className="footer">
-        <p>Last updated: <i>skibidi toilet</i>.</p>
+        <p>Last updated: <i>{lastUpdated}</i>.</p>
 
         <details>
           <summary>A message for certain someones</summary>

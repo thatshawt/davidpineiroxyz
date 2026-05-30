@@ -1,5 +1,5 @@
-import { useContext, useState } from "react";
-import { SessionContext, type Session } from "../components/SessionContext";
+import { useState } from "react";
+import { useSession } from "../components/SessionContext";
 import CFTurnstile from "../components/CFTurnstile";
 import { Page } from "../components/Page";
 import { BACKEND } from "../App";
@@ -29,8 +29,7 @@ function Stage1(){
 }
 
 function Stage2(){
-    const session:Session = (useContext(SessionContext) as any) as Session;
-    if(session == undefined)return <>not yet brooo</>;
+    const session = useSession();
 
     if(session.forgotpass == undefined || session.forgotpass.stage2 == undefined)return <>errorrrr</>;
 
@@ -63,8 +62,8 @@ function Stage2(){
 }
 
 export default function ForgotPasswordPage(){
-    const session:Session = (useContext(SessionContext) as any) as Session;
-    if(session == undefined)return <>not yet brooo</>
+    const session = useSession();
+
     const message = session.message ? <span>{session.message}</span> : <></>;
 
     return (
