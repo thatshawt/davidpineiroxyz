@@ -3,6 +3,8 @@ import Link from "../components/Link"
 // import { Link } from "react-router-dom"
 import { Page } from "../components/Page"
 
+import ProjectStyles from './Projects.module.css'
+
 export default function ProjectsPage(){
 	return (
 	<Page title="Projects">
@@ -11,16 +13,22 @@ export default function ProjectsPage(){
 		<h2>Web Projects</h2>
 
 		<p>These projects are about web things like backend development, REST endpoints, and frontend refractoring. All of them have been deployed onto my cloud VPS with SystemD services, Nginx reverse proxies, custom subdomains, and NixOS configurations.</p>
-
+		
 		<ul>
 			<li>
-				<InnerBoxLinkDesc href="/page/projects/davidpineiroxyz" urlText="DavidPineiro.xyz Website"><span>This is a website built with a <i>Lua</i>-based <Link to="https://github.com/pkulchenko/fullmoon">Fullmoon</Link> framework using <i>HTML</i> and <i>CSS</i> that automatically checks GitHub for updates every minute and deploys changes when detected.</span></InnerBoxLinkDesc>
+				<InnerBoxLinkDesc href="/page/projects/davidpineiroxyz" urlText="DavidPineiro.xyz Website"><span>Built and deployed a full-stack single-page web application using React, TypeScript, Vite, Lua, and SQLite, with automated GitHub redeployments managed through systemd and NixOS.</span>
+				<br/><img className={ProjectStyles.projectPhoto} src="/static/media/projects/davidpineiroxyz_thumb.png"/>
+				</InnerBoxLinkDesc>
 			</li>
 			<li>
-				<InnerBoxLinkDesc href="/page/projects/backendproject1" urlText="Excursion Checkout Website Backend"><span>I developed a <i>Spring Boot</i> backend for an <i>AngularJS</i> frontend. I host the frontend, backend, and <i>MariaDB</i> database.</span></InnerBoxLinkDesc>
+				<InnerBoxLinkDesc href="/page/projects/backendproject1" urlText="Excursion Checkout Website Backend"><span>I developed a <i>Spring Boot</i> backend for an <i>AngularJS</i> frontend. I host the frontend, backend, and <i>MariaDB</i> database.</span>
+				<br/><img className={ProjectStyles.projectPhoto} src="/static/media/projects/backednproject1_thumb.png"/>
+				</InnerBoxLinkDesc>
 			</li>
 			<li>
-				<InnerBoxLinkDesc href="/page/projects/storeproject1" urlText="Shop Website Modification"><span>Modified a <i>Spring Boot</i> website to add various functionality such as a "buy now" button, new fields to a form, server-side validation for the fields, unit tests, and an about page.</span></InnerBoxLinkDesc>
+				<InnerBoxLinkDesc href="/page/projects/storeproject1" urlText="Shop Website Modification"><span>Modified a <i>Spring Boot</i> website to add various functionality such as a "buy now" button, new fields to a form, server-side validation for the fields, unit tests, and an about page.</span>
+				<br/><img className={ProjectStyles.projectPhoto} src="/static/media/projects/webproject_after_thumb.png"/>
+				</InnerBoxLinkDesc>
 			</li>
 		</ul>
 
@@ -32,11 +40,13 @@ export default function ProjectsPage(){
 			<li>
 				<InnerBoxLinkDesc href="/page/projects/weatherai1" urlText="Weather Health Risk Numerical Regression">
 					<span>Developed and trained an <Link to="https://xgboosting.com/about/">XGBoost</Link> model to predict the health risk of weather conditions. A very simple frontend and backend was developed to prove it works. Evaluated performance using <i>RMSE</i> and <i>MAPE</i>.</span>
+					<br/><img className={ProjectStyles.projectPhoto} src="/static/media/projects/weather_ai_thumb.png"/>
 				</InnerBoxLinkDesc>
 			</li>
 			<li>
 				<InnerBoxLinkDesc href="/page/projects/studentpassfail" urlText="Student Pass/Fail Classifier">
 					<span>Developed and trained an <Link to="https://xgboosting.com/about/">XGBoost</Link> model to predict if a student will pass or fail a class. A very simple frontend and backend was developed to prove it works. Evaluated performance using <i>AUC-ROC</i> and <i>F1 score</i>.</span>
+					<br/><img className={ProjectStyles.projectPhoto} src="/static/media/projects/studentpassfail_thumb.png"/>
 				</InnerBoxLinkDesc>
 			</li>
 		</ul>

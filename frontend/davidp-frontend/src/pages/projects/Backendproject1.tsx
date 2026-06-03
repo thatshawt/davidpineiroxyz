@@ -1,6 +1,8 @@
 import Link from "../../components/Link";
 import { Page } from "../../components/Page";
 
+import ProjectStyles from '../Projects.module.css';
+
 export default function ExcursionCheckoutBackendPage(){
 	return (
 <Page title="Excursion Checkout Website Backend">
@@ -12,6 +14,9 @@ export default function ExcursionCheckoutBackendPage(){
 	<ul>
 		<li><Link href="https://backendproject1.davidpineiro.xyz">Live Demo</Link></li>
 	</ul>
+
+	<h2>Screenshot</h2>
+	<img className={ProjectStyles.projectPhoto} src="/static/media/projects/backednproject1_thumb.png"/>
 
 	<h2>Summary</h2>
 	<p>The full application (frontend+backend+database) is a <i>vacation excursion checkout website</i>. A user can choose which place to go and then add excursions. When they are done they can checkout and add everything to their cart.</p>

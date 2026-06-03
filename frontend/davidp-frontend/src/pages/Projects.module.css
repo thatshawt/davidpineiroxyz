@@ -1,0 +1,11 @@
+.projectPhoto{
+    width:300px;
+    height:300px;
+}
+
+@media screen and (max-width: 450px) {
+    .projectPhoto{
+    width:150px;
+    height:150px;
+}
+}

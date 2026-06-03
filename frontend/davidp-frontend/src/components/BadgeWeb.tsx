@@ -1,4 +1,5 @@
 import BadgeStyles from './badge.module.css';
+import UtilityStyles from '../Utility.module.css'
 import Link from './Link';
 
 type BadgeProps = {
@@ -14,7 +15,7 @@ export default function Badge({url, image}:BadgeProps){
 //   </>)
 // }else{
     return (<>
-    <Link href={url} className={BadgeStyles.removeLinkAfter}><img className={BadgeStyles.webBadge} loading='lazy' src={image} alt='' /></Link>
+    <Link href={url} className={UtilityStyles.removeLinkAfter}><img className={BadgeStyles.webBadge} loading='lazy' src={image} alt='' /></Link>
     </>)
 // }
 }

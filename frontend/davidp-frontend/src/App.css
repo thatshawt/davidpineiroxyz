@@ -97,10 +97,6 @@ details {
   z-index: -1;
 }
 
-@media (max-width: 600px) {
-  
-}
-
 h1, h2, h3, h4, h5, h6 {
   /* font-weight: 400; */
   font-style: italic;
@@ -586,12 +582,6 @@ code {
 
 code.escape {
   white-space: pre;
-}
-
-.badge-code {
-  max-width: 400px;
-  max-height: 144px;
-  overflow-y: scroll;
 }
 
 .inline{

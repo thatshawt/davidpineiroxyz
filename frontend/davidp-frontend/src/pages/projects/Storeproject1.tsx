@@ -1,6 +1,8 @@
 import Link from "../../components/Link";
 import { Page } from "../../components/Page";
 
+import ProjectStyles from '../Projects.module.css';
+
 export default function StoreProjectPage(){
 	return (
 <Page title="Shop Website Modification">
@@ -13,6 +15,16 @@ export default function StoreProjectPage(){
 		<li><Link href="https://shopprojectbefore.davidpineiro.xyz">Live Demo <i>Before</i> Modifications</Link></li>
 		<li><Link href="https://shopprojectafter.davidpineiro.xyz">Live Demo <i>After</i> Modifications</Link></li>
 	</ul>
+
+	<h2>Screenshot</h2>
+	<div className="flex-container">
+		<div>
+			Before:<br/><img className={ProjectStyles.projectPhoto} src="/static/media/projects/webproject_before_thumb.png"/>
+		</div>
+		<div>
+			After:<br/><img className={ProjectStyles.projectPhoto} src="/static/media/projects/webproject_after_thumb.png"/>
+		</div>
+	</div>
 
 	<h2>Summary</h2>
 	<p>This project was for one of my courses at WGU. I was given a spring boot java project and instructions on what to modify. The modifications included changing the interface text, add an about page, add a "buy now" button, add minimum/maximum inventory fields, add validation for the minimum/maximum, and add at least 2 unit tests for the added fields.</p>

@@ -1,6 +1,8 @@
 import Link from "../../components/Link";
 import { Page } from "../../components/Page";
 
+import ProjectStyles from '../Projects.module.css';
+
 export default function WeatherHealthRegressionPage(){
 	return (
 <Page title="Weather Health Risk Numerical Regression">
@@ -13,6 +15,9 @@ export default function WeatherHealthRegressionPage(){
 		<li><Link href="https://weatherai1.davidpineiro.xyz">Live Demo</Link></li>
 		<li><Link href="/static/weatherai1_historicalData.csv" forceOut={true}>dataset.csv</Link></li>
 	</ul>
+
+	<h2>Screenshot</h2>
+	<img className={ProjectStyles.projectPhoto} src="/static/media/projects/weather_ai_thumb.png"/>
 
 	<h2>Summary</h2>
 	<p>A machine learning model was developed for a school assignment. The live demo is extracurricular and is a simple frontend and backend in one python script. The deployment is configured as a single systemd service that restarts daily on NixOS.</p>

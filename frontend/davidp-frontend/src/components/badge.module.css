@@ -17,14 +17,16 @@
     /* box-shadow: 1px 1px 0 #eee, 2px 2px 0 #eee; */
   }
 }
-.removeLinkAfter:after{
-  content:unset !important;
-  user-select: unset !important;
-}
 
 @media screen and (max-width: 450px) {
   .webBadge{
     width: 145px;
     height: 51.0795px;
   }
+}
+
+.badgeCode {
+  max-width: 300px;
+  max-height: 100px;
+  overflow-y: scroll;
 }

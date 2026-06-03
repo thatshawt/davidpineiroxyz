@@ -123,6 +123,7 @@ function onload(){
   if(window.hehe)window.hehe();
 }
 
+
 export const BACKEND = import.meta.env.DEV ? "/backend" : "";
 
 export function App() {
@@ -161,12 +162,12 @@ export function App() {
         />
         <NavbarStatic toggleExtras={toggleExtras}/>
 
-{/*
-TODO fix all the internal links somehow so they point to '/page/*' and not '/*'
-*/}
+        {/* <ChatBox/> */}
+
         {/* maybe change this so its not an array, it just has children of PageRoute's...? does that make it redraw less? */}
         <PageRouter
           pathPrefix='/page'
+          index = {<IndexPage/>}
           routes={[
             {path:"/", page:<IndexPage/>},
             {path:"/webThingies", page:<WebthingiesPage/>},
@@ -205,6 +206,12 @@ TODO fix all the internal links somehow so they point to '/page/*' and not '/*'
 
       <div className="footer">
         <p>Last updated: <i>{lastUpdated}</i>.</p>
+
+        <p>Made by David Pineiro. Frontend made with <Link href="https://react.dev/">React</Link>+<Link href="https://vite.dev/">Vite</Link>. Backend made with <Link href="https://redbean.dev/">redbean</Link>+<Link href="https://github.com/pkulchenko/fullmoon">Fullmoon</Link> + <Link href="https://sqlite.org/">SQLite3</Link>.</p>
+
+        <p>See website inspiration at <Link href="/page/webThingies" hash='inspirationAndTools'>Web Thingies</Link>.</p>
+
+        <Link href="https://github.com/thatshawt/davidpineiroxyz">Source Code</Link>
 
         <details>
           <summary>A message for certain someones</summary>

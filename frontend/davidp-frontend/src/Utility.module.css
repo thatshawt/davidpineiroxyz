@@ -1,0 +1,4 @@
+.removeLinkAfter:after{
+  content:unset !important;
+  user-select: unset !important;
+}

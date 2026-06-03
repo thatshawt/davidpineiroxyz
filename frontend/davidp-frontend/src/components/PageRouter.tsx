@@ -9,11 +9,13 @@ export type RoutablePageProps = {
 type Props = {
     pathPrefix:string;
     routes: Array<{path:string, page:JSX.Element}>;
+    index:JSX.Element;
 };
 
-export function PageRouter({pathPrefix,routes}:Props){
+export function PageRouter({pathPrefix,routes,index}:Props){
     return (
     <Routes>
+        <Route index element={index}/>
         {routes.map((route)=>
             <Route path={pathPrefix+route.path} element={route.page}/>
         )}

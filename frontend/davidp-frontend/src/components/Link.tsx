@@ -4,12 +4,14 @@ import type { AnchorHTMLAttributes, ReactNode } from "react";
 type Props = {
   to?:string;
   href?:string;
+  hash?:string;
   children?:ReactNode;
   forceOut?:boolean;
 } & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href">;
 
-export default function Link({ to, href, children, forceOut, ...props }:Props) {
+export default function Link({ to, href, hash, children, forceOut, ...props }:Props) {
   const url = to || href;
+
   if(url == undefined)return <span>{children}</span>;
 
   var isExternal = url.startsWith('http://') || url.startsWith('https://');
@@ -18,7 +20,7 @@ export default function Link({ to, href, children, forceOut, ...props }:Props) {
 
     return (
       <a
-        href={url}
+        href={hash? (url+`#${hash}`) : (url)}
         target="_blank"
         rel="noopener noreferrer"
         {...props}
@@ -31,10 +33,14 @@ export default function Link({ to, href, children, forceOut, ...props }:Props) {
   const location = useLocation();
 
   return (
-    <RouterLink to={{
-      pathname:url,
-      search: "?from="+location.pathname
-    }} {...props}>
+    <RouterLink
+      to={{
+        pathname:url,
+        search: "?from="+location.pathname,
+        hash:hash
+      }}
+      {...props}
+    >
       {children}
     </RouterLink>
   );

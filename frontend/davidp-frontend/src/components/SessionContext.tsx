@@ -106,7 +106,7 @@ export function SessionContextProvider({defaultValue,children}:Props){
     }
 
     useEffect(() => {
-        console.log("from session context first load");
+        // console.log("from session context first load");
         refreshSession();
     },[]);
 

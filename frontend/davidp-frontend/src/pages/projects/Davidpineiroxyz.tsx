@@ -1,18 +1,23 @@
 import Link from "../../components/Link";
 import { Page } from "../../components/Page";
 
+import ProjectStyles from '../Projects.module.css'
+
 export default function DavidPineiroxyzPage(){
 	return (
 <Page title="DavidPineiro.xyz Website">
 	<h1>DavidPineiro.xyz Website</h1>
 
-	<p>tags: <i>Linux, NixOS, SystemD, Subdomain, Cloudflare, DNS, SSL, Nginx, Github, Continuous Deployment, Single Page Application, HTML/CSS, SQLite</i></p>
+	<p>tags: <i>Linux, NixOS, SystemD, Subdomain, Cloudflare, DNS, SSL, Nginx, Github, Continuous Deployment, Single Page Application, React, Typescript, JSX, HTML/CSS, SQLite</i></p>
 
 	<h2>Project Links</h2>
 	<ul>
 		<li><Link href="https://davidpineiro.xyz">Live Deployment</Link></li>
 		<li><Link href="https://github.com/thatshawt/davidpineiroxyz">Github Source Code</Link></li>
 	</ul>
+
+	<h2>Screenshot</h2>
+	<img className={ProjectStyles.projectPhoto} src="/static/media/projects/davidpineiroxyz_thumb.png"/>
 
 	<h2>Summary</h2>
 	<p>

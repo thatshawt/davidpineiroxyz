@@ -268,7 +268,6 @@ function common.chat.deleteSuperDeadSessions(db)
     print("deleted old sessions")
 end
 
-
 function common.chat.isHeartbeatDead(db, sessionid)
     local now = GetTime()
     local lastHeartBeat = db:fetchOne([[SELECT lastHeartBeat FROM chatSessions WHERE sessionid=?;]], sessionid).lastHeartBeat or 0

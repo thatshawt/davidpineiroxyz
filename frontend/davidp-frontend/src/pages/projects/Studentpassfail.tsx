@@ -1,6 +1,8 @@
 import Link from "../../components/Link";
 import { Page } from "../../components/Page";
 
+import ProjectStyles from '../Projects.module.css';
+
 export default function StudentPassFailPage(){
 	return (
 <Page title="Student Pass/Fail Classifier">
@@ -13,6 +15,9 @@ export default function StudentPassFailPage(){
 		<li><Link href="https://studentpassfail.davidpineiro.xyz">Live Demo</Link></li>
 		<li><Link href="/static/student_performance_interactions.csv" forceOut={true}>dataset.csv</Link></li>
 	</ul>
+
+	<h2>Screenshot</h2>
+	<img className={ProjectStyles.projectPhoto} src="/static/media/projects/studentpassfail_thumb.png"/>
 
 	<h2>Summary</h2>
 	<p>This project focuses on building a machine learning model to predict whether a student will pass or fail a class using a dataset sourced from Kaggle. An XGBoost classifier was trained and evaluated, achieving an AUC-ROC score of 0.84 and an F1 score of 0.98.</p>
