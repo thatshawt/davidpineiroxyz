@@ -1,18 +1,40 @@
 import express from 'express';
 import {WebSocketServer} from 'ws';
 
-const httpPORT = 3000;
-const webSocketPort = 3001;
+import { parseArgs } from 'node:util';
+
+import cors from 'cors';
+
+const options = {
+  httport: { type: 'string', short: 'h' },
+  wsport: { type: 'string', short: 'w' }
+};
+
+const { values, positionals } = parseArgs({ options });
+
+// console.log('Parsed Flags:', values);
+// console.log('Positional Args:', positionals);
+
+const httpPORT = Number.parseInt(values.httport || "3000");
+const webSocketPort = Number.parseInt(values.wsport || "3001");
 
 const wss = new WebSocketServer(({port: webSocketPort}));
 console.log("started web socket server");
 
 const httpServer = express();
+
+// Enable CORS for all routes and origins
+httpServer.use(cors()); 
+
 httpServer.get('/', (req, res) => {
-  res.send(`${wss.clients.size}`);
+  var count = 0;
+  wss.clients.forEach((ws)=>{
+    if(ws.readyState == WebSocket.OPEN)count++;
+  });
+  res.send(`${count}`);
 });
 
-httpServer.listen(httpPORT, () => {
+httpServer.listen(httpPORT, (r) => {
   console.log(`Server running on http://localhost:${httpPORT}`);
 });
 
@@ -20,7 +42,9 @@ var messagesState = {
   messages: [],
   lastid: 0,
   init: ()=>{
-    const testMessages = ["this chat is experimental rn and all messages get deleted often so yea"];
+    const testMessages = [
+      "this chat is experimental rn and all messages get deleted often so yea"
+    ];
     for(const msg in testMessages){
       messagesState.addMessage("server", testMessages[msg]);
     }
@@ -42,13 +66,23 @@ wss.on('connection', (ws) => {
   
   var chatState = {
     user:"anon",
+    
     requestsOld:false,
+
+    indexesPerStep: 3,
+
+    chatCooldownSeconds: 2,
+    lastSend: 0,
+
+    heartbeat:0,
+    
     oldBackIndex:0,
     oldForwardIndex:0,
+    
     backIndex:0,
     forwardIndex:0,
-    indexesPerStep: 3,
-    heartbeat:0,
+    
+
     init: () => {
       chatState.forwardIndex = messagesState.messages.length;
       chatState.backIndex = Math.max(chatState.forwardIndex - chatState.indexesPerStep,0);
@@ -84,7 +118,16 @@ wss.on('connection', (ws) => {
     },
     updateHeartbeat: ()=>{
       chatState.heartbeat = Date.now();
-    }
+    },
+    updateCheckCooldown: () => {
+      const now = Date.now();
+      if(now - chatState.lastSend > chatState.chatCooldownSeconds*1000){
+        chatState.lastSend = now;
+        return true;
+      }else{
+        return false;
+      }
+    },
   };
 
   chatState.init();
@@ -121,7 +164,11 @@ wss.on('connection', (ws) => {
 
       if(msg.sendMsg){
         const user = chatState.user;
-        messagesState.addMessage(user, msg.sendMsg);
+        if(chatState.updateCheckCooldown()){
+          messagesState.addMessage(user, msg.sendMsg.slice(0,90));
+        }else{
+          ws.send(JSON.stringify({error:"sending too fast"}));
+        }
       }
 
       if(msg.requestsOld==true){

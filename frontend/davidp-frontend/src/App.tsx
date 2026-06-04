@@ -33,6 +33,7 @@ import ForgotPasswordPage from './pages/ForgotPassword'
 import ForgotPasswordRedirectPage from './pages/ForgotPasswordRedirect'
 import WebthingiesPage from './pages/WebThingies'
 import ExtrasMenu from './components/ExtrasMenu'
+import ChatBox from './components/ChatBox'
 
 export function useScript(src: string, codeText:string) {
   useEffect(() => {
@@ -162,7 +163,7 @@ export function App() {
         />
         <NavbarStatic toggleExtras={toggleExtras}/>
 
-        {/* <ChatBox/> */}
+        <ChatBox/>
 
         {/* maybe change this so its not an array, it just has children of PageRoute's...? does that make it redraw less? */}
         <PageRouter

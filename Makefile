@@ -10,6 +10,9 @@ clean:
 	rm -f prod/davidpineiroxyz.com
 	rm -rf prod/copyparty/stuff/.hist
 
+installChatMicroservice:
+	cd prod/chatMicroservice; pnpm i
+
 package: clean prod/davidpineiroxyz.com updateFromZip
 	cd frontend/davidp-frontend/dist; zip -r ${TOPDIR}/prod/davidpineiroxyz.com .
 

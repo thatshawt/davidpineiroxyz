@@ -7,11 +7,8 @@ prod/copyparty/copyparty-sfx.py
 prod/copyparty/copyparty
 hehe
 
-
-widevideo
-
 # we need to supply this ourselves in prod
 prod/mailer
 
-
-node_modules
+frontend/**/node_modules
+prod/chatMicroservice/**/node_modules

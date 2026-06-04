@@ -17,7 +17,13 @@ type ChatPacket = {
 type ChatMessagesMap = Map<number, ChatMessage>;
 
 export default function ChatBox(){
-  const wsUri = "ws://127.0.0.1:3001";
+
+  const devmode = window.location.hostname.includes("127.0.0.1") || window.location.hostname.includes("localhost");
+
+  const wsUri = devmode ? "ws://localhost:3001/": "ws://davidpineiro.xyz/chatws/";
+  const chatGetClientsUrl = devmode ? "http://localhost:3000/": "http://davidpineiro.xyz/chat/";
+
+  const [chatClients, setChatClients] = useState(0);
 
   const webSocketRef = useRef(null as unknown as WebSocket);
 
@@ -35,6 +41,14 @@ export default function ChatBox(){
 
   const scrollResumePos = useRef(0);
 
+  const chatInputDisabledRef = useRef(false);
+  // const chatCooldownRef = useRef(0);
+
+  function updateChatClientsState(){
+    fetch(chatGetClientsUrl).then((r)=>r.text())
+    .then((text)=>setChatClients(text));
+  }
+
   function sendWebsocketIfOpen(data){
     const websocket:WebSocket = webSocketRef.current;
     if(websocket && websocket.readyState==WebSocket.OPEN){
@@ -43,9 +57,18 @@ export default function ChatBox(){
   }
 
   function sendChatWebsocket(message:string){
+    if(chatInputDisabledRef.current==true)return;
+
     sendWebsocketIfOpen(JSON.stringify({
       sendMsg: message
     }));
+    chatInputDisabledRef.current=true;
+    if(chatInputRef.current)chatInputRef.current.disabled=true;
+
+    setTimeout(()=>{
+      chatInputDisabledRef.current=false;
+      if(chatInputRef.current)chatInputRef.current.disabled=false;
+    },2500);
   }
 
   function sendRequestOld(){
@@ -87,6 +110,9 @@ export default function ChatBox(){
   }
 
   function sendChatUI(){
+    if(chatInputDisabledRef.current==true){
+      return;
+    }
     // var chatInputEl = getChatInputEl();
     var chatInputEl = chatInputRef.current;
     if(!chatInputEl)return;
@@ -141,7 +167,203 @@ export default function ChatBox(){
 
       newsocket.onopen = () => {
         // console.log("CONNECTED");
-        loginChat("skibidiah jr");
+
+        var names = `007
+Advantage
+Alert
+Amethyst
+Arclight
+Backhander
+Badass
+Blade
+Blaze
+Blockade
+Blockbuster
+Boxer
+Brimstone
+Broadway
+Buccaneer
+Catalyst
+Champion
+Cipher
+Cliffhanger
+Clipper
+Coachman
+Comet
+Commander
+Courier
+Cowboy
+Crawler
+Crossroads
+Cruiser
+Cryptic
+Deep Space
+Desperado
+Double-Decker
+Echelon
+Edge
+Encore
+En Route
+Escape
+Eureka
+Evangelist
+Excursion
+Explorer
+Fantastic
+Firefight
+Firepower
+Firewall
+Focus
+Foray
+Forge
+Freeway
+Frontier
+Fun Machine
+Game Over
+Genesis
+Glider
+Hacker
+Hawkeye
+Haybailer
+Haystack
+Hexagon
+Hitman
+Hustler
+Hyperion
+Iceberg
+Impossible
+Impulse
+Incognito
+Interceptor
+Invader
+Inventor
+Iridium
+Iron Wolf
+Jackrabbit
+Juniper
+Keyhole
+Keystone
+Kryptonite
+Lancelot
+Liftoff
+Mad Hatter
+Magnum
+Malachite
+Majestic
+Matrix
+Merlin
+Momentum
+Moonstone
+Multiplier
+Netiquette
+Nexus
+Nomad
+Nova
+Obsidian
+Octagon
+Offense
+Olive Branch
+Olympic Torch
+Omega
+Onyx
+Origin
+Outer Space
+Outlaw
+Overlord
+Palladium
+Paperclip
+Paradox
+Patron
+Patriot
+Pegasus
+Pentagon
+Phantom
+Pilgrim
+Pinball
+Pinnacle
+Pipeline
+Pirate
+Polaris
+Portal
+Predator
+Prism
+Quantum
+Radiance
+Raging Bull
+Ragtime
+Reunion
+Ricochet
+Roadrunner
+Rockstar
+Robin Hood
+Rover
+Ruby
+Runabout
+Sapphire
+Scrappy
+Seige
+Shadow
+Shakedown
+Shockwave
+Shooter
+Showdown
+Singularity
+Six Pack
+Slam Dunk
+Slasher
+Sledgehammer
+Spectrum
+Spirit
+Spotlight
+Starlight
+Stealth
+Steamroller
+Stride
+Striker
+Sunrise
+Superhuman
+Supernova
+Super Bowl
+Sunset
+Sweetheart
+Synergy
+Tanzanite
+Tetra
+Titan
+Top Hand
+Topaz
+Touchdown
+Tour
+Tourmaline
+Trailblazer
+Transit
+Trecker (Trekker)
+Trio
+Triple Play
+Triple Threat
+Umbra
+Universe
+Unstoppable
+Utopia
+Vicinity
+Vector
+Vertex
+Vigilance
+Vigilante
+Vista
+Visage
+Vis-à-vis
+VIP
+Volcano
+Volley
+Voyager
+Whizzler
+Wingman
+Xenon`;
+        names = names.split("\n");
+        const name = names[Math.floor(Math.random()*names.length)];
+        console.log(name);
+        loginChat(name);
         // sendChatWebsocket("ping");
         // console.log(`SENT: ping`);
       };
@@ -193,7 +415,13 @@ export default function ChatBox(){
       updateRequestsOldRef();
     },500);
 
-    const heartbeatInterval = setInterval(sendHeartbeat,5000);
+    const heartbeatInterval = setInterval(()=>{
+      sendHeartbeat();
+      updateChatClientsState();
+    },5000);
+
+    sendHeartbeat();
+    updateChatClientsState();
 
     return () => {
       clearInterval(requestsOldInterval);
@@ -268,12 +496,12 @@ export default function ChatBox(){
         <button onClick={sendChatUI}>send</button>
       </div>
 
-      <a onClick={toggleChat}>Close Chat</a>
+      <a onClick={toggleChat}>Close Chat({chatClients})</a>
     </div>);
   }else{
     return (
       <div className={`${ChatStyles.chatContainer} ${ChatStyles.closedChat}`}>
-        <a onClick={toggleChat}>Chat</a>
+        <a onClick={toggleChat}>Chat({chatClients})</a>
       </div>);
   }
 }

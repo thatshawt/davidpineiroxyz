@@ -934,4 +934,7 @@ common.sendNtfy("davidpineiro.xyz","Ready!")
 -- start copyparty
 common.forkCopyParty(copyPartyPort)
 
+--start chatMicroservice
+common.forkChatMicroservice("3000", "3001")
+
 fm.run()

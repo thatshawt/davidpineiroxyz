@@ -1261,6 +1261,17 @@ function common.forkCopyParty(port_)
 	end
 end
 
+nodejs = assert(unix.commandv('node'))
+function common.forkChatMicroservice(httpPort, wsPort)
+    local chatServicePid = unix.fork()
+    if chatServicePid == 0 then
+        unix.execve(bash, {bash, "-c", "cd chatMicroservice; node index.js --httport %s --wsport %s" % {httpPort, wsPort}})
+    else
+        local db <close> = common.getSqlConnection()
+        common.setGlobal(db, 'chatServicePid', chatServicePid)
+    end
+end
+
 function common.serveReverseProxy(BACKEND, requestBody)
     local ip = GetRemoteAddr()
     local url = BACKEND
