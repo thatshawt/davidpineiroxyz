@@ -24,7 +24,7 @@ console.log("started web socket server");
 const httpServer = express();
 
 // Enable CORS for all routes and origins
-httpServer.use(cors()); 
+httpServer.use(cors());
 
 httpServer.get('/', (req, res) => {
   var count = 0;

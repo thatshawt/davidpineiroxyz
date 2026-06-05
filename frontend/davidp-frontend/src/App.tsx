@@ -208,7 +208,7 @@ export function App() {
       <div className="footer">
         <p>Last updated: <i>{lastUpdated}</i>.</p>
 
-        <p>Made by David Pineiro. Frontend made with <Link href="https://react.dev/">React</Link>+<Link href="https://vite.dev/">Vite</Link>. Backend made with <Link href="https://redbean.dev/">redbean</Link>+<Link href="https://github.com/pkulchenko/fullmoon">Fullmoon</Link> + <Link href="https://sqlite.org/">SQLite3</Link>.</p>
+        <p>Made by David Pineiro. Frontend made with <Link href="https://react.dev/">React</Link>+<Link href="https://vite.dev/">Vite</Link>. Backend made with <Link href="https://redbean.dev/">redbean</Link>+<Link href="https://github.com/pkulchenko/fullmoon">Fullmoon</Link> + <Link href="https://sqlite.org/">SQLite3</Link>. Chat backend made with <Link href="https://nodejs.org/en">NodeJS</Link> + <Link href="https://expressjs.com/en/">ExpressJS</Link></p>
 
         <p>See website inspiration at <Link href="/page/webThingies" hash='inspirationAndTools'>Web Thingies</Link>.</p>
 

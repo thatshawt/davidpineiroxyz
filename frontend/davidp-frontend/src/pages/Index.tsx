@@ -105,6 +105,7 @@ export default function IndexPage() {
       <fieldset className='white-box'>
         <legend><h2>Latest Changes</h2></legend>
         <ul>
+          <li>6/5/2026: Added a realtime chat implemented as a microservice.</li>
           <li>6/3/2026: Changed projects to have pictures, added a Guest Book! Working on a realtime chat.</li>
           <li>5/29/2026: Made some touch-ups on the frontend.</li>
           <li>5/27/2026: I migrated the website to use React because I want to be employed.</li>
