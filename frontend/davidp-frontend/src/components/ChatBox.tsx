@@ -21,7 +21,7 @@ export default function ChatBox(){
   const devmode = window.location.hostname.includes("127.0.0.1") || window.location.hostname.includes("localhost");
 
   const wsUri = devmode ? "ws://localhost:3001/": "wss://davidpineiro.xyz/chatws/";
-  const chatGetClientsUrl = devmode ? "http://localhost:3000/": "http://davidpineiro.xyz/chat/";
+  const chatGetClientsUrl = devmode ? "http://localhost:3000/": "https://davidpineiro.xyz/chat/";
 
   const [chatClients, setChatClients] = useState(0);
 
