@@ -1,3 +1,175 @@
+import {
+  BillingMode,
+  CreateTableCommand,
+  DeleteTableCommand,
+  DynamoDBClient,
+  waitUntilTableExists,
+  waitUntilTableNotExists,
+} from "@aws-sdk/client-dynamodb";
+
+/**
+ * This module is a convenience library. It abstracts Amazon DynamoDB's data type
+ * descriptors (such as S, N, B, and BOOL) by marshalling JavaScript objects into
+ * AttributeValue shapes.
+ */
+import {
+  BatchWriteCommand,
+  BatchGetCommand,
+  DeleteCommand,
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  UpdateCommand,
+  paginateQuery,
+  paginateScan,
+} from "@aws-sdk/lib-dynamodb";
+
+const client = new DynamoDBClient({});
+
+const messagesTableName = "messages";
+
+const messageCounterTableName = 'messageIdCounter';
+
+async function dynamoResetMessages_DEBUG(){
+  const deleteMessagesCmd = new DeleteTableCommand({
+    TableName: messagesTableName,
+  });
+
+  const createMessagesCmd = new CreateTableCommand({
+    TableName: messagesTableName,
+    BillingMode:"PAY_PER_REQUEST",
+    AttributeDefinitions: [
+      {AttributeName: "id", AttributeType: "N"}
+    ],
+    KeySchema: [
+      {AttributeName: "id", KeyType: "HASH"}
+    ]
+  });
+
+  try {
+    await client.send(deleteMessagesCmd);
+    console.log("deleted messages table");
+  } catch (error) {}
+
+  console.log("waiting until message table deletes...");
+  await waitUntilTableNotExists({
+    client:client,
+    maxDelay:30,
+    minDelay:3
+  },{
+    TableName:messagesTableName
+  });
+  await client.send(createMessagesCmd);
+  console.log("created new messages table");
+  await dynamoMessageCounterReset();
+  console.log("reset message counter");
+
+  console.log("waiting until messages table creates...");
+  await waitUntilTableExists({
+    client:client,
+    maxDelay:30,
+    minDelay:3
+  },{
+    TableName:messagesTableName
+  });
+}
+
+async function dynamoMessageCounterReset() {
+  const putCommand = new PutCommand({
+    TableName: messageCounterTableName,
+    Item: {
+      counterid:0,
+      counterval:0
+    }
+  });
+  const response = await client.send(putCommand);
+  return response;
+}
+
+async function dynamoMessageCounterGetThenIncrement(){
+  const updateCommand = new UpdateCommand({
+    TableName: messageCounterTableName,
+    Key: {counterid:0},
+    
+    UpdateExpression: "SET counterval = counterval + :incr",
+    ExpressionAttributeValues:{":incr": 1},
+
+    ReturnValues: "UPDATED_OLD",
+  });
+  const updateResponse = await client.send(updateCommand);
+  const val = updateResponse.Attributes.counterval;
+  // console.log("getthenincre",val);
+  return val;
+}
+
+async function dynamoGetCounterId(){
+  // get counterval from messageCounterTableName
+  const getCommand = new GetCommand({
+    TableName: messageCounterTableName,
+    Key: {counterid:0}
+  });
+  const response = await client.send(getCommand);
+  const item = response.Item.counterval;
+  console.log("counterid",item);
+  return item;
+}
+
+async function dynamoGetMessageFromId(id){
+  const getCommand = new GetCommand({
+      TableName: messagesTableName,
+      Key: {
+        id: id,
+      },
+    });
+  const getResponse = await client.send(getCommand);
+  const item = getResponse.Item;
+  console.log(JSON.stringify(item));
+  return item;
+}
+
+async function dynamoAddNewMessage(user, message){
+  const messageId = await dynamoMessageCounterGetThenIncrement();
+  // console.log("adding messageid", messageId);
+  const updateCmd = new UpdateCommand({
+    TableName: messagesTableName,
+    Key: {
+      id:messageId
+    },
+    UpdateExpression: "SET mTime = :a , mMessage = :b , mUser = :c",
+    
+    ExpressionAttributeValues: {
+      ":a":Date.now(),
+      ":b":message,
+      ":c":user
+    }
+  });
+  await client.send(updateCmd);
+}
+
+async function dynamoGetMessagesSlice(from, to){
+  if(from==to)return {};
+  var keys = [];
+  for(var i=from;i<to;i++){
+    keys.push({id:i});
+  }
+  const batchGetCmd = new BatchGetCommand({
+    // TableName: messagesTableName,
+    RequestItems: {
+      [messagesTableName]: {
+        Keys: keys
+      }
+    }
+  });
+
+  const response = await client.send(batchGetCmd);
+  const values = response.Responses[messagesTableName];
+  console.log("batchget",values.length,"messages");
+  // console.log(JSON.stringify(values));
+  return values;
+}
+
+await dynamoResetMessages_DEBUG();
+
 import express from 'express';
 import {WebSocketServer} from 'ws';
 
@@ -40,18 +212,77 @@ httpServer.listen(httpPORT, (r) => {
 
 var messagesState = {
   messages: [],
+
+  desiredBackid:0,
+  backid: 0,
+
   lastid: 0,
+  updateCounter:0,
   init: ()=>{
     const testMessages = [
-      "this chat is experimental rn and all messages get deleted often so yea"
+      "the chat gets deleted often",
+      "its using dynamodb now >:)",
+      "and you get a random name when chatting",
     ];
     for(const msg in testMessages){
       messagesState.addMessage("server", testMessages[msg]);
     }
+
+    dynamoGetCounterId().then((lastId)=>{
+      messagesState.lastid = Math.max(0, lastId-10);
+      messagesState.backid = messagesState.lastid;
+      
+      messagesState.startPollUpdate();
+    });
+
+  },
+  startPollUpdate: async () => {
+
+    try{
+      await messagesState.update();
+    }catch(e){}
+
+    setTimeout(messagesState.startPollUpdate,1000);
+  },
+  update: async () => {
+    // handle back messages
+    if(messagesState.desiredBackid < messagesState.backid){
+      const newMessages = await dynamoGetMessagesSlice(messagesState.desiredBackid, messagesState.backid);
+
+      const messagesSorted = newMessages;
+      messagesSorted.sort((a,b)=>{return a.id-b.id});
+
+      for(var i=0;i<messagesSorted.length;i++){
+        messagesState.messages.unshift(messagesSorted[i]);
+      }
+
+      messagesState.backid = messagesState.desiredBackid;
+    }
+
+    // handle forward messages
+    if(messagesState.updateCounter > 0){
+      messagesState.updateCounter = messagesState.updateCounter - 1;
+
+      const latestId = await dynamoGetCounterId();
+      const currentId = messagesState.lastid;
+      if(latestId > currentId){
+        const newMessages = await dynamoGetMessagesSlice(currentId, latestId);
+
+        const messagesSorted = newMessages;
+        messagesSorted.sort((a,b)=>{return a.id-b.id});
+
+        for(var i=0;i<messagesSorted.length;i++){
+          messagesState.messages.push(messagesSorted[i]);
+        }
+
+        messagesState.lastid = latestId;
+        console.log("updated new messages");
+      }
+    }
   },
   addMessage: (user, message) => {
-    messagesState.messages.push({id:messagesState.lastid, user:user, message:message, time:Date.now()});
-    messagesState.lastid++;
+    dynamoAddNewMessage(user, message);
+    messagesState.updateCounter = 3;
   },
   slice: (a, b) => {
     return messagesState.messages.slice(a,b);
@@ -69,7 +300,7 @@ wss.on('connection', (ws) => {
     
     requestsOld:false,
 
-    indexesPerStep: 3,
+    indexesPerStep: 10,
 
     chatCooldownSeconds: 2,
     lastSend: 0,
@@ -81,7 +312,6 @@ wss.on('connection', (ws) => {
     
     backIndex:0,
     forwardIndex:0,
-    
 
     init: () => {
       chatState.forwardIndex = messagesState.messages.length;
@@ -102,7 +332,8 @@ wss.on('connection', (ws) => {
       return slice;
     },
     backStep: () => {
-      if(chatState.requestsOld){
+      if(chatState.requestsOld && chatState.oldForwardIndex != 0){
+
         chatState.requestsOld = false;
 
         chatState.oldBackIndex = Math.max(chatState.oldBackIndex-chatState.indexesPerStep, 0);
@@ -110,6 +341,11 @@ wss.on('connection', (ws) => {
         const slice = messagesState.slice(chatState.oldBackIndex, chatState.oldForwardIndex);
 
         chatState.oldForwardIndex = chatState.oldBackIndex;
+
+        if(chatState.oldBackIndex < messagesState.backid){
+          chatState.requestsOld = true;
+          messagesState.desiredBackid = chatState.oldBackIndex;
+        }
 
         return slice;
       }else{
@@ -148,6 +384,7 @@ wss.on('connection', (ws) => {
         forwardSlice:forwardSlice,
         oldSlice:oldSlice
       }));
+      console.log("sending message");
     }
   },1000);
 
@@ -156,7 +393,9 @@ wss.on('connection', (ws) => {
     try{
       const msg = JSON.parse(buffer.toString());
 
-      console.log(`Received: ${JSON.stringify(msg)}`);
+      //dont keep printing requests if they already requested
+      if(!(msg.requestsOld==true && chatState.requestsOld==true))
+        console.log(`Received: ${JSON.stringify(msg)}`);
 
       if(msg.login){
         chatState.user = msg.login;

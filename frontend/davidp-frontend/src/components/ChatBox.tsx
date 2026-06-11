@@ -1,12 +1,12 @@
 // @ts-nocheck
 import { useRef, useState, useEffect } from 'react';
-import ChatStyles from './chat.module.css'
+import ChatStyles from './chat.module.css';
 
 type ChatMessage = {
   id:number;
-  user:string;
-  message:string;
-  time:number;
+  mUser:string;
+  mMessage:string;
+  mTime:number;
 };
 
 type ChatPacket = {
@@ -28,6 +28,8 @@ export default function ChatBox(){
   const webSocketRef = useRef(null as unknown as WebSocket);
 
   const [opened, setOpened] = useState(false);
+
+  const [username, setUsername] = useState(undefined);
 
   // const chatInputId = useId();
   const chatInputRef = useRef(null as unknown as HTMLInputElement);
@@ -364,13 +366,15 @@ Xenon`;
         const name = names[Math.floor(Math.random()*names.length)];
         console.log(name);
         loginChat(name);
+
+        setUsername(name);
         // sendChatWebsocket("ping");
         // console.log(`SENT: ping`);
       };
 
       newsocket.onmessage = (e) => {
         const msgPacket:ChatPacket = JSON.parse(e.data);
-        // console.log(`RECEIVED: ${JSON.stringify(msgPacket)}`);
+        console.log(`RECEIVED: ${JSON.stringify(msgPacket)}`);
         setMessages((oldMsgs)=>{
           if(
             (!msgPacket.forwardSlice && !msgPacket.oldSlice)
@@ -478,12 +482,12 @@ Xenon`;
       >
           {getSortedMessages().map((msg:ChatMessage)=>(
             <div key={msg.id}>
-              <span style={{color:'black'}}>{msg.user}</span>
+              <span style={{color:'black'}}>{msg.mUser}</span>
               <span style={{color:'lime'}}>~</span>
-              <span style={{color:'white'}}>{msg.message}</span>
+              <span style={{color:'white'}}>{msg.mMessage}</span>
               <br/>
               <span style={{color:'#1f333f',fontSize:'20px'}}>#{msg.id}, </span>
-              <span style={{color:'#003d15',fontSize:'20px'}}>{new Date(msg.time).toLocaleString()}</span>
+              <span style={{color:'#003d15',fontSize:'20px'}}>{new Date(msg.mTime).toLocaleString()}</span>
             </div>
           ))}
       </div>
@@ -496,7 +500,15 @@ Xenon`;
         <button onClick={sendChatUI}>send</button>
       </div>
 
-      <a onClick={toggleChat}>Close Chat({chatClients})</a>
+      <div style={{
+        display:"flex",
+        flexWrap:"wrap",
+        justifyContent:"space-between"
+      }}>
+          {username ? <>You are: {username}</>:<></>}
+        <a onClick={toggleChat} style={{direction: "rtl"}}>Close Chat({chatClients})</a>
+      </div>
+
     </div>);
   }else{
     return (

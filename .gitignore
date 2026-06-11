@@ -12,3 +12,4 @@ prod/mailer
 
 frontend/**/node_modules
 prod/chatMicroservice/**/node_modules
+prod/chatMicroservice/**/.env
