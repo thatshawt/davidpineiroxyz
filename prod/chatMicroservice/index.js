@@ -49,7 +49,9 @@ async function dynamoResetMessages_DEBUG(){
   try {
     await client.send(deleteMessagesCmd);
     console.log("deleted messages table");
-  } catch (error) {}
+  } catch (error) {
+    console.error(error);
+  }
 
   console.log("waiting until message table deletes...");
   await waitUntilTableNotExists({
