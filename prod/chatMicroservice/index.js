@@ -24,6 +24,10 @@ import {
   paginateScan,
 } from "@aws-sdk/lib-dynamodb";
 
+for(const envThing in process.env){
+  console.log(envThing);
+}
+
 const client = new DynamoDBClient({});
 
 const messagesTableName = "messages";

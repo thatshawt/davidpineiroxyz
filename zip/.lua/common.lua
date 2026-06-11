@@ -1265,7 +1265,7 @@ nodejs = assert(unix.commandv('node'))
 function common.forkChatMicroservice(httpPort, wsPort)
     local chatServicePid = unix.fork()
     if chatServicePid == 0 then
-        unix.execve(bash, {bash, "-c", "cd chatMicroservice; node index.js --httport %s --wsport %s" % {httpPort, wsPort}})
+        unix.execve(bash, {bash, "-c", "cd chatMicroservice; node --env-file=.env index.js --httport %s --wsport %s" % {httpPort, wsPort}})
     else
         local db <close> = common.getSqlConnection()
         common.setGlobal(db, 'chatServicePid', chatServicePid)
