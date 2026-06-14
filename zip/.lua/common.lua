@@ -1272,8 +1272,15 @@ function common.forkChatMicroservice(httpPort, wsPort)
     end
 end
 
+function common.getCF_IP()
+    return GetHeader('CF-Connecting-IP')
+end
+
+-- TODO 404 page static background doesnt load on mobile?
+-- IDEA: make nginx pass a header with the client ip
 function common.serveReverseProxy(BACKEND, requestBody)
-    local ip = GetRemoteAddr()
+    -- local ip = GetRemoteAddr() -- this doesnt work for ipv6 either? ;-;
+    local ip = common.getCF_IP()
     local url = BACKEND
     local status, headers, body =
         Fetch(url,
@@ -1286,7 +1293,8 @@ function common.serveReverseProxy(BACKEND, requestBody)
                 ['Sec-CH-UA-Platform'] = GetHeader('Sec-CH-UA-Platform'),
                 ['User-Agent'] = GetHeader('User-Agent'),
                 ['Content-Type'] = GetHeader('Content-Type'),
-                ['X-Forwarded-For'] = FormatIp(ip)
+                -- ['X-Forwarded-For'] = FormatIp(ip) -- this doesnt work for IPV6 ;-;
+                ['X-Forwarded-For'] = ip,
             },
             body=requestBody
             })

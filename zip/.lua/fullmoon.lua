@@ -1439,7 +1439,9 @@ local function hcall(func, ...)
   end
   local err = debug.traceback(co, res)
   Log(kLogError, logFormat("Lua error: %s", err))
-  return false, error2tmpl(500, nil, IsLoopbackIp(GetRemoteAddr()) and err or nil)
+  -- local isLoopback = GetHeader('CF-Connecting-IP').starts_with('127.')
+  local isLoopback = false
+  return false, error2tmpl(500, nil, isLoopback and err or nil)
 end
 local MPKEY = "multipart"
 local function handleRequest(path)
@@ -1763,7 +1765,7 @@ fm.setTemplate("cgi", function(cmd)
     SERVER_PORT = select(2, GetServerAddr()),
     SERVER_SOFTWARE = fm.getBrand(),
     REMOTE_HOST = GetHost(),
-    REMOTE_ADDR = FormatIp(GetRemoteAddr()),
+    REMOTE_ADDR = GetHeader('CF-Connecting-IP') ,
     REMOTE_INDENT = ParseUrl(GetUrl()).user,
     REQUEST_SCHEME = GetScheme(),
     REQUEST_METHOD = GetMethod(),
