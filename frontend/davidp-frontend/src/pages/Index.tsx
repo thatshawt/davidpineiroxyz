@@ -107,6 +107,7 @@ export default function IndexPage() {
       <fieldset className={styles.latestChanges + " white-box"}>
         <legend><h2>Latest Changes</h2></legend>
         <ul>
+          <li>6/14/2026: Fixed a bug with IPV6 and copyparty. Made initial load quicker. Fixed weird login/session caching bug.</li>
           <li>6/11/2026: Modified the chat so it uses <Link href="https://aws.amazon.com/dynamodb/">DynamoDB</Link> to store all the messages.</li>
           <li>6/5/2026: Added a realtime chat implemented as a microservice.</li>
           <li>6/3/2026: Changed projects to have pictures, added a Guest Book! Working on a realtime chat.</li>
