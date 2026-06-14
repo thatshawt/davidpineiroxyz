@@ -60,11 +60,11 @@ fm.setRoute({"/getInfo", method = {"POST"}},
 end)
 
 local serverStartedSecondsStr = tostring(GetTime())
-fm.setRoute({"/lastUpdated", method="GET"}, function (r)
+fm.setRoute({"/lastUpdated", method="POST"}, function (r)
 	return fm.serveResponse(200, Nil, serverStartedSecondsStr)
 end)
 
-fm.setRoute({"/selfSession", method = {"GET"}},
+fm.setRoute({"/selfSession", method = {"POST"}},
   function(r)
 	local data = r.session["nothin"]
 	for k,v in pairs(r.session) do

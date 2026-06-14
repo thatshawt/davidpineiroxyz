@@ -137,7 +137,7 @@ export function App() {
 
     setupSoundsFX();
 
-    fetch("/lastUpdated").then((r)=>r.text()).then((text)=>{
+    fetch("/lastUpdated",{method:"post"}).then((r)=>r.text()).then((text)=>{
       const dateObj = new Date(parseInt(text, 10) * 1000);
       const timeString = dateObj.toLocaleString();
       setLastUpdated(timeString);

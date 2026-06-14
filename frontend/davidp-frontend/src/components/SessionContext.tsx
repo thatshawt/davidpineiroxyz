@@ -72,7 +72,7 @@ export function SessionContextProvider({defaultValue,children}:Props){
     const [session, setSession] = useState(defaultValue);
 
     function tryRefreshAndLogout(ifInvalid: () => void){
-        fetch(BACKEND + "/selfSession", {credentials:'include'})
+        fetch(BACKEND + "/selfSession", {credentials:'include', method:"post"})
         .then((idk) => idk.json())
         .then((data)=>{
             const newSession:Session = (data as Session);
