@@ -12,9 +12,10 @@ type Props = {
 };
 
 export function Page({ title, children, extraClasses, ...props}: Props) {
-
     const session:Session = (useContext(SessionContext) as any) as Session;
     if(session == undefined)return <>not yet brooo</>;
+
+    // const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
     const location = useLocation();
     const [search] = useSearchParams();
@@ -34,6 +35,10 @@ export function Page({ title, children, extraClasses, ...props}: Props) {
             // console.log("from page");
             session.refreshSession();
         }
+        // else{
+        //     console.log("no session.refreshSession and no from!=thing...");
+        // }
+        console.log("page loaded");
     }, []);
 
     return (

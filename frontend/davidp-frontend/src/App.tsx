@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import './App.css'
 
@@ -6,32 +6,35 @@ import { PageRouter } from './components/PageRouter'
 
 import { SessionContextProvider, useSession } from './components/SessionContext'
 
-import IndexPage from './pages/Index'
-import AdminPage from './pages/Admin'
-import QrPage from './pages/Qr'
-import ProjectsPage from './pages/Projects'
-import SignupPage from './pages/Signup'
-import CalileaningPage from './pages/CaliLeaning'
-import LoginPage from './pages/Login'
-import DogPage from './pages/Dog'
-import ReadingsPage from './pages/Readings'
-import BackyardCarnivalPage from './pages/fun/BackyardCarnival'
-import NateTheSnakePage from './pages/fun/Natethesnake'
-import DictionaryinPythonPage from './pages/fun/PythonDictionaries'
-import RegexHtmlDoNotPage from './pages/fun/RegexHtmlDoNot'
-import ExcursionCheckoutBackendPage from './pages/projects/Backendproject1'
-import DavidPineiroxyzPage from './pages/projects/Davidpineiroxyz'
-import StoreProjectPage from './pages/projects/Storeproject1'
-import StudentPassFailPage from './pages/projects/Studentpassfail'
-import WeatherHealthRegressionPage from './pages/projects/Weatherai1'
+// import IndexPage from './pages/Index'
+const IndexPage = React.lazy(() => import('./pages/Index'));
+const AdminPage = React.lazy(() => import('./pages/Admin'));
+const QrPage = React.lazy(() => import('./pages/Qr'));
+const ProjectsPage = React.lazy(() => import('./pages/Projects'));
+const SignupPage = React.lazy(() => import('./pages/Signup'));
+const CalileaningPage = React.lazy(() => import('./pages/CaliLeaning'));
+const LoginPage = React.lazy(() => import('./pages/Login'));
+const DogPage = React.lazy(() => import('./pages/Dog'));
+const ReadingsPage = React.lazy(() => import('./pages/Readings'));
+const BackyardCarnivalPage = React.lazy(() => import('./pages/fun/BackyardCarnival'));
+const NateTheSnakePage = React.lazy(() => import('./pages/fun/Natethesnake'));
+const DictionaryinPythonPage = React.lazy(() => import('./pages/fun/PythonDictionaries'));
+const RegexHtmlDoNotPage = React.lazy(() => import('./pages/fun/RegexHtmlDoNot'));
+const ExcursionCheckoutBackendPage = React.lazy(() => import('./pages/projects/Backendproject1'));
+const DavidPineiroxyzPage = React.lazy(() => import('./pages/projects/Davidpineiroxyz'));
+const StoreProjectPage = React.lazy(() => import('./pages/projects/Storeproject1'));
+const StudentPassFailPage = React.lazy(() => import('./pages/projects/Studentpassfail'));
+const WeatherHealthRegressionPage = React.lazy(() => import('./pages/projects/Weatherai1'));
+const MusicLibraryPage = React.lazy(() => import('./pages/MusicLibrary'));
+const LogoutPage = React.lazy(() => import('./pages/Logout'));
+const QrScannerPage = React.lazy(() => import('./pages/QrScanner'));
+const ForgotPasswordPage = React.lazy(() => import('./pages/ForgotPassword'));
+const ForgotPasswordRedirectPage = React.lazy(() => import('./pages/ForgotPasswordRedirect'));
+const WebthingiesPage = React.lazy(() => import('./pages/WebThingies'));
+
 import Link from './components/Link'
 import { AudioSystem, setupSoundsFX } from './components/AudioSystem'
-import MusicLibraryPage from './pages/MusicLibrary'
-import LogoutPage from './pages/Logout'
-import QrScannerPage from './pages/QrScanner'
-import ForgotPasswordPage from './pages/ForgotPassword'
-import ForgotPasswordRedirectPage from './pages/ForgotPasswordRedirect'
-import WebthingiesPage from './pages/WebThingies'
+
 import ExtrasMenu from './components/ExtrasMenu'
 import ChatBox from './components/ChatBox'
 
@@ -165,43 +168,42 @@ export function App() {
 
         <ChatBox/>
 
-        {/* maybe change this so its not an array, it just has children of PageRoute's...? does that make it redraw less? */}
         <PageRouter
           pathPrefix='/page'
-          index = {<IndexPage/>}
+          indexPage = {IndexPage}
           routes={[
-            {path:"/", page:<IndexPage/>},
-            {path:"/webThingies", page:<WebthingiesPage/>},
+            {path:"/", page:IndexPage},
+            {path:"/webThingies", page:WebthingiesPage},
 
-            {path:"/admin", page:<AdminPage/>},
+            {path:"/admin", page:AdminPage},
 
-            {path:"/qr", page:<QrPage/>},
-            {path:"/qr_scanner", page:<QrScannerPage/>},
+            {path:"/qr", page:QrPage},
+            {path:"/qr_scanner", page:QrScannerPage},
 
-            {path:"/music", page:<MusicLibraryPage/>},
+            {path:"/music", page:MusicLibraryPage},
             
-            {path:"/signup", page:<SignupPage/>},
-            {path:"/login", page:<LoginPage/>},
-            {path:"/logout", page:<LogoutPage/>},
+            {path:"/signup", page:SignupPage},
+            {path:"/login", page:LoginPage},
+            {path:"/logout", page:LogoutPage},
             
-            {path:"/forgotPassword", page:<ForgotPasswordPage/>},
-            {path:"/forgotPasswordRedirect", page: <ForgotPasswordRedirectPage/>},
+            {path:"/forgotPassword", page:ForgotPasswordPage},
+            {path:"/forgotPasswordRedirect", page:ForgotPasswordRedirectPage},
             
-            {path:"/cali_leaning", page:<CalileaningPage/>},
-            {path:"/dog", page:<DogPage/>},
+            {path:"/cali_leaning", page:CalileaningPage},
+            {path:"/dog", page:DogPage},
             
-            {path:"/readings", page:<ReadingsPage/>},
-            {path:"/fun/backyardcarnival", page:<BackyardCarnivalPage/>},
-            {path:"/fun/natethesnake", page:<NateTheSnakePage/>},
-            {path:"/fun/python_dictionaries", page:<DictionaryinPythonPage/>},
-            {path:"/fun/regex_parse_html", page:<RegexHtmlDoNotPage/>},
+            {path:"/readings", page:ReadingsPage},
+            {path:"/fun/backyardcarnival", page:BackyardCarnivalPage},
+            {path:"/fun/natethesnake", page:NateTheSnakePage},
+            {path:"/fun/python_dictionaries", page:DictionaryinPythonPage},
+            {path:"/fun/regex_parse_html", page:RegexHtmlDoNotPage},
             
-            {path:"/projects", page:<ProjectsPage/>},
-            {path:"/projects/backendproject1", page:<ExcursionCheckoutBackendPage/>},
-            {path:"/projects/davidpineiroxyz", page:<DavidPineiroxyzPage/>},
-            {path:"/projects/storeproject1", page:<StoreProjectPage/>},
-            {path:"/projects/studentpassfail", page:<StudentPassFailPage/>},
-            {path:"/projects/weatherai1", page:<WeatherHealthRegressionPage/>},
+            {path:"/projects", page:ProjectsPage},
+            {path:"/projects/backendproject1", page:ExcursionCheckoutBackendPage},
+            {path:"/projects/davidpineiroxyz", page:DavidPineiroxyzPage},
+            {path:"/projects/storeproject1", page:StoreProjectPage},
+            {path:"/projects/studentpassfail", page:StudentPassFailPage},
+            {path:"/projects/weatherai1", page:WeatherHealthRegressionPage},
           ]}
         />
 

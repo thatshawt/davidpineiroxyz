@@ -1,5 +1,5 @@
-import type { JSX } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Suspense } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 
 
 export type RoutablePageProps = {
@@ -8,17 +8,23 @@ export type RoutablePageProps = {
 
 type Props = {
     pathPrefix:string;
-    routes: Array<{path:string, page:JSX.Element}>;
-    index:JSX.Element;
+    routes: Array<{path:string, page:React.ComponentType}>;
+    indexPage: React.ComponentType;
 };
 
-export function PageRouter({pathPrefix,routes,index}:Props){
+export function PageRouter({pathPrefix,routes,indexPage}:Props){
+    const location = useLocation();
+    const IndexPage = indexPage; // ok...
     return (
-    <Routes>
-        <Route index element={index}/>
-        {routes.map((route)=>
-            <Route path={pathPrefix+route.path} element={route.page}/>
-        )}
-    </Routes>
+    <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+            <Route index element={<IndexPage/>}/>
+            {routes.map((route)=>
+                <Route
+                    path={pathPrefix+route.path}
+                    element={<route.page key={location.key}/>}/>
+            )}
+        </Routes>
+    </Suspense>
     );
 }
