@@ -91,7 +91,7 @@ fm.setRoute({"/login", method = {"POST"}},
 		-- if already logged in
 		if r.session and r.session.user then
 			r.session.message = "You are already logged in with '%s'. Log out if you want to login to another account." % {r.session.user}
-			return fm.serveResponse(303, {Location=frontendHost..'/'})
+			return fm.serveResponse(303, {Location=frontendHost..'/#alreadyloggedin'})
 			-- return fm.serveContent("routes/login", {message = "You are already logged in with '%s'. Log out if you want to login to another account." % {r.session.user}})
 		end
 
@@ -121,12 +121,12 @@ fm.setRoute({"/login", method = {"POST"}},
 				r.session.isAdmin = true
 			end
 
-			return fm.serveResponse(303, {Location=frontendHost.."/"})
+			return fm.serveResponse(303, {Location=frontendHost.."/#loginsuccess"})
 		else -- fail
 			r.session.message = common.validate.stringifyError(error)
 			-- print(r.session.message)
 			-- return fm.serveResponse(200, "SKIBIDI")
-			return fm.serveResponse(303, {Location=frontendHost.."/page/login"})
+			return fm.serveResponse(303, {Location=frontendHost.."/page/login#error"})
 			-- return fm.serveContent("routes/login", {message = error})
 		end
 	end
