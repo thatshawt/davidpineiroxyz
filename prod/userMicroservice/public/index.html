@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
     <style>
-        /* Styles for the form and list */
         body { font-family: sans-serif; background: #f4f4f9; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 15px; }
@@ -20,11 +19,28 @@
         .list-actions { display: flex; gap: 5px; }
         .btn-edit { background: #FFC107; color: black; }
         .btn-del { background: #f44336; color: white; }
+        /* New Error UI Styles */
+        .error-ui {
+            padding: 10px;
+            background-color: #ffebee;
+            border-left: 5px solid #f44336;
+            color: #c62828;
+            margin-bottom: 15px;
+            display: none; /* Hidden by default */
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .error-ui.visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
+        <!-- Error UI Container -->
+        <div id="errorUI" class="error-ui">Error message will appear here</div>
+        
         <h2>Add/Update User</h2>
         
         <!-- Input Form -->
@@ -56,8 +72,43 @@
     <script>
         // Configuration
         // Note: Ensure your backend maps 'username', 'email', 'password' to the User model fields
-        const API_URL = 'http://localhost:3000/users';
+        const API_URL = 'http://localhost:3002/users';
         window.currentEditId = null;
+
+        // Error UI Management
+        function errorUI(text) {
+            const errorElement = document.getElementById('errorUI');
+            if (text) {
+                errorElement.innerText = text;
+                errorElement.classList.add('visible');
+            } else {
+                errorElement.classList.remove('visible');
+            }
+        }
+
+        // Simplified Utility Function
+        // Handles full fetch lifecycle: request -> response -> JSON parsing -> success/error callbacks
+        const fetchApiJson = (path, method, data, onSuccess, onFail) => {
+            fetch(API_URL + path, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: data ? JSON.stringify(data) : undefined
+            })
+            .then(res => res.json())
+            .then(jsonData => {
+                if(jsonData.isError){
+                    // Show specific error from backend if available, otherwise generic
+                    errorUI((jsonData.messages || []).join('\n') || 'An error occurred on the server');
+                    if(onFail)onFail(jsonData);
+                }else if (onSuccess) onSuccess(jsonData);
+            })
+            .catch(err => {
+                // Network or parsing errors
+                errorUI(err.message || 'Network error occurred');
+                const debugData = { error: err.message };
+                if (onFail) onFail(debugData);
+            });
+        };
 
         // Load users on startup
         document.addEventListener('DOMContentLoaded', loadUsers);
@@ -69,59 +120,62 @@
             const password = document.getElementById('password').value;
 
             if (!username || !email || !password) {
-                alert('Please fill in all fields');
+                errorUI('Please fill in all fields');
                 return;
             }
 
-            fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                // Updated body to match schema: { username, email, password }
-                body: JSON.stringify({ username, email, password })
-            })
-            .then(res => res.json())
-            .then(data => {
-                // Assuming response includes the created username
-                alert(`Created: ${data.username}`);
-                clearForm();
-                loadUsers();
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Error creating user');
-            });
+            // Using fetchApiJson to handle the POST request
+            fetchApiJson(
+                '', // Path: '' results in '/users'
+                'POST',
+                { username, email, password }, // Data payload
+                (data) => {
+                    errorUI(''); // Clear error on success
+                    alert(`Created: ${data.username}`);
+                    clearForm();
+                    loadUsers();
+                },
+                (err) => {
+                    // Errors are handled by the fetchApiJson helper via errorUI()
+                }
+            );
         }
 
         // 2. READ / LOAD
         function loadUsers() {
-            fetch(API_URL)
-            .then(res => res.json())
-            .then(users => {
-                const list = document.getElementById('userList');
-                
-                if (users.length === 0) {
-                    list.innerHTML = '<div class="list-item"><p>No users found.</p></div>';
-                    return;
-                }
+            // Using fetchApiJson to handle the GET request
+            fetchApiJson(
+                '', // Path: '' results in '/users'
+                'GET',
+                null, // No data needed for GET
+                (users) => {
+                    const list = document.getElementById('userList');
+                    
+                    if (users.length === 0) {
+                        list.innerHTML = '<div class="list-item"><p>No users found.</p></div>';
+                        return;
+                    }
 
-                // Updated template to show username instead of 'name'
-                list.innerHTML = users.map(u => `
-                    <div class="list-item">
-                        <div>
-                            <strong>${u.username}</strong> (${u.email})
-                            <br><small>${u.password}</small>
+                    // Updated template to show username instead of 'name'
+                    list.innerHTML = users.map(u => `
+                        <div class="list-item">
+                            <div>
+                                <strong>${u.username}</strong> (${u.email})
+                                <br><small>${u.password}</small>
+                            </div>
+                            <div class="list-actions">
+                                <button class="btn-edit" onclick="editUser('${u.username}', '${u.username}', '${u.email}', '${u.password}')">Edit</button>
+                                <button class="btn-del" onclick="deleteUser('${u.username}')">Delete</button>
+                            </div>
                         </div>
-                        <div class="list-actions">
-                            <button class="btn-edit" onclick="editUser('${u.username}', '${u.username}', '${u.email}', '${u.password}')">Edit</button>
-                            <button class="btn-del" onclick="deleteUser('${u.username}')">Delete</button>
-                        </div>
-                    </div>
-                `).join('');
-            })
-            .catch(err => {
-                console.error('Load error:', err);
-                document.getElementById('userList').innerHTML = '<div class="list-item"><p>Error loading users.</p></div>';
-            });
+                    `).join('');
+                },
+                (err) => {
+                    // Errors are handled by the fetchApiJson helper via errorUI()
+                    console.error('Load error:', err);
+                    document.getElementById('userList').innerHTML = '<div class="list-item"><p>Error loading users.</p></div>';
+                }
+            );
         }
 
         // 3. UPDATE / PREPARE EDIT
@@ -148,27 +202,26 @@
             window.currentEditId = username;
 
             if (!username || !email || !password) {
-                alert('Fill in details');
+                errorUI('Fill in details');
                 return;
             }
 
-            fetch(`${API_URL}/${window.currentEditId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                // Updated body to match schema: { username, email, password }
-                body: JSON.stringify({ username, email, password })
-            })
-            .then(res => res.json())
-            .then(data => {
-                // Assuming response includes the updated username
-                alert(`Updated: ${data.username}`);
-                clearForm();
-                loadUsers();
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Error updating user');
-            });
+            // Using fetchApiJson to handle the PUT request
+            fetchApiJson(
+                `/${window.currentEditId}`, // Path: '/username'
+                'PUT',
+                { username, email, password }, // Data payload
+                (data) => {
+                    errorUI(''); // Clear error on success
+                    alert(`Updated: ${data.username}`);
+                    clearForm();
+                    loadUsers();
+                },
+                (err) => {
+                    // Errors are handled by the fetchApiJson helper via errorUI()
+                    console.error(err);
+                }
+            );
         }
 
         // 5. DELETE
@@ -176,22 +229,28 @@
             const user = confirm('Are you sure you want to delete this user?');
             if (!user) return;
 
-            fetch(`${API_URL}/${id}`, { method: 'DELETE' })
-            .then(res => {
-                if (res.ok) {
-                    alert('Deleted!');
-                    // If we deleted the one we're currently editing, clear form
-                    if (window.currentEditId === id) {
-                        clearForm();
-                        window.currentEditId = null;
+            // Using fetchApiJson to handle the DELETE request
+            fetchApiJson(
+                `/${id}`, // Path: '/username'
+                'DELETE',
+                null, // No data needed for DELETE
+                (res) => {
+                    if (res.ok) {
+                        errorUI(''); // Clear error on success
+                        alert('Deleted!');
+                        // If we deleted the one we're currently editing, clear form
+                        if (window.currentEditId === id) {
+                            clearForm();
+                            window.currentEditId = null;
+                        }
+                        loadUsers();
                     }
-                    loadUsers();
+                },
+                (err) => {
+                    // Errors are handled by the fetchApiJson helper via errorUI()
+                    console.error(err);
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Error deleting user');
-            });
+            );
         }
 
         // Helper: Clear Form
@@ -202,6 +261,7 @@
             document.getElementById('btnSave').style.display = 'block';
             document.getElementById('btnUpdate').style.display = 'none';
             window.currentEditId = null;
+            errorUI(''); // Ensure error UI is cleared when form is reset
         }
     </script>
 </body>
