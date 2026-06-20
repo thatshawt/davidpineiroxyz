@@ -10,6 +10,9 @@ hehe
 # we need to supply this ourselves in prod
 prod/mailer
 
-frontend/**/node_modules
-prod/chatMicroservice/**/node_modules
-prod/chatMicroservice/**/.env
+node_modules
+.env
+
+# frontend/**/node_modules
+# prod/chatMicroservice/**/node_modules
+# prod/chatMicroservice/**/.env

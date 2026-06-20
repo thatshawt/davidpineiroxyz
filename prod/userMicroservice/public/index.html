@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <style>
+        /* Styles for the form and list */
+        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-save { background: #4CAF50; color: white; }
+        .btn-update { background: #2196F3; color: white; display: none; }
+        .btn-delete { background: #f44336; color: white; }
+        .list-item { background: #f9f9f9; border-bottom: 1px solid #eee; padding: 10px; display: flex; justify-content: space-between; }
+        .list-actions { display: flex; gap: 5px; }
+        .btn-edit { background: #FFC107; color: black; }
+        .btn-del { background: #f44336; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Add/Update User</h2>
+        
+        <!-- Input Form -->
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter username">
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="Enter user email">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="text" id="password" placeholder="Enter user password">
+        </div>
+
+        <div class="btn-group">
+            <button id="btnSave" class="btn-save" onclick="saveUser()">+ Add New User</button>
+            <button id="btnUpdate" class="btn-update" onclick="updateUser()">Update User</button>
+            <button class="btn-delete" onclick="deleteUser(window.currentEditId)">Delete User</button>
+        </div>
+
+        <h2>Existing Users</h2>
+        <div id="userList">
+            <div class="list-item"><p>Loading users...</p></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        // Note: Ensure your backend maps 'username', 'email', 'password' to the User model fields
+        const API_URL = 'http://localhost:3000/users';
+        window.currentEditId = null;
+
+        // Load users on startup
+        document.addEventListener('DOMContentLoaded', loadUsers);
+
+        // 1. CREATE / SAVE
+        function saveUser() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // Updated body to match schema: { username, email, password }
+                body: JSON.stringify({ username, email, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Assuming response includes the created username
+                alert(`Created: ${data.username}`);
+                clearForm();
+                loadUsers();
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error creating user');
+            });
+        }
+
+        // 2. READ / LOAD
+        function loadUsers() {
+            fetch(API_URL)
+            .then(res => res.json())
+            .then(users => {
+                const list = document.getElementById('userList');
+                
+                if (users.length === 0) {
+                    list.innerHTML = '<div class="list-item"><p>No users found.</p></div>';
+                    return;
+                }
+
+                // Updated template to show username instead of 'name'
+                list.innerHTML = users.map(u => `
+                    <div class="list-item">
+                        <div>
+                            <strong>${u.username}</strong> (${u.email})
+                            <br><small>${u.password}</small>
+                        </div>
+                        <div class="list-actions">
+                            <button class="btn-edit" onclick="editUser('${u.username}', '${u.username}', '${u.email}', '${u.password}')">Edit</button>
+                            <button class="btn-del" onclick="deleteUser('${u.username}')">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            })
+            .catch(err => {
+                console.error('Load error:', err);
+                document.getElementById('userList').innerHTML = '<div class="list-item"><p>Error loading users.</p></div>';
+            });
+        }
+
+        // 3. UPDATE / PREPARE EDIT
+        function editUser(id, username, email, password) {
+            // Set ID to delete/update
+            window.currentEditId = username;
+
+            document.getElementById('username').value = username;
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = password;
+            
+            // Switch buttons
+            document.getElementById('btnSave').style.display = 'none';
+            document.getElementById('btnUpdate').style.display = 'block';
+            document.getElementById('btnDelete').style.display = 'block';            
+        }
+
+        // 4. UPDATE / SAVE CHANGES
+        function updateUser() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            window.currentEditId = username;
+
+            if (!username || !email || !password) {
+                alert('Fill in details');
+                return;
+            }
+
+            fetch(`${API_URL}/${window.currentEditId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                // Updated body to match schema: { username, email, password }
+                body: JSON.stringify({ username, email, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Assuming response includes the updated username
+                alert(`Updated: ${data.username}`);
+                clearForm();
+                loadUsers();
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error updating user');
+            });
+        }
+
+        // 5. DELETE
+        function deleteUser(id) {
+            const user = confirm('Are you sure you want to delete this user?');
+            if (!user) return;
+
+            fetch(`${API_URL}/${id}`, { method: 'DELETE' })
+            .then(res => {
+                if (res.ok) {
+                    alert('Deleted!');
+                    // If we deleted the one we're currently editing, clear form
+                    if (window.currentEditId === id) {
+                        clearForm();
+                        window.currentEditId = null;
+                    }
+                    loadUsers();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error deleting user');
+            });
+        }
+
+        // Helper: Clear Form
+        function clearForm() {
+            document.getElementById('username').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('btnSave').style.display = 'block';
+            document.getElementById('btnUpdate').style.display = 'none';
+            window.currentEditId = null;
+        }
+    </script>
+</body>
+</html>
