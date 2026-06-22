@@ -26,6 +26,23 @@ class UserClient {
   }
 
   /**
+   * Checks if an email is already in use.
+   * @param {{ email: string }} data
+   */
+  async checkEmailUsage(data) {
+    const response = await fetch(`${this.baseUrl}/users/emailUsed`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) throw new Error(`Failed to check email usage: ${response.statusText}`);
+    
+    const result = await response.json();
+    return result.exists; // Returns boolean indicating if email exists
+  }
+
+  /**
    * Creates a new user.
    * @param {{ username: string, email: string, password: string }} data
    */

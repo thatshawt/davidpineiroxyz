@@ -57,7 +57,11 @@ app.post("/users", async (req, res) => {
     // Validate input with Zod
     var validatedData = UserSchema.parse(req.body);
 
-    validatedData.password = await hashPassword(validatedData.password);
+    if(validatedData.password){
+      validatedData.password = await hashPassword(validatedData.password);
+    }else if(validatedData.passwordHash){
+      validatedData.password = validatedData.passwordHash;
+    }
 
     const user = await prisma.user.create({
       data: validatedData,
