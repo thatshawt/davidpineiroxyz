@@ -2,9 +2,9 @@
   "name": "userMicroservice",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "user.js",
   "scripts": {
-    "run": "node index.js"
+    "run": "node --env-file=../.env --env-file=./.env user.js"
   },
   "keywords": [],
   "author": "",

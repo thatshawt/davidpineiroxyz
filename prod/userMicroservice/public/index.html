@@ -19,6 +19,11 @@
         .list-actions { display: flex; gap: 5px; }
         .btn-edit { background: #FFC107; color: black; }
         .btn-del { background: #f44336; color: white; }
+        
+        /* Login UI Styles */
+        .login-section { margin-top: 20px; padding: 15px; border: 1px dashed #ccc; border-radius: 8px; }
+        .auth-btn { background: #9C27B0; color: white; margin-top: 10px; }
+        
         /* New Error UI Styles */
         .error-ui {
             padding: 10px;
@@ -41,6 +46,13 @@
         <!-- Error UI Container -->
         <div id="errorUI" class="error-ui">Error message will appear here</div>
         
+        <!-- Login Section (New) -->
+        <h2>User Login</h2>
+        <div class="login-section">
+            <p>Sign in to your account.</p>
+            <button id="btnVerify" class="auth-btn" onclick="verifyUser()">Sign In</button>
+        </div>
+
         <h2>Add/Update User</h2>
         
         <!-- Input Form -->
@@ -71,7 +83,6 @@
 
     <script>
         // Configuration
-        // Note: Ensure your backend maps 'username', 'email', 'password' to the User model fields
         const API_URL = 'http://localhost:3002/users';
         window.currentEditId = null;
 
@@ -262,6 +273,38 @@
             document.getElementById('btnUpdate').style.display = 'none';
             window.currentEditId = null;
             errorUI(''); // Ensure error UI is cleared when form is reset
+        }
+
+        // 6. VERIFY USER (New Logic)
+        function verifyUser() {
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+
+            if (!usernameInput || !passwordInput) {
+                errorUI('Please enter both Username and Password');
+                return;
+            }
+
+            // Using fetchApiJson to handle the POST request for verification
+            fetchApiJson(
+                '/verify', // Path: '/verify' results in '/users/verify'
+                'POST',
+                { username: usernameInput, password: passwordInput }, 
+                (data) => {
+                    errorUI(''); // Clear error on success
+                    alert(`Login Successful! Welcome, ${data.username}`);
+                    loadUsers(); // Refresh list to show the user
+                },
+                (err) => {
+                    // Errors are handled by the fetchApiJson helper via errorUI()
+                    console.error(err);
+                    if(err && err.messages) {
+                        alert('Invalid Username or Password');
+                    } else {
+                        alert('Login Failed. Please check credentials.');
+                    }
+                }
+            );
         }
     </script>
 </body>

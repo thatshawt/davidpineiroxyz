@@ -1,47 +1,30 @@
 import express from "express";
 import cors from "cors";
 import { prisma } from "./lib/prisma.js";
-import { z } from "zod";
-import { hashPassword, verifyPassword } from './auth';
+import { z as zod } from "zod";
+import { hashPassword, verifyPassword } from './auth.js';
 
+import { USER_SERVICE_HTTP_PORT } from '../common.js';
 
-// Zod schema for user validation
-const UserSchema = z.object({
-  username: z
-    .string()
-    .min(3, "Username must be at least 3 characters")
-    .max(30, "Username must be no more than 30 characters")
-    .regex(/^[a-zA-Z0-9]+$/, "Username must contain only letters and numbers")
-    .toLowerCase(),
-    email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .pipe(z.email("Please enter a valid email address")),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(100, "Password must be no more than 100 characters")
-    .regex(/^(?=.*[a-zA-Z])(?=.*[0-9])/, "Password must contain at least one letter and one number"),
-});
+import { UserSchema, serveZodValidationError, ErrorResponseObject} from "../common.js";
 
 // Zod schema for updating user (username required, email and password optional)
-const UpdateUserSchema = z.object({
+const UpdateUserSchema = zod.object({
   username: UserSchema.shape.username,
   email: UserSchema.shape.email.optional(),
   password: UserSchema.shape.password.optional(),
 });
 
 // Zod schema for reading user (only username required, no email/password validation)
-const ReadUserSchema = z.object({
+const ReadUserSchema = zod.object({
   username: UserSchema.shape.username,
 });
 
-const DeleteUserSchema = z.object({
+const DeleteUserSchema = zod.object({
   username: UserSchema.shape.username,
 });
 
-const VerifyUserSchema = z.object({
+const VerifyUserSchema = zod.object({
   username: UserSchema.shape.username,
   password: UserSchema.shape.password,
 });
@@ -54,7 +37,8 @@ const options = {
 
 const { values, positionals } = parseArgs({ options });
 
-const httpPORT = Number.parseInt(values.httport || "3002");
+// const httpPORT = Number.parseInt(values.httport || "3002");
+const httpPORT = USER_SERVICE_HTTP_PORT;
 
 const app = express();
 const PORT = httpPORT;
@@ -66,12 +50,6 @@ app.use(cors());
 app.use(express.json());
 
 app.use(express.static("./public/"));
-
-const serveZodValidationError = (res, error) => {
-  const errorMessages = error.issues.map((issue) => issue.message);
-  console.error("Validation error:", errorMessages);
-  res.status(400).json({ isError:true, messages: errorMessages });
-};
 
 // Create a new user
 app.post("/users", async (req, res) => {
@@ -86,11 +64,11 @@ app.post("/users", async (req, res) => {
     });
     res.status(201).json(user);
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof zod.ZodError) {
       serveZodValidationError(res, error);
     } else {
       console.error("Create error:", error);
-      res.status(400).json({ error: "Failed to create user" });
+      res.status(400).json(ErrorResponseObject(["Failed to create user"]));
     }
   }
 });
@@ -108,7 +86,7 @@ app.get("/users", async (req, res) => {
     res.json(users);
   } catch (error) {
     console.error("Read error:", error);
-    res.status(400).json({ error: "Failed to read users" });
+    res.status(400).json(ErrorResponseObject(["Failed to read users"]));
   }
 });
 
@@ -128,17 +106,16 @@ app.get("/users/:username", async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json(ErrorResponseObject(["User not found"]));
     }
 
     res.json(user);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error("Validation error:", error);
-      res.status(400).json({ error: error.errors });
+    if (error instanceof zod.ZodError) {
+      serveZodValidationError(res, error);
     } else {
       console.error("Read unique error:", error);
-      res.status(400).json({ error: "Failed to read user" });
+      res.status(400).json(ErrorResponseObject(["Failed to read user"]));
     }
   }
 });
@@ -155,17 +132,17 @@ app.put("/users/:username", async (req, res) => {
       select: {
         username: true,
         email: true,
-        password: true,
+        password: false,
       },
     });
 
     res.json(user);
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof zod.ZodError) {
       serveZodValidationError(res, error);
     } else {
       console.error("Update error:", error);
-      res.status(400).json({ error: "Failed to update user" });
+      res.status(400).json(ErrorResponseObject(["Failed to update user"]));
     }
   }
 });
@@ -183,16 +160,16 @@ app.delete("/users/:username", async (req, res) => {
 
     res.json({ message: "User deleted", deleted });
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof zod.ZodError) {
       serveZodValidationError(res, error);
     } else {
       console.error("Delete error:", error);
-      res.status(400).json({ error: "Failed to delete user" });
+      res.status(400).json(ErrorResponseObject(["Failed to delete user"]));
     }
   }
 });
 
-// Verify a user (New Endpoint)
+// Verify a user
 app.post("/users/verify", async (req, res) => {
   try {
     // Validate input with VerifyUserSchema
@@ -212,15 +189,37 @@ app.post("/users/verify", async (req, res) => {
     if (isValid) {
       return res.status(200).json({ message: "Authentication successful", username: validatedData.username });
     } else {
-      return res.status(401).json({ error: "Failed to verify user" });
+      return res.status(401).json(ErrorResponseObject(["Failed to verify user"]));
     }
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof zod.ZodError) {
       serveZodValidationError(res, error);
     } else {
       console.error("Verify error:", error);
-      res.status(400).json({ error: "Failed to verify user" });
+      res.status(400).json(ErrorResponseObject(["Failed to verify user"]));
     }
+  }
+});
+
+const EmailUsedSchema = zod.object({
+  email: UserSchema.shape.email
+});
+
+// Updated to parse email from req.body using EmailUsedSchema.parse instead of extracting from path.
+app.post("/users/emailUsed", async (req, res) => {
+  try {
+    const email = EmailUsedSchema.parse(req.body);
+
+    // Check if an email is already in use
+    const exists = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    // Return true if a user with this email exists, false otherwise
+    res.json({exists: exists !== null});
+  } catch (error) {
+    console.error("Email check error:", error);
+    res.status(400).json(ErrorResponseObject(["Failed to check email availability"]));
   }
 });
 
