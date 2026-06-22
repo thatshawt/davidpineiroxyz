@@ -1,0 +1,36 @@
+{
+  "name": "signupService",
+  "version": "1.0.0",
+  "description": "",
+  "main": "signup.js",
+  "scripts": {
+    "run": "node --env-file=../.env --env-file=./.env signup.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.5.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@11.5.0",
+  "type": "module",
+  "devDependencies": {
+    "@types/better-sqlite3": "7.6.13",
+    "@types/node": "25.9.3",
+    "prisma": "7.8.0"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
+    "@prisma/adapter-better-sqlite3": "7.8.0",
+    "@prisma/client": "7.8.0",
+    "@prisma/client-runtime-utils": "7.8.0",
+    "cors": "^2.8.6",
+    "dotenv": "17.4.2",
+    "express": "5.2.1",
+    "zod": "^4.4.3"
+  }
+}
