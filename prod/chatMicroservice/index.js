@@ -188,13 +188,17 @@ const options = {
   wsport: { type: 'string', short: 'w' }
 };
 
-const { values, positionals } = parseArgs({ options });
+// const { values, positionals } = parseArgs({ options });
 
 // console.log('Parsed Flags:', values);
 // console.log('Positional Args:', positionals);
 
-const httpPORT = Number.parseInt(values.httport || "3000");
-const webSocketPort = Number.parseInt(values.wsport || "3001");
+import { CHAT_SERVICE_HTTP_PORT, CHAT_SERVICE_WS_PORT } from '../common.js';
+// const httpPORT = Number.parseInt(values.httport || "3000");
+// const webSocketPort = Number.parseInt(values.wsport || "3001");
+const httpPORT = CHAT_SERVICE_HTTP_PORT;
+const webSocketPort = CHAT_SERVICE_WS_PORT;
+
 
 const wss = new WebSocketServer(({port: webSocketPort}));
 console.log("started web socket server");

@@ -155,3 +155,31 @@ Verifies a user's credentials.
       "messages": ["message details"]
     }
     ```
+
+---
+
+## 7. POST /users/emailUsed
+Checks if an email address is already in use by another user.
+
+### Input
+*   **Endpoint:** `POST /users/emailUsed`
+*   **Content-Type:** `application/json`
+*   **Payload:**
+    | Field | Type | Description | Constraints (Zod) | Required |
+    |-------|------|-------------|-------------------|----------|
+    | `email` | String | The email address to check for existence. | Valid email format; Trimmed whitespace; Auto-converted to lowercase. | **Yes** |
+
+### Output
+*   **Status Code:** `200 OK` (on success) or `4xx/5xx` if validation fails.
+    *   Success: JSON object indicating availability status.
+        ```json
+        {
+          "exists": true  // or false
+        }
+        ```
+        *   `exists`: `true` means a user with this email already exists.
+        *   `exists`: `false` means the email is available for registration.
+    *   Error: `{ "isError": true, "messages": ["error message"] }`
+
+---
+*Last Updated: [Date]*

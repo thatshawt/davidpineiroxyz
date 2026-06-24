@@ -910,25 +910,6 @@ function OnWorkerStart()
 	-- assert(unix.pledge(promises, execpromises, PLEDGE_PENALTY_RETURN_EPERM))
 end
 
---[[
-TODO ERROR
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]: I2026-06-14T04:23:08.190086:tool/net/redbean.c:5924:davidpineiroxyz:2135105] (req) received 2607:fb91:1924:1f2:ac39:60f1:68e2:c475, 2607:fb91:1924:1f2:ac39:60f1:68e2:c475 via 127.0.0.1:50660 HTTP10 GET http://davidpineiro.xyz/copyparty/memes/ "" "Mozilla/5.0 (Android 15; Mobile; rv:151.0) Gecko/151.0 Firefox/151.0"
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]: E2026-06-14T04:23:08+000727:/zip/.lua/fullmoon.lua:1441:davidpineiroxyz:2135105] (fm) Lua error: /zip/.lua/common.lua:1289: bad argument #1 to 'FormatIp' (number expected, got nil)
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]: stack traceback:
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]:         [C]: in function 'FormatIp'
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]:         /zip/.lua/common.lua:1289: in function 'common.serveReverseProxy'
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]:         /zip/.init.lua:831: in field 'handler'
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]:         /zip/.lua/fullmoon.lua:656: in function </zip/.lua/fullmoon.lua:605>
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]: E2026-06-14T04:23:08+000345:tool/net/redbean.c:1087:davidpineiroxyz:2135105] (lua) failed to run OnHttpRequest: /zip/.lua/fullmoon.lua:1442: bad argument #1 to 'IsLoopbackIp' (number expected, got nil)
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]: stack traceback:
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]:         [C]: in function 'IsLoopbackIp'
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]:         /zip/.lua/fullmoon.lua:1442: in upvalue 'hcall', params: func = function: 0x7f249f062f00;
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]:         /zip/.lua/fullmoon.lua:1494: in upvalue 'handleRequest', params: path = /copyparty/memes/;
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]:         /zip/.lua/fullmoon.lua:1599: in function 'OnHttpRequest'
-Jun 14 04:23:08 vps-7e402fe9 bash[2135105]: E2026-06-14T04:23:08+000025:tool/net/redbean.c:2431:davidpineiroxyz:2135105] (srvr) server error: 500 Internal Server Error
-
-]]
-
 -- strace = assert(unix.commandv('strace'))
 function OnWorkerStop()
 end

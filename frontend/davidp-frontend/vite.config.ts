@@ -19,6 +19,18 @@ export default defineConfig({
         secure: false,
         // rewrite: (path) => path.replace(/^\/backend/, ''),
       },
+      '/api/signup' : {
+        target: "http://127.0.0.1:3003",
+        changeOrigin: true,
+        secure: false,
+        // rewrite: (path) => path.replace(/^\/backend/, ''),
+      },
+      '/api/users' : {
+        target: "http://127.0.0.1:3002",
+        changeOrigin: true,
+        secure: false,
+        // rewrite: (path) => path.replace(/^\/backend/, ''),
+      },
       // '/admin/*' : {
       //   target: "http://127.0.0.1:8080",
       //   changeOrigin: true,

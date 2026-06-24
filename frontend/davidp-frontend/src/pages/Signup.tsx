@@ -24,7 +24,7 @@ function Stage1(){
         </ul>
         <br/>
 
-        <form action={BACKEND+"/signup"} method="POST">
+        <form action={BACKEND+"/api/signup"} method="POST">
             <label htmlFor="email">Email</label>
             <input type="text" name="email" id="email"/>
             <br/>
@@ -33,7 +33,16 @@ function Stage1(){
             <input type="text" name="username" id="username"/>
             <br/>
 
+            <label htmlFor="username">Password</label>
+            <input type="text" name="password1" id="password1"/>
+            <br/>
+
+            <label htmlFor="username">Password(Again)</label>
+            <input type="text" name="password2" id="password2"/>
+            <br/>
+
             <button id="signupBtn" type="submit" disabled={disabled}>Signup</button>
+
             <CFTurnstile callback={turnstileEnable} error_callback={turnstileDisable} expired_callback={turnstileDisable} timeout_callback={turnstileDisable}/>
         </form>
     </>);

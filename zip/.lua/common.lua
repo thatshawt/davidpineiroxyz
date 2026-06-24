@@ -666,6 +666,9 @@ local EMAIL_DEBUG_PRINT_ONLY = false
 -- NOTE: we need 'getmail6', 'msmtp', 'dig' from nixpkgs in path
 local msmtp = assert(unix.commandv('msmtp'))
 local printf = assert(unix.commandv('printf'))
+
+-- //TODO: expose unsafe.sendEmail as an internal microservice.
+
 function common.unsafe.sendEmail(recipient, subject, body)
     recipient = common.trim(recipient:lower())
 

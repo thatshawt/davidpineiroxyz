@@ -3,7 +3,7 @@
  * Uses Node.js native modules (fetch/URL) for zero dependencies besides this file itself.
  */
 
-import { fetch } from 'node-fetch';
+// import { fetch } from 'node-fetch';
 import { URL } from 'node:url';
 
 // Configuration
@@ -30,7 +30,7 @@ class UserClient {
    * @param {{ email: string }} data
    */
   async checkEmailUsage(data) {
-    const response = await fetch(`${this.baseUrl}/users/emailUsed`, {
+    const response = await fetch(`${this.baseUrl}/api/users/emailUsed`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -47,7 +47,7 @@ class UserClient {
    * @param {{ username: string, email: string, password: string }} data
    */
   async createUser(data) {
-    const response = await fetch(`${this.baseUrl}/users`, {
+    const response = await fetch(`${this.baseUrl}/api/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -63,7 +63,7 @@ class UserClient {
    */
   async getUser(username) {
     const encodedUsername = encodeURIComponent(username);
-    const response = await fetch(`${this.baseUrl}/users/${encodedUsername}`, {
+    const response = await fetch(`${this.baseUrl}/api/users/${encodedUsername}`, {
       method: "GET",
     });
 
@@ -75,7 +75,7 @@ class UserClient {
    * Reads all users.
    */
   async getAllUsers() {
-    const response = await fetch(`${this.baseUrl}/users`, {
+    const response = await fetch(`${this.baseUrl}/api/users`, {
       method: "GET",
     });
 
@@ -90,7 +90,7 @@ class UserClient {
    */
   async updateUser(username, data) {
     const encodedUsername = encodeURIComponent(username);
-    const response = await fetch(`${this.baseUrl}/users/${encodedUsername}`, {
+    const response = await fetch(`${this.baseUrl}/api/users/${encodedUsername}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -106,7 +106,7 @@ class UserClient {
    */
   async deleteUser(username) {
     const encodedUsername = encodeURIComponent(username);
-    const response = await fetch(`${this.baseUrl}/users/${encodedUsername}`, {
+    const response = await fetch(`${this.baseUrl}/api/users/${encodedUsername}`, {
       method: "DELETE",
     });
 
@@ -121,7 +121,7 @@ class UserClient {
    */
   async verifyUser(username, password) {
     const body = JSON.stringify({ username, password });
-    const response = await fetch(`${this.baseUrl}/users/verify`, {
+    const response = await fetch(`${this.baseUrl}/api/users/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: body,

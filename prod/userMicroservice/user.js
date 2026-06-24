@@ -2,32 +2,14 @@ import express from "express";
 import cors from "cors";
 import { prisma } from "./lib/prisma.js";
 import { z as zod } from "zod";
-import { hashPassword, verifyPassword } from './auth.js';
+import { hashPassword, verifyPassword } from '../commons/auth.js';
 
-import { USER_SERVICE_HTTP_PORT } from '../common.js';
+import { USER_SERVICE_HTTP_PORT,
+  serveZodValidationError, ErrorResponseObject} from '../commons/common.js';
 
-import { UserSchema, serveZodValidationError, ErrorResponseObject} from "../common.js";
-
-// Zod schema for updating user (username required, email and password optional)
-const UpdateUserSchema = zod.object({
-  username: UserSchema.shape.username,
-  email: UserSchema.shape.email.optional(),
-  password: UserSchema.shape.password.optional(),
-});
-
-// Zod schema for reading user (only username required, no email/password validation)
-const ReadUserSchema = zod.object({
-  username: UserSchema.shape.username,
-});
-
-const DeleteUserSchema = zod.object({
-  username: UserSchema.shape.username,
-});
-
-const VerifyUserSchema = zod.object({
-  username: UserSchema.shape.username,
-  password: UserSchema.shape.password,
-});
+import {
+  CreateUserSchema,DeleteUserSchema,EmailUsedSchema,ReadUserSchema,UpdateUserSchema,VerifyUserSchema
+} from './validation.js';
 
 import { parseArgs } from "node:util";
 
@@ -52,15 +34,18 @@ app.use(express.json());
 app.use(express.static("./public/"));
 
 // Create a new user
-app.post("/users", async (req, res) => {
+app.post("/api/users", async (req, res) => {
   try {
     // Validate input with Zod
-    var validatedData = UserSchema.parse(req.body);
+    console.log(req.body);
+    var validatedData = CreateUserSchema.parse(req.body);
 
+    //TODO check if this works.
     if(validatedData.password){
       validatedData.password = await hashPassword(validatedData.password);
     }else if(validatedData.passwordHash){
       validatedData.password = validatedData.passwordHash;
+      validatedData.passwordHash = undefined;
     }
 
     const user = await prisma.user.create({
@@ -78,7 +63,7 @@ app.post("/users", async (req, res) => {
 });
 
 // Read all users
-app.get("/users", async (req, res) => {
+app.get("/api/users", async (req, res) => {
   try {
     const users = await prisma.user.findMany({
       select: {
@@ -95,7 +80,7 @@ app.get("/users", async (req, res) => {
 });
 
 // Read a single user
-app.get("/users/:username", async (req, res) => {
+app.get("/api/users/:username", async (req, res) => {
   try {
     // Validate the request parameter against ReadUserSchema
     const validatedParams = ReadUserSchema.parse({ username: req.params.username });
@@ -125,7 +110,7 @@ app.get("/users/:username", async (req, res) => {
 });
 
 // Update a user
-app.put("/users/:username", async (req, res) => {
+app.put("/api/users/:username", async (req, res) => {
   try {
     // Validate input with Zod (allowing partial updates)
     const validatedData = UpdateUserSchema.parse(req.body);
@@ -152,7 +137,7 @@ app.put("/users/:username", async (req, res) => {
 });
 
 // Delete a user
-app.delete("/users/:username", async (req, res) => {
+app.delete("/api/users/:username", async (req, res) => {
   try {
     // Validate the request parameter against DeleteUserSchema
     const validatedParams = DeleteUserSchema.parse({ username: req.params.username });
@@ -174,7 +159,7 @@ app.delete("/users/:username", async (req, res) => {
 });
 
 // Verify a user
-app.post("/users/verify", async (req, res) => {
+app.post("/api/users/verify", async (req, res) => {
   try {
     // Validate input with VerifyUserSchema
     const validatedData = VerifyUserSchema.parse(req.body);
@@ -205,18 +190,17 @@ app.post("/users/verify", async (req, res) => {
   }
 });
 
-const EmailUsedSchema = zod.object({
-  email: UserSchema.shape.email
-});
-
 // Updated to parse email from req.body using EmailUsedSchema.parse instead of extracting from path.
-app.post("/users/emailUsed", async (req, res) => {
+app.post("/api/users/emailUsed", async (req, res) => {
   try {
-    const email = EmailUsedSchema.parse(req.body);
+    console.log(req.body);
+    const emailUsedData = EmailUsedSchema.parse(req.body);
 
     // Check if an email is already in use
     const exists = await prisma.user.findUnique({
-      where: { email },
+      where: {
+        email: emailUsedData.email
+      },
     });
 
     // Return true if a user with this email exists, false otherwise
@@ -227,10 +211,20 @@ app.post("/users/emailUsed", async (req, res) => {
   }
 });
 
+// Health Check Endpoint
+app.get('/api/users/health', async (req, res) => {
+    try {
+        await prisma.user.count();
+        res.json({ status: 'healthy', timestamp: new Date() });
+    } catch (error) {
+        console.error("Health check error:", error);
+        res.status(503).json({ status: 'unhealthy', message: 'Service unavailable' });
+    }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-  console.log("User API available at /users");
 });
 
 process.on("SIGINT", async () => {

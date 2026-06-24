@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Service</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 3rem;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        button.primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        button.secondary:hover {
+            background: #cbd5e0;
+            transform: translateY(-1px);
+        }
+
+        .error-message {
+            background: #fed7d7;
+            border: 1px solid #fc8181;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .link-container {
+            margin-top: 0.75rem;
+        }
+
+        .verify-link {
+            background: #f7fafc;
+            border: 1px dashed #a0aec0;
+            padding: 1rem;
+            word-break: break-all;
+            font-family: monospace;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .copy-btn {
+            background: white;
+            color: #4a5568;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .copy-btn:hover {
+            background: #edf2f7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sign Up Form -->
+        <div id="signupForm">
+            <h1>Create Account</h1>
+            <form id="signupFormElement">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Choose a username">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Create a password">
+                </div>
+
+                <!-- Added Submit Button as requested -->
+                <button type="submit" class="primary" style="width: 100%; margin-top: 0.5rem;">Sign Up</button>
+            </form>
+            
+            <div class="error-message hidden" id="signupError"></div>
+            
+            <div class="success-message hidden" id="signupSuccess">
+                Check your email inbox! Click the link to verify your account.
+            </div>
+        </div>
+
+        <!-- Email Verification Form -->
+        <div id="verifyForm" class="hidden">
+            <h1>Verify Email</h1>
+            <p style="text-align: center; color: #718096; margin-bottom: 1.5rem;">
+                Enter the email address you just registered to verify your account.
+            </p>
+
+            <form id="verifyFormElement">
+                <div class="form-group">
+                    <label for="verificationEmail">Email Address</label>
+                    <input type="email" id="verificationEmail" name="email" required placeholder="you@example.com">
+                </div>
+                
+                <!-- Added Submit Button as requested -->
+                <button type="submit" class="primary" style="width: 100%; margin-top: 0.5rem;">Verify Account</button>
+            </form>
+            
+            <div class="error-message hidden" id="verifyError"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:3003'; // Adjust if needed - same as SIGNUP_SERVICE_HTTP_PORT
+        
+        const signupFormElement = document.getElementById('signupForm');
+        const verifyFormElement = document.getElementById('verifyForm');
+        
+        let verificationToken = null;
+
+        // Sign up handler
+        signupFormElement.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+            
+            const errorContainer = document.getElementById('signupError');
+            const successMessage = document.getElementById('signupSuccess');
+            
+            errorContainer.classList.remove('hidden');
+            successMessage.classList.add('hidden');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    errorContainer.classList.add('hidden');
+                    successMessage.classList.remove('hidden');
+                    
+                    // Wait a moment and show verify form
+                    setTimeout(() => {
+                        switchToVerifyForm(data.token, data.email);
+                    }, 1000);
+                } else {
+                    throw new Error(data.message || data.error);
+                }
+            } catch (error) {
+                errorContainer.textContent = `Error: ${error.message}`;
+                console.error('Signup error:', error);
+            }
+        });
+
+        // Verify email handler
+        document.getElementById('verifyFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+            
+            const errorContainer = document.getElementById('verifyError');
+            const successMessage = document.getElementById('signupSuccess');
+            
+            errorContainer.classList.add('hidden');
+            successMessage.classList.add('hidden');
+            
+            try {
+                const formData = new FormData(e.target);
+                const email = formData.get('email');
+
+                if (!email) {
+                    throw new Error('Email is required');
+                }
+
+                // Send POST request to verify
+                const response = await fetch(`${API_BASE}/api/verifyEmail`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        token: verificationToken || Math.random().toString(36).substring(2, 10)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successMessage.textContent = `✅ Account verified successfully!`;
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                } else {
+                    throw new Error(data.message || data.error);
+                }
+            } catch (error) {
+                errorContainer.textContent = `Error: ${error.message}`;
+                console.error('Verification error:', error);
+            }
+        });
+
+        // Utility function to switch between forms
+        function switchToVerifyForm(token, email) {
+            verificationToken = token;
+            signupFormElement.classList.add('hidden');
+            verifyFormElement.classList.remove('hidden');
+            
+            const verifyEmailInput = document.getElementById('verificationEmail');
+            verifyEmailInput.value = email;
+            verifyEmailInput.focus();
+        }
+    </script>
+</body>
+</html>
