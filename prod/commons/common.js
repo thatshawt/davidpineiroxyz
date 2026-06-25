@@ -33,7 +33,7 @@ export const ErrorResponseObject = (messages) => {
 };
 
 export const SuccessResponseObject = (message) => {
-    return { isError:false, messages: [message] }
+  return { isError:false, messages: [message] }
 };
 
 export const serveZodValidationError = (res, error) => {
@@ -41,3 +41,35 @@ export const serveZodValidationError = (res, error) => {
   console.error("Validation error:", errorMessages);
   return res.status(400).json(ErrorResponseObject(errorMessages));
 };
+
+const cf_secret = process.env.CF_TURNSTILE_SECRET;
+
+export async function validateTurnstileKey(key){
+  if(key && key.length < 2048){
+    const response = await fetch(`https://challenges.cloudflare.com/turnstile/v0/siteverify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${cf_secret}&response=${key}`
+    });
+
+    if(response.status == 200){
+      const responseJson = await response.json();
+      console.log(responseJson);
+
+      const successResult = responseJson.success ? responseJson.success == true : false;
+
+      return successResult;
+
+    }
+    // else{
+
+    // }
+  }
+  // else{
+
+  // }
+
+  return false;
+}
+
+// TODO add a turnstile validator here.

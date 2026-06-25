@@ -193,7 +193,7 @@ const options = {
 // console.log('Parsed Flags:', values);
 // console.log('Positional Args:', positionals);
 
-import { CHAT_SERVICE_HTTP_PORT, CHAT_SERVICE_WS_PORT } from '../common.js';
+import { CHAT_SERVICE_HTTP_PORT, CHAT_SERVICE_WS_PORT } from '../commons/common.js';
 // const httpPORT = Number.parseInt(values.httport || "3000");
 // const webSocketPort = Number.parseInt(values.wsport || "3001");
 const httpPORT = CHAT_SERVICE_HTTP_PORT;

@@ -128,6 +128,8 @@ function onload(){
 }
 
 
+export const ORIGIN_URL = import.meta.env.DEV ? "http://localhost:5173" : "https://davidpineiro.xyz";
+
 export const BACKEND = import.meta.env.DEV ? "/backend" : "";
 
 export function App() {
@@ -137,7 +139,7 @@ export function App() {
 
     setupSoundsFX();
 
-    fetch("/lastUpdated",{method:"post"}).then((r)=>r.text()).then((text)=>{
+    fetch(`${BACKEND}/lastUpdated`,{method:"post"}).then((r)=>r.text()).then((text)=>{
       const dateObj = new Date(parseInt(text, 10) * 1000);
       const timeString = dateObj.toLocaleString();
       setLastUpdated(timeString);

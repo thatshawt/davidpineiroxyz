@@ -40,7 +40,6 @@ app.post("/api/users", async (req, res) => {
     console.log(req.body);
     var validatedData = CreateUserSchema.parse(req.body);
 
-    //TODO check if this works.
     if(validatedData.password){
       validatedData.password = await hashPassword(validatedData.password);
     }else if(validatedData.passwordHash){
@@ -169,7 +168,7 @@ app.post("/api/users/verify", async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json(ErrorResponseObject(["Invalid credentials."]));
     }
 
     // Verify the provided password against the stored hashed password
@@ -190,7 +189,7 @@ app.post("/api/users/verify", async (req, res) => {
   }
 });
 
-// Updated to parse email from req.body using EmailUsedSchema.parse instead of extracting from path.
+// check if an email is in use.
 app.post("/api/users/emailUsed", async (req, res) => {
   try {
     console.log(req.body);

@@ -12,7 +12,8 @@ import {
     UsernameSchema, EmailSchema, PasswordSchema,
     serveZodValidationError, ErrorResponseObject,
     SIGNUP_SERVICE_HTTP_PORT, USER_SERVICE_HTTP_PORT,
-    SuccessResponseObject
+    SuccessResponseObject,
+    validateTurnstileKey
 } from '../commons/common.js';
 
 import { CreateUserSchema } from "../userMicroservice/validation.js";
@@ -51,6 +52,14 @@ const emailSender = async (email, body) => {
 // Create User Endpoint (Stage 1 - accepts username+email+password)
 app.post('/api/signup/createAccount', async (req, res) => {
     try {
+        const cfResponse = req.body["cf-turnstile-response"];
+
+        const turnstleValid = await validateTurnstileKey(cfResponse);
+
+        if(turnstleValid == false){
+            return res.status(401).json(ErrorResponseObject(["Turnstile invalid!"]));
+        }
+
         const validationResult = SignupInputSchema.parse(req.body);
         
         // Validate email is unique
