@@ -1,16 +1,17 @@
 import express from "express";
 import cors from "cors";
 import { prisma } from "./lib/prisma.js";
-import { z as zod } from "zod";
 import { hashPassword, verifyPassword } from '../commons/auth.js';
+import { z } from "zod";
+  
+import {
+  CreateUserSchema,DeleteUserSchema,EmailUsedSchema,ReadUserSchema,UpdateUserSchema,VerifyUserSchema
+} from '../commons/user_validation.js';
 
 import { USER_SERVICE_HTTP_PORT,
   serveZodValidationError, ErrorResponseObject} from '../commons/common.js';
 
-import {
-  CreateUserSchema,DeleteUserSchema,EmailUsedSchema,ReadUserSchema,UpdateUserSchema,VerifyUserSchema
-} from './validation.js';
-
+  
 import { parseArgs } from "node:util";
 
 const options = {
@@ -52,7 +53,7 @@ app.post("/api/users", async (req, res) => {
     });
     res.status(201).json(user);
   } catch (error) {
-    if (error instanceof zod.ZodError) {
+    if (error instanceof z.ZodError) {
       serveZodValidationError(res, error);
     } else {
       console.error("Create error:", error);
@@ -99,7 +100,7 @@ app.get("/api/users/:username", async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    if (error instanceof zod.ZodError) {
+    if (error instanceof z.ZodError) {
       serveZodValidationError(res, error);
     } else {
       console.error("Read unique error:", error);
@@ -126,7 +127,7 @@ app.put("/api/users/:username", async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    if (error instanceof zod.ZodError) {
+    if (error instanceof z.ZodError) {
       serveZodValidationError(res, error);
     } else {
       console.error("Update error:", error);
@@ -139,6 +140,8 @@ app.put("/api/users/:username", async (req, res) => {
 app.delete("/api/users/:username", async (req, res) => {
   try {
     // Validate the request parameter against DeleteUserSchema
+    console.log(req.params.username);
+
     const validatedParams = DeleteUserSchema.parse({ username: req.params.username });
 
     // Perform the deletion using the validated username
@@ -148,7 +151,7 @@ app.delete("/api/users/:username", async (req, res) => {
 
     res.json({ message: "User deleted", deleted });
   } catch (error) {
-    if (error instanceof zod.ZodError) {
+    if (error instanceof z.ZodError) {
       serveZodValidationError(res, error);
     } else {
       console.error("Delete error:", error);
@@ -180,7 +183,7 @@ app.post("/api/users/verify", async (req, res) => {
       return res.status(401).json(ErrorResponseObject(["Failed to verify user"]));
     }
   } catch (error) {
-    if (error instanceof zod.ZodError) {
+    if (error instanceof z.ZodError) {
       serveZodValidationError(res, error);
     } else {
       console.error("Verify error:", error);
@@ -226,16 +229,25 @@ app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
-process.on("SIGINT", async () => {
-  if (prisma && prisma.$disconnect) {
+// Function to handle a graceful shutdown
+async function gracefulShutdown(signal) {
+  console.log(`Received ${signal}. Shutting down gracefully...`);
+  
+  // 1. Stop Express from accepting new web requests
+  app.close(async () => {
+    console.log('Express server closed.');
+    
+    // 2. Disconnect Prisma cleanly (finishes current queries first)
     await prisma.$disconnect();
-  }
-  process.exit();
-});
+    console.log('Prisma disconnected.');
+    
+    // 3. Exit the process safely
+    process.exit(0);
+  });
+}
 
-process.on("SIGTERM", async () => {
-  if (prisma && prisma.$disconnect) {
-    await prisma.$disconnect();
-  }
-  process.exit();
-});
+// Listen for Ctrl+C locally
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Listen for production container shutdown signals
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

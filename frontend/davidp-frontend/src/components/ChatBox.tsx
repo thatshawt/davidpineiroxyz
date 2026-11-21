@@ -138,6 +138,7 @@ export default function ChatBox(){
 
   function toggleChat(){
     setOpened((isOpen)=>{
+      window.audioObj.playAudioBuffName("uisound_min11");
       if(isOpen){//close the chat
         const chatLogsEl:HTMLDivElement = chatLogsRef.current;
         scrollResumePos.current = chatLogsEl.scrollTop;

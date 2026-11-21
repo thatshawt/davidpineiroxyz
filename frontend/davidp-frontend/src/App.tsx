@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import './App.css'
 
 import { PageRouter } from './components/PageRouter'
 
-import { SessionContextProvider, useSession } from './components/SessionContext'
+import { SessionContextProvider
+  // , useSession 
+} from './components/SessionContext'
 
 // import IndexPage from './pages/Index'
 const IndexPage = React.lazy(() => import('./pages/Index'));
 const AdminPage = React.lazy(() => import('./pages/Admin'));
 const QrPage = React.lazy(() => import('./pages/Qr'));
 const ProjectsPage = React.lazy(() => import('./pages/Projects'));
-const SignupPage = React.lazy(() => import('./pages/Signup'));
 const CalileaningPage = React.lazy(() => import('./pages/CaliLeaning'));
-const LoginPage = React.lazy(() => import('./pages/Login'));
 const DogPage = React.lazy(() => import('./pages/Dog'));
 const ReadingsPage = React.lazy(() => import('./pages/Readings'));
 const BackyardCarnivalPage = React.lazy(() => import('./pages/fun/BackyardCarnival'));
@@ -26,10 +26,12 @@ const StoreProjectPage = React.lazy(() => import('./pages/projects/Storeproject1
 const StudentPassFailPage = React.lazy(() => import('./pages/projects/Studentpassfail'));
 const WeatherHealthRegressionPage = React.lazy(() => import('./pages/projects/Weatherai1'));
 const MusicLibraryPage = React.lazy(() => import('./pages/MusicLibrary'));
-const LogoutPage = React.lazy(() => import('./pages/Logout'));
 const QrScannerPage = React.lazy(() => import('./pages/QrScanner'));
-const ForgotPasswordPage = React.lazy(() => import('./pages/ForgotPassword'));
-const ForgotPasswordRedirectPage = React.lazy(() => import('./pages/ForgotPasswordRedirect'));
+// const SignupPage = React.lazy(() => import('./pages/Signup'));
+// const LoginPage = React.lazy(() => import('./pages/Login'));
+// const LogoutPage = React.lazy(() => import('./pages/Logout'));
+// const ForgotPasswordPage = React.lazy(() => import('./pages/ForgotPassword'));
+// const ForgotPasswordRedirectPage = React.lazy(() => import('./pages/ForgotPasswordRedirect'));
 const WebthingiesPage = React.lazy(() => import('./pages/WebThingies'));
 
 import Link from './components/Link'
@@ -37,6 +39,8 @@ import { AudioSystem, setupSoundsFX } from './components/AudioSystem'
 
 import ExtrasMenu from './components/ExtrasMenu'
 import ChatBox from './components/ChatBox'
+
+import CustomCursor from './components/CustomCursor';
 
 export function useScript(src: string, codeText:string) {
   useEffect(() => {
@@ -66,7 +70,7 @@ export const HTMLComment = ({ text }) => {
 type ToggleExtras = () => void;
 
 function NavbarInner(props:{toggleExtras:ToggleExtras}) {
-  const session = useSession();
+  // const session = useSession();
 
   return (<>
     <u>General:</u>
@@ -77,7 +81,9 @@ function NavbarInner(props:{toggleExtras:ToggleExtras}) {
     <u>Other:</u>
     <a onClick={props.toggleExtras} id="extrasA">Music</a>
     <Link to="/page/music">Music Library</Link>
-    <br />
+
+    {/* TODO reenable this when its done */}
+    {/* <br />
     <u>User Stuff:</u>
     {session.user && <>
       <span>Hello "<span style={{userSelect: "text"}}>{session.user}</span>".</span>
@@ -89,7 +95,8 @@ function NavbarInner(props:{toggleExtras:ToggleExtras}) {
     {!session.user && <>
       <Link to="/page/login">Login</Link>
       <Link to="/page/signup">Signup</Link>
-    </>}
+    </>} */}
+
   </>)
 }
 
@@ -105,11 +112,28 @@ function NavbarStatic(props:{toggleExtras:ToggleExtras}){
 function NavbarMenu(props:{toggleExtras:ToggleExtras}){
 
   const [open, setOpen] = useState(false);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    // Skip running on initial page load
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    // Runs AFTER the dropdown (#sukuna-navbar) or closed bar has rendered
+    setupSoundsFX();
+  }, [open]);
+
+  const handleToggle = (nextState: boolean) => {
+    setOpen(nextState);
+    window.audioObj.playAudioBuffName("uisound_min11");
+  };
 
   return (<>
     {/* <!-- fixed sukuna dropdown navbar --> */}
     {open && <div className="sukuna-navbar" id="sukuna-navbar">
-      <a style={{fontSize: "40px", color:"rgb(255, 255, 255)", justifyContent: "center", display: "grid", userSelect: "none"}}onClick={()=>{setOpen(false);window.audioObj.playAudioBuffName("uisound_min11");}}>menu</a>
+      <a style={{fontSize: "40px", color:"rgb(255, 255, 255)", justifyContent: "center", display: "grid", userSelect: "none"}}onClick={()=>{handleToggle(false);}}>menu</a>
 
       <NavbarInner toggleExtras={props.toggleExtras}/>
     </div>}
@@ -117,12 +141,12 @@ function NavbarMenu(props:{toggleExtras:ToggleExtras}){
     {/* <!-- fixed close button navbar --> */}
     {!open && <div className="navbar" id="closed-navbar">
       <a style={{fontSize: "40px", backgroundColor: "unset", color:"rgb(255, 255, 255)", justifyContent: "right", display: "grid", userSelect: "none"}}
-      onClick={()=>{setOpen(true);window.audioObj.playAudioBuffName("uisound_min11");}}>menu</a>
+      onClick={()=>{handleToggle(true);}}>menu</a>
     </div>}
   </>);
 }
 
-// TODO implement this
+// TODO implement this?
 function onload(){
   if(window.hehe)window.hehe();
 }
@@ -157,6 +181,8 @@ export function App() {
   };
 
   return (
+    <>
+    <CustomCursor scale={3}/>
     <SessionContextProvider
       defaultValue={{}}>
 
@@ -184,12 +210,12 @@ export function App() {
 
             {path:"/music", page:MusicLibraryPage},
             
-            {path:"/signup", page:SignupPage},
-            {path:"/login", page:LoginPage},
-            {path:"/logout", page:LogoutPage},
-            
-            {path:"/forgotPassword", page:ForgotPasswordPage},
-            {path:"/forgotPasswordRedirect", page:ForgotPasswordRedirectPage},
+            //TODO renable when i finish with login user stuff
+            // {path:"/signup", page:SignupPage},
+            // {path:"/login", page:LoginPage},
+            // {path:"/logout", page:LogoutPage},
+            // {path:"/forgotPassword", page:ForgotPasswordPage},
+            // {path:"/forgotPasswordRedirect", page:ForgotPasswordRedirectPage},
             
             {path:"/cali_leaning", page:CalileaningPage},
             {path:"/dog", page:DogPage},
@@ -226,8 +252,14 @@ export function App() {
         </details>
       </div>
 
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+
 
       </AudioSystem>
     </SessionContextProvider>
+    </>
   )
 }

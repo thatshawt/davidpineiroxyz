@@ -16,6 +16,9 @@ installChatMicroservice:
 package: clean prod/davidpineiroxyz.com updateFromZip
 	cd frontend/davidp-frontend/dist; zip -r ${TOPDIR}/prod/davidpineiroxyz.com .
 
+buildFrontend:
+	cd frontend/davidp-frontend; pnpm run build
+
 updateFromZip:
 	cd zip; zip -r ${TOPDIR}/prod/davidpineiroxyz.com .
 

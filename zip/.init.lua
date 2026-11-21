@@ -933,7 +933,6 @@ do
 	common.globalMinutelyTick(db)
 end
 
-common.sendNtfy("davidpineiro.xyz","Ready!")
 
 -- start copyparty
 common.forkCopyParty(copyPartyPort)
@@ -941,4 +940,7 @@ common.forkCopyParty(copyPartyPort)
 --start chatMicroservice
 common.forkChatMicroservice("3000", "3001")
 
+
+
+common.sendNtfy("davidpineiro.xyz","Ready!")
 fm.run()

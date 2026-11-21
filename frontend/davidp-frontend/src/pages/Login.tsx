@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useRef } from "react";
 // import { useSession } from "../components/SessionContext";
 import Link from "../components/Link";
@@ -46,21 +47,19 @@ export default function LoginPage(){
             });
 
             if(response.status == 200 || response.status == 201){
-                setMessage("User verifid!");
+                setMessage("User verified!");
             }else{
-                setMessage(`${(await response.json()).messages.map(msg => msg).join('\n')}`);
+                setMessage(`${(await response.json()).messages.map(msg => msg).join(',\n')}`);
             }
 
             return false;
         }}>
             <label htmlFor="username">Username</label>
-            <input type="text" name="username" ref={usernameInputRef} 
-/>
+            <input type="text" name="username" ref={usernameInputRef} />
             <br/>
 
             <label htmlFor="password">Password</label>
-            <input type="password" name="password" ref={passwordInputRef} 
-/>
+            <input type="password" name="password" ref={passwordInputRef} />
             <br/>
 
             <button id="loginBtn" type="submit" disabled={disabled}>Log in</button>

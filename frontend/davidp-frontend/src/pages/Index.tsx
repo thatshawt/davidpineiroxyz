@@ -72,9 +72,14 @@ export default function IndexPage() {
       </fieldset>
       
       <fieldset className='white-box'>
-        <legend><h2>About Me</h2></legend>
+        <legend><h2>A Story</h2></legend>
         <p>
-          Computer Science graduate specializing in full-stack development, backend systems, and Linux infrastructure. I enjoy building scalable web applications and self-hosted solutions while continuously learning new technologies.
+          <code>{`Me: yo
+You: hi
+Me: Jake got sick from "updog" 😥
+You: what's updog?
+Me: nothing much hbu?`}</code>
+Thousands of people every day fall victim to updog.
         </p>
       </fieldset>
 
@@ -107,6 +112,7 @@ export default function IndexPage() {
       <fieldset className={styles.latestChanges + " white-box"}>
         <legend><h2>Latest Changes</h2></legend>
         <ul>
+          <li>11/20/2026: Changed cursor, added/removed some stuff, fixed some sound sfx stuff, made copyparty more resilient.</li>
           <li>6/14/2026: Fixed a bug with IPV6 and copyparty. Made initial load quicker. Fixed weird login/session caching bug.</li>
           <li>6/11/2026: Modified the chat so it uses <Link href="https://aws.amazon.com/dynamodb/">DynamoDB</Link> to store all the messages.</li>
           <li>6/5/2026: Added a realtime chat implemented as a microservice.</li>

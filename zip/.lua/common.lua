@@ -1175,99 +1175,139 @@ function common.check_caps()
 --     }
 -- end
 
+--thanks gemini AI
+function common.forkSupervisor(worker, args, maxRestarts, restartWaitSeconds)
+   -- 1. Fork #1: Create the supervisor so the main redbean process never blocks
+   local sup_pid = unix.fork()
+   if sup_pid ~= 0 then
+      return -- Main redbean process returns immediately
+   end
+
+   -- Reset signal handlers inherited from redbean master so systemd can stop us
+   unix.sigaction(unix.SIGTERM, unix.SIG_DFL)
+   unix.sigaction(unix.SIGINT, unix.SIG_DFL)
+
+   local retryCount = maxRestarts
+   while retryCount > 0 do
+      -- 2. Fork #2: Create the actual worker process
+      local worker_pid = unix.fork()
+      if worker_pid == 0 then
+         -- Optional: Ensure worker dies immediately if supervisor is killed with SIGKILL
+         -- unix.prctl(unix.PR_SET_PDEATHSIG, unix.SIGTERM)
+         worker(table.unpack(args))
+         unix.exit(0)
+      end
+
+      -- Supervisor blocks here (only blocking itself, not redbean) until worker exits
+      unix.wait(worker_pid)
+
+      print("supervisor: %d retries left, child died waiting %d seconds" % {retryCount, restartWaitSeconds})
+
+      -- Backoff sleep prevents rapid CPU spin if the worker crashes on startup
+      unix.nanosleep(restartWaitSeconds, 0)
+
+      retryCount = retryCount - 1
+   end
+   print("supervisor: hit max retries, stopping")
+end
+
+function common.execCopyparty(port_)
+    local port = port_ and port_ or "8082"
+
+    -- check if we have "admin" privileges for netlink
+    -- we need to make sure we DONT have those for safety >:)
+    if common.check_caps().unsafe then
+        print("unsafe! not starting copy party! we have NET_ADMIN or NET_RAW caps!")
+        exit(127)
+    end
+
+    -- set limits on memory and cpu just in case
+    assert(unix.setrlimit(unix.RLIMIT_RSS, 700*1024*1024)) -- 700 megabytes
+    assert(unix.setrlimit(unix.RLIMIT_CPU, 10, 30)) -- soft 10 cpu seconds, hard 30 cpu seconds
+
+    -- restrict file system
+    assert(unix.unveil("./copyparty", "rwc"))
+    assert(unix.unveil("/tmp", "rwc"))
+    assert(unix.unveil("/etc", "r"))    
+    assert(unix.unveil("/proc/self/mounts", "rc"))
+    assert(unix.unveil("/run/current-system/sw/bin", "rx"))
+    assert(unix.unveil("/nix/store", "rx"))
+    assert(unix.unveil(nil, nil))
+
+    -- syscall filtering
+    promises =  "netlink unix inet anet tty stdio exec prot_exec proc rpath cpath wpath fattr flock"
+    -- BUG: adding dns crashed the pledge call
+    execpromises = promises
+
+    -- TODO:
+    -- [25218971.186136]audit: 
+    -- type=1326 
+    -- audit(1776209985.282:154): auid=4294967295 
+    -- uid=1000 
+    -- gid=994 
+    -- ses=4294967295 
+    -- subj=kernel 
+    -- pid=2492144 
+    -- comm="python3" 
+    -- exe="/nix/store/dksjvr69ckglyw1k2ss1qgshhcix73p8-python3-3.12.8/bin/python3.12" 
+    -- sig=31 
+    -- arch=c000003e 
+    -- syscall=16 
+    -- compat=0 
+    -- ip=0x7ff624d1368f 
+    -- code=0x0
+
+    print("before pledge")
+    assert(unix.pledge(promises, execpromises,
+        PLEDGE_PENALTY_RETURN_EPERM
+        -- PLEDGE_PENALTY_KILL_THREAD
+    ))
+
+    -- unix.prctl_NO_NEW_PRIVS() -- this might be redundant cus pledge does this i think
+    -- id = "/run/current-system/sw/bin/id"
+    -- bash = "/run/current-system/sw/bin/bash"
+    -- sh = "/bin/sh"
+    -- coretuils = "coreutils"
+    -- echo = "/run/current-system/sw/bin/echo"
+
+    -- unix.execve(strace, {strace, bash, "-c", "echo hello"})
+
+    print("starting copyparty")
+    unix.execve(python3, {python3, "./copyparty/copyparty.pyz",
+        "--rp-loc=/copyparty",
+        "--xff-src=lan",
+        "--rproxy", "1",
+        "--no-fnugg",
+        "--grid",
+        "-v", "./copyparty/stuff::r",
+        "-p", port,
+        "--ses-db", "./copyparty/sessions.db",
+        "--xf-proto-fb=http",
+    })
+    -- unix.execve(strace, {strace, "-f", "-e", "trace=ioctl",
+    --     python3, "./copyparty/copyparty.pyz",
+    --     "--rp-loc=/copyparty",
+    --     "--xff-src=lan",
+    --     "--rproxy", "1",
+    --     "--no-fnugg",
+    --     "--grid",
+    --     "-v", "./copyparty/stuff::r",
+    --     "-p", port,
+    --     "--ses-db", "./copyparty/sessions.db",
+    --     "--xf-proto-fb=http",
+    -- })
+end
+
 function common.forkCopyParty(port_)
-    if unix.fork() == 0 then
-        local port = port_ and port_ or "8082"
-
-        -- check if we have "admin" privileges for netlink
-        -- we need to make sure we DONT have those for safety >:)
-        if common.check_caps().unsafe then
-            print("unsafe! not starting copy party! we have NET_ADMIN or NET_RAW caps!")
-            exit(127)
-        end
-
-        -- set limits on memory and cpu just in case
-        assert(unix.setrlimit(unix.RLIMIT_RSS, 700*1024*1024)) -- 700 megabytes
-        assert(unix.setrlimit(unix.RLIMIT_CPU, 10, 30)) -- soft 10 cpu seconds, hard 30 cpu seconds
-
-        -- restrict file system
-        assert(unix.unveil("./copyparty", "rwc"))
-        assert(unix.unveil("/tmp", "rwc"))
-        assert(unix.unveil("/etc", "r"))    
-        assert(unix.unveil("/proc/self/mounts", "rc"))
-        assert(unix.unveil("/run/current-system/sw/bin", "rx"))
-        assert(unix.unveil("/nix/store", "rx"))
-        assert(unix.unveil(nil, nil))
-
-        -- syscall filtering
-        promises =  "netlink unix inet anet tty stdio exec prot_exec proc rpath cpath wpath fattr flock"
-        -- BUG: adding dns crashed the pledge call
-        execpromises = promises
-
-        -- TODO:
-        -- [25218971.186136]audit: 
-        -- type=1326 
-        -- audit(1776209985.282:154): auid=4294967295 
-        -- uid=1000 
-        -- gid=994 
-        -- ses=4294967295 
-        -- subj=kernel 
-        -- pid=2492144 
-        -- comm="python3" 
-        -- exe="/nix/store/dksjvr69ckglyw1k2ss1qgshhcix73p8-python3-3.12.8/bin/python3.12" 
-        -- sig=31 
-        -- arch=c000003e 
-        -- syscall=16 
-        -- compat=0 
-        -- ip=0x7ff624d1368f 
-        -- code=0x0
-
-        print("before pledge")
-		assert(unix.pledge(promises, execpromises,
-            PLEDGE_PENALTY_RETURN_EPERM
-            -- PLEDGE_PENALTY_KILL_THREAD
-        ))
-
-        -- unix.prctl_NO_NEW_PRIVS() -- this might be redundant cus pledge does this i think
-		-- id = "/run/current-system/sw/bin/id"
-		-- bash = "/run/current-system/sw/bin/bash"
-		-- sh = "/bin/sh"
-		-- coretuils = "coreutils"
-		-- echo = "/run/current-system/sw/bin/echo"
-
-        -- unix.execve(strace, {strace, bash, "-c", "echo hello"})
-
-        print("starting copyparty")
-		unix.execve(python3, {python3, "./copyparty/copyparty.pyz",
-            "--rp-loc=/copyparty",
-            "--xff-src=lan",
-            "--rproxy", "1",
-            "--no-fnugg",
-            "--grid",
-            "-v", "./copyparty/stuff::r",
-            "-p", port,
-            "--ses-db", "./copyparty/sessions.db",
-            "--xf-proto-fb=http",
-        })
-        -- unix.execve(strace, {strace, "-f", "-e", "trace=ioctl",
-        --     python3, "./copyparty/copyparty.pyz",
-        --     "--rp-loc=/copyparty",
-        --     "--xff-src=lan",
-        --     "--rproxy", "1",
-        --     "--no-fnugg",
-        --     "--grid",
-        --     "-v", "./copyparty/stuff::r",
-        --     "-p", port,
-        --     "--ses-db", "./copyparty/sessions.db",
-        --     "--xf-proto-fb=http",
-        -- })
-	end
+    -- we do supervisor because copyparty dies sometimes and im too lazy to figure out why
+    common.forkSupervisor(common.execCopyparty, {port_}, 60, 10)
 end
 
 nodejs = assert(unix.commandv('node'))
 function common.forkChatMicroservice(httpPort, wsPort)
     local chatServicePid = unix.fork()
     if chatServicePid == 0 then
+        -- TODO harden similar to copy party
         unix.execve(bash, {bash, "-c", "cd chatMicroservice; node --env-file=.env index.js --httport %s --wsport %s" % {httpPort, wsPort}})
     else
         local db <close> = common.getSqlConnection()

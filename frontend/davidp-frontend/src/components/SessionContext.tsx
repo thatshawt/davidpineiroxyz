@@ -12,17 +12,6 @@ export type Session = {
 
     user?:string;
     isAdmin?:boolean;
-    signup?:{
-        stage2?:{
-            email:string;
-            username:string;
-        };
-        stage3?:{
-            email:string;
-            username:string;
-            code:string;
-        };
-    };
     forgotpass?:{
         stage2?:{
             email:string;

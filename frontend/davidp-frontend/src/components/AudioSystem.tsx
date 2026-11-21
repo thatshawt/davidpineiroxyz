@@ -393,36 +393,68 @@ export function injectSoundFuncCallIntoElementAttr(element, attr, soundName)
   }
 }
 
+const soundAttributeDummy = 'data-sfx';
+function markElementHasSfx(elem:HTMLElement){
+  elem.setAttribute(soundAttributeDummy, '');
+}
+
+function doesElementHaveSfx(elem:HTMLElement){
+  return elem.hasAttribute(soundAttributeDummy);
+}
+
 export function setupSoundsFX(){
   document.querySelectorAll("a").forEach(element => {
     // console.log(element);
-    injectSoundFuncCallIntoElementAttr(element, "onmouseover", "uisound_min3");
+    
+    if(!doesElementHaveSfx(element)){
+      injectSoundFuncCallIntoElementAttr(element, "onmouseover", "uisound_min3");
+      markElementHasSfx(element);
+    }
   });
 
   document.querySelectorAll("a[href]").forEach(element => {
     // console.log(element);
-    injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min12");
+    if(!doesElementHaveSfx(element)){
+      injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min12");
+      markElementHasSfx(element);
+    }
   });
 
   document.querySelectorAll("button").forEach(element => {
     // console.log(element);
-    injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min9");
+    
+    if(!doesElementHaveSfx(element)){
+      injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min9");
+      markElementHasSfx(element);
+    }
   });
 }
 
 export function setupSoundsFXDynamic(){
   document.querySelectorAll("div.section a").forEach(element => {
     // console.log(element);
-    injectSoundFuncCallIntoElementAttr(element, "onmouseover", "uisound_min3");
+    
+    if(!doesElementHaveSfx(element)){
+      injectSoundFuncCallIntoElementAttr(element, "onmouseover", "uisound_min3");
+      markElementHasSfx(element);
+    }
   });
 
   document.querySelectorAll("div.section a[href]").forEach(element => {
     // console.log(element);
-    injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min12");
+    
+    if(!doesElementHaveSfx(element)){
+      injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min12");
+      markElementHasSfx(element);
+    }
   });
 
   document.querySelectorAll("div.section button").forEach(element => {
     // console.log(element);
-    injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min9");
+    
+    if(!doesElementHaveSfx(element)){
+      injectSoundFuncCallIntoElementAttr(element, "onclick", "uisound_min9");
+      markElementHasSfx(element);
+    }
   });
 }

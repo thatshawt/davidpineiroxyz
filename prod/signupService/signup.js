@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { prisma } from "./lib/prisma.js";
-import { z as zod } from "zod";
+import { z } from "zod";
 // import { emailSender } from "../emailSender.js";
 import UserClient from '../userMicroservice/userClient.js';
 import { hashPassword } from '../commons/auth.js';
@@ -9,31 +9,33 @@ import { hashPassword } from '../commons/auth.js';
 import crypto from 'node:crypto';
 
 import {
-    UsernameSchema, EmailSchema, PasswordSchema,
     serveZodValidationError, ErrorResponseObject,
     SIGNUP_SERVICE_HTTP_PORT, USER_SERVICE_HTTP_PORT,
     SuccessResponseObject,
     validateTurnstileKey
 } from '../commons/common.js';
 
-import { CreateUserSchema } from "../userMicroservice/validation.js";
+import { UsernameSchema, EmailSchema, PasswordSchema }
+from "../commons/zod_primitives.js";
+
+import { CreateUserSchema } from "../commons/user_validation.js";
 
 // Zod Validation Schemas
-const SignupInputSchema = zod.object({
+const SignupInputSchema = z.object({
     username: UsernameSchema,
     email: EmailSchema,
     password1: PasswordSchema,
     password2: PasswordSchema,
-    redirect: zod.string()
+    redirect: z.string()
 }).refine((data) =>
     data.password1 === data.password2,
     { message: "Passwords don't match"}
 );
 
-const TokenUrlSchema = zod.object({
+const TokenUrlSchema = z.object({
     email: EmailSchema,
-    token: zod.string(),
-    redirect: zod.string()
+    token: z.string(),
+    redirect: z.string()
 });
 
 // Express App Setup
@@ -73,6 +75,7 @@ app.post('/api/signup/createAccount', async (req, res) => {
 
         const token = crypto.randomUUID();
 
+        //TODO change link to 
         // Send verification email with the link
         const verifyLink = `http://localhost:3003/api/signup/verifyEmail?token=${token}&email=${validationResult.email}&redirect=${validationResult.redirect}`;
         await emailSender(validationResult.email,
@@ -98,7 +101,7 @@ DavidPineiro.xyz.`);
 
         res.status(201).json(SuccessResponseObject("Signup request received. Verify your email to complete signup."));
     } catch (error) {
-        if (error instanceof zod.ZodError) {
+        if (error instanceof z.ZodError) {
             return serveZodValidationError(res, error);
         }
         console.error("Signup service error:", error);
@@ -154,8 +157,6 @@ app.get('/api/signup/verifyEmail', async (req, res) => {
             return res.status(409).json(ErrorResponseObject(["Email already exists!"]));
         }
 
-        await deleteToken(tokenRecord.token);
-
         // Submit verified account to user microservice
         const submitData = {
             username: tokenRecord.username,
@@ -168,6 +169,7 @@ app.get('/api/signup/verifyEmail', async (req, res) => {
         try {
             console.log(validatedUserCreate);
             await userClient.createUser(validatedUserCreate);
+            await deleteToken(tokenRecord.token);
         } catch (userServiceError) {
             console.error("Failed to submit to user service:", userServiceError);
             // Report this as a 500 error as this should never happen hopefully
@@ -177,7 +179,7 @@ app.get('/api/signup/verifyEmail', async (req, res) => {
         // res.status(200).json({ message: "Email verification successful! Account has been submitted." });
         res.redirect(`${validatedEmailTokenData.redirect}`);
     } catch (error) {
-        if (error instanceof zod.ZodError) {
+        if (error instanceof z.ZodError) {
             return serveZodValidationError(res, error);
         }
         console.error("Verification service error:", error);
@@ -201,3 +203,26 @@ const PORT = SIGNUP_SERVICE_HTTP_PORT;
 app.listen(PORT, () => {
     console.log(`Signup service running on port ${PORT}`);
 });
+
+// Function to handle a graceful shutdown
+async function gracefulShutdown(signal) {
+  console.log(`Received ${signal}. Shutting down gracefully...`);
+  
+  // 1. Stop Express from accepting new web requests
+  app.close(async () => {
+    console.log('Express server closed.');
+    
+    // 2. Disconnect Prisma cleanly (finishes current queries first)
+    await prisma.$disconnect();
+    console.log('Prisma disconnected.');
+    
+    // 3. Exit the process safely
+    process.exit(0);
+  });
+}
+
+// Listen for Ctrl+C locally
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Listen for production container shutdown signals
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

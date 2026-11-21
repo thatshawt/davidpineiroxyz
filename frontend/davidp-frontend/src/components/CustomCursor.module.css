@@ -1,0 +1,87 @@
+/* Hide the system cursor across the entire app */
+
+:global(*),
+:global(*::before),
+:global(*::after),
+:global(textarea::-webkit-resizer)
+{
+  cursor: none !important;
+}
+
+ 
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 99999;
+  will-change: transform;
+
+  contain:strict;
+ 
+  /* Keeps the top-left click tip locked accurately when scaled */
+  transform-origin: 0 0;
+ 
+  /* Default arrow pointer */
+  background-image: url('/static/cursors/set43_oxy-cherry/oxy-cherry/left_ptr.png');
+}
+ 
+/* Hovering links & buttons */
+.pointer {
+  background-image: url('/static/cursors/set43_oxy-cherry/oxy-cherry/pointing_hand.png');
+  /* Adjust offset slightly so the fingertip aligns with the click point */
+  /* margin-left: -3px; */
+}
+ 
+/* Text inputs & selectable text */
+.text {
+  background-image: url('/static/cursors/set43_oxy-cherry/oxy-cherry/Text.png');
+  /* margin-left: -8px; */
+  /* margin-top: -8px; */
+}
+ 
+/* Disabled / forbidden elements */
+.forbidden {
+  background-image: url('/static/cursors/set43_oxy-cherry/oxy-cherry/forbidden.png');
+  /* margin-left: -16px; */
+  /* margin-top: -16px; */
+}
+ 
+/* Help / [title] elements */
+.help {
+  background-image: url('/static/cursors/set43_oxy-cherry/oxy-cherry/help.png');
+}
+ 
+/* Crosshair / Pencil */
+.cross {
+  background-image: url('/static/cursors/set43_oxy-cherry/oxy-cherry/cross.png');
+  /* margin-left: -16px; */
+  /* margin-top: -16px; */
+}
+ 
+.pencil {
+  background-image: url('/static/cursors/set43_oxy-cherry/oxy-cherry/pencil.png');
+  /* margin-top: -28px; */
+}
+ 
+/* Draggable / Move */
+.move {
+  background-image: url('/static/cursors/set43_oxy-cherry/oxy-cherry/size_all.png');
+  /* margin-left: -16px; */
+  /* margin-top: -16px; */
+}
+ 
+/* Disable custom cursor on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  :global(*) {
+    cursor: auto !important;
+  }
+ 
+  .cursor {
+    display: none;
+  }
+}

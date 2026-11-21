@@ -11,6 +11,82 @@
   /* font-size: 30px; */
 }
 
+/*
+cursor code
+1. Default Pointer
+html, body {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/left_ptr.cur'), auto;
+}
+
+2. Links & Clickable Buttons
+a, button, [role="button"], select, label, summary,
+input[type="submit"], input[type="button"], input[type="reset"],
+input[type="checkbox"], input[type="radio"] {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/pointing_hand.cur'), pointer;
+}
+
+3. Text Selection
+p, span, h1, h2, h3, h4, h5, h6, li, blockquote, pre, code,
+input[type="text"], input[type="email"], input[type="password"],
+input[type="search"], input[type="url"], input[type="number"], textarea {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/Text.cur'), text;
+}
+*/
+
+/* 4. Disabled / Forbidden Elements */
+:disabled, [disabled], [aria-disabled="true"], .forbidden {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/forbidden.cur'), not-allowed;
+}
+
+/* 5. Utility & Helper Classes (Add these classes to HTML elements as needed) */
+.cursor-help, [title] {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/help.cur'), help;
+}
+
+.cursor-crosshair {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/cross.cur'), crosshair;
+}
+
+.cursor-pencil {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/pencil.cur'), crosshair;
+}
+
+.cursor-up {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/up_arrow.cur'), default;
+}
+
+/* 6. Move & Resize Cursors */
+.cursor-move, [draggable="true"] {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/size_all.cur'), move;
+}
+
+.cursor-resize-ns {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/size_ver.cur'), ns-resize;
+}
+
+.cursor-resize-ew {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/size_hor.cur'), ew-resize;
+}
+
+.cursor-resize-nesw {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/size_bdiag.cur'), nesw-resize;
+}
+
+.cursor-resize-nwse {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/size_fdiag.cur'), nwse-resize;
+}
+
+/* 7. Busy / Loading (Convert .ani to .cur first, then uncomment) */
+/*
+.cursor-progress {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/left_ptr_watch.cur'), progress;
+}
+
+.cursor-wait {
+  cursor: url('/static/cursors/set43_oxy-cherry/oxy-cherry/watch.cur'), wait;
+}
+*/
+
 table {
   border: 2px solid #b3b3b3;
   background-color: #00000026;
@@ -310,7 +386,7 @@ div.navbar p {
   top: 0;
   right: max(0px, calc((100vw - 1224px) / 2));
   max-height: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
 
   border: 2px solid #ff5401db;
   border-radius: 6px;
@@ -325,7 +401,7 @@ div.navbar p {
   /* animation: scrollbg 10s infinite linear; */
 
   margin-top: 2px;
-  margin-right: 2px;
+  margin-right: 1px;
   padding: 10px;
 
   display: grid;
