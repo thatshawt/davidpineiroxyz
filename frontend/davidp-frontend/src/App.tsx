@@ -40,7 +40,8 @@ import { AudioSystem, setupSoundsFX } from './components/AudioSystem'
 import ExtrasMenu from './components/ExtrasMenu'
 import ChatBox from './components/ChatBox'
 
-import CustomCursor from './components/CustomCursor';
+// import CustomCursor from './components/CustomCursor';
+import CustomCursor2 from './components/CustomCursorCanvas';
 
 export function useScript(src: string, codeText:string) {
   useEffect(() => {
@@ -182,7 +183,10 @@ export function App() {
 
   return (
     <>
-    <CustomCursor scale={3}/>
+    {/* <CustomCursor scale={3}/> */}
+    <CustomCursor2
+    // scale={3}
+    />
     <SessionContextProvider
       defaultValue={{}}>
 

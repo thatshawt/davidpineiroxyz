@@ -72,7 +72,7 @@ export default function IndexPage() {
       </fieldset>
       
       <fieldset className='white-box'>
-        <legend><h2>A Story</h2></legend>
+        <legend><h2>A Cautionary Tale</h2></legend>
         <p>
           <code>{`Me: yo
 You: hi

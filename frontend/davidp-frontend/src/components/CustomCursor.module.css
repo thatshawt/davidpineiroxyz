@@ -1,12 +1,12 @@
 /* Hide the system cursor across the entire app */
 
-:global(*),
+/* :global(*),
 :global(*::before),
 :global(*::after),
 :global(textarea::-webkit-resizer)
 {
   cursor: none !important;
-}
+} */
 
  
 .cursor {
